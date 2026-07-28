@@ -273,18 +273,9 @@
 
 
 //ALWAYS_ON_DEBUG REGISTRES
-  //TRIM Values between  from Analog
+  //TRIM Values from Analog - multiplexed through DEBUG_MODE_TYPE selector
 
-`define ALWAYS_ON_ANA_TRIM1           8'hC0   //bgh_vtrim
-`define ALWAYS_ON_ANA_TRIM2           8'hC1   //bgh_ctrim
-`define ALWAYS_ON_ANA_TRIM3           8'hC2   //ldol15
-`define ALWAYS_ON_ANA_TRIM4           8'hC3   
-`define ALWAYS_ON_ANA_TRIM5           8'hC4   
-`define ALWAYS_ON_ANA_TRIM6           8'hC5   
-`define ALWAYS_ON_ANA_TRIM7           8'hC6   
-`define ALWAYS_ON_ANA_TRIM8           8'hC7   
-`define ALWAYS_ON_ANA_TRIM9           8'hC8   
-`define ALWAYS_ON_ANA_TRIM10          8'hC9   
+`define ALWAYS_ON_ANA_TRIM_DEBUG      8'hC0   //read-back: trim selected by ao_trim_sel (written via DEBUG_MODE_TYPE)
 
 //device status 
 `define DEVICE_INT_STATUS_0            8'hd0
@@ -553,6 +544,8 @@ reg         zmeas_en;
 reg         zmeas_phase_dither_en;
 reg         meas_sync_en;
 
+reg [3:0]   ao_trim_sel;    // selects which AO trim to read back via ALWAYS_ON_ANA_TRIM_DEBUG; written via DEBUG_MODE_TYPE (1–10)
+
  reg [1:0]   data_type_sel_reg;    //00 is sinwave, 01: DC, 10: square wave, 11: sinwave
  reg [7:0]   dc_data_reg_0;    
  reg [1:0]   dc_data_reg_1;    
@@ -800,6 +793,8 @@ always@(posedge i_clk or negedge i_rst_n) begin
     dc_data_reg_0 <= 8'h0;    
     dc_data_reg_1 <= 2'h1;    
 
+    ao_trim_sel <= 4'd1;    //default to trim 1
+
  phase_inc_0 <= 8'h66;    
  phase_inc_1 <= 8'h66;    
  phase_inc_2 <= 8'h66;    
@@ -986,6 +981,9 @@ always@(posedge i_clk or negedge i_rst_n) begin
         `ANA_SDM_REG            :  ana_sdm_reg               <= i_wr ? i_wr_data[2:0] : ana_sdm_reg;
         `ANA_Z_ADC_DAC_EN             :  ana_z_adc_dac_en           <= i_wr ? i_wr_data[0] : ana_z_adc_dac_en;
 	 `ANA_Z_ADC_DAC_EN_SEL         :  ana_z_adc_dac_en_sel       <= i_wr ? i_wr_data[0] : ana_z_adc_dac_en_sel;
+
+        //ao trim selector: write DEBUG_MODE_TYPE with 1–10 to choose which AO trim to read via ALWAYS_ON_ANA_TRIM_DEBUG
+        `DEBUG_MODE_TYPE              :  ao_trim_sel                <= i_wr ? i_wr_data[3:0] : ao_trim_sel;
 	
  
    
@@ -1702,18 +1700,21 @@ always @ (posedge i_clk or negedge i_rst_n) begin
 
              
  
-         //from always_on for debug         
-         
-             `ALWAYS_ON_ANA_TRIM1                :   reg_rd_data     <={trim1_always_on}; //{3'b0,bgh_vtrim_always_on};
-             `ALWAYS_ON_ANA_TRIM2                :   reg_rd_data     <={trim2_always_on}; //{1'b0,bgh_ctrim_always_on};
-             `ALWAYS_ON_ANA_TRIM3                :   reg_rd_data     <={trim3_always_on}; //{6'b0,ldo1v5_trim_always_on};
-             `ALWAYS_ON_ANA_TRIM4                :   reg_rd_data     <={trim4_always_on}; //{2'b0,osc_trim_always_on};
-             `ALWAYS_ON_ANA_TRIM5                :   reg_rd_data     <={trim5_always_on}; 
-             `ALWAYS_ON_ANA_TRIM6                :   reg_rd_data     <={trim6_always_on}; 
-             `ALWAYS_ON_ANA_TRIM7                :   reg_rd_data     <={trim7_always_on}; 
-             `ALWAYS_ON_ANA_TRIM8                :   reg_rd_data     <={trim8_always_on}; 
-             `ALWAYS_ON_ANA_TRIM9                :   reg_rd_data     <={trim9_always_on}; 
-             `ALWAYS_ON_ANA_TRIM10               :   reg_rd_data     <={trim10_always_on};
+         //from always_on for debug: single address, ao_trim_sel (written via DEBUG_MODE_TYPE) selects which trim to read
+             `ALWAYS_ON_ANA_TRIM_DEBUG           :
+                 case(ao_trim_sel)
+                     4'd1:  reg_rd_data <= trim1_always_on;  //bgh_vtrim
+                     4'd2:  reg_rd_data <= trim2_always_on;  //bgh_ctrim
+                     4'd3:  reg_rd_data <= trim3_always_on;  //ldol15
+                     4'd4:  reg_rd_data <= trim4_always_on;
+                     4'd5:  reg_rd_data <= trim5_always_on;
+                     4'd6:  reg_rd_data <= trim6_always_on;
+                     4'd7:  reg_rd_data <= trim7_always_on;
+                     4'd8:  reg_rd_data <= trim8_always_on;
+                     4'd9:  reg_rd_data <= trim9_always_on;
+                     4'd10: reg_rd_data <= trim10_always_on;
+                     default: reg_rd_data <= 8'h0;
+                 endcase
 
       //A2D_SPARE
             `A2D_SPARE_REG0                       : reg_rd_data  <= i_A2D_SPARE_0;
