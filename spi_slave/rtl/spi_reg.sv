@@ -983,7 +983,7 @@ always@(posedge i_clk or negedge i_rst_n) begin
 	 `ANA_Z_ADC_DAC_EN_SEL         :  ana_z_adc_dac_en_sel       <= i_wr ? i_wr_data[0] : ana_z_adc_dac_en_sel;
 
         //ao trim selector: write DEBUG_MODE_TYPE with 1–10 to choose which AO trim to read via ALWAYS_ON_ANA_TRIM_DEBUG
-        `DEBUG_MODE_TYPE              :  ao_trim_sel                <= i_wr ? i_wr_data[3:0] : ao_trim_sel;
+        `DEBUG_MODE_TYPE              :  ao_trim_sel                <= (i_wr && (i_wr_data[3:0] >= 4'd1) && (i_wr_data[3:0] <= 4'd10)) ? i_wr_data[3:0] : ao_trim_sel;
 	
  
    

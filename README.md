@@ -512,7 +512,7 @@ B4h	A2D_LOFF_STATP
 B5h	A2D_ACLEADOFF_STATN		
 B6h	A2D_ACLEADOFF_STATP		
 ANALOG DEBUG REGISTERS
-C0h	ALWAYS_ON_ANA_TRIM_DEBUG	Read-only; returns the AO trim selected by ao_trim_sel (write 1–10 to DEBUG_MODE_TYPE to select trim1–trim10)
+C0h	ALWAYS_ON_ANA_TRIM_DEBUG	Read-only; returns the AO trim value selected by ao_trim_sel. To select: write the trim index (1–10) to DEBUG_MODE_TYPE (0xF0). Write 1 → trim1 (bgh_vtrim), 2 → trim2 (bgh_ctrim), ... 10 → trim10. Out-of-range values (0, 11–15) are ignored and the previous selection is retained.
 
 3. Always on power domain
 3.1. Overview
