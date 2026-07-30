@@ -102,11 +102,11 @@ if {$generate_sdf == "sdf"} {
 # -----------------------------------------------------------------------------
 # Read in the libraries to determine cell functionality
 # -----------------------------------------------------------------------------
-set_app_var search_path [concat . $stdcell_search_path $flash_search_path $io_search_path $ana_search_path $search_path]
+set_app_var search_path [concat . $stdcell_search_path $flash_mod_search_path $io_search_path $ana_search_path $search_path]
 
 read_db $stdcell_sdb
 read_db $stdcell_library(db,$slow_corner_pvt)
-read_db $flash_max_library
+read_db $flash_mod_max_library
 read_db $io_max_library
 read_db $ana_max_library
 
@@ -214,8 +214,8 @@ set_implementation_design  i:/WORK/${rm_project_top}
 # -----------------------------------------------------------------------------------
 # Configure constant ports (disable scan shift, including test wrapper if applicable)
 # -----------------------------------------------------------------------------------
-set_dont_verify_point r:/WORK/Nanochap_BAF4P1/u_top_ana/*
-set_dont_verify_point i:/WORK/Nanochap_BAF4P1/u_top_ana/*
+s#et_dont_verify_point r:/WORK/Nanochap_BAF4P1/u_top_ana/*
+#set_dont_verify_point i:/WORK/Nanochap_BAF4P1/u_top_ana/*
 
 
 if {$stage == "prescan"} {

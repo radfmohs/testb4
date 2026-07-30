@@ -29,6 +29,8 @@ interface dut_interface();
 
   `endif
 
+  logic [39:0] reg_normal[`NORMAL_REG_NUM];
+
 //---------------------------------------
 // GPIO
 //---------------------------------------
@@ -107,9 +109,47 @@ interface dut_interface();
   bit          wake_up_en; 
 
   bit [7:0]    mclk_sel;
+
+  //BIOZ
   bit [1:0]    zmeas_freq_sel;        // zmeas adc freq sel  (2'b00: 1Khz, 2'b01: 2Khz, 2'b10: 4Khz, 2'b11: No readmem)
   bit [2:0]    zmeas_freq_val;        // zmeas dds freq sel  (For mclk 256Khz; 3'b001: 500hz, 3'b010: 1Khz, 3'b011: 2Khz, 3'b100: 4Khz, 3'b000: No freq)
   bit [1:0]    zmeas_dds_wave_sel;    // zmeas dds wave type (2'b00: sine, 2'b01: dc, 2'b10: square, 2'b11: sine)
+
+  logic             mon_bioz_en;
+  logic   [31:0]    mon_phase_inc;
+  logic   [31:0]    mon_phase_offset;
+  logic   [31:0]    mon_phase_offset_c;
+  logic   [31:0]    mon_dc_data;
+  logic   [31:0]    mon_dc_data_c;
+
+  logic   [31:0]    mon_data_type_sel;
+
+  logic   [9:0]     mon_sin_unsigned;
+  logic   [9:0]     mon_cos_unsigned;
+  logic             mon_i_square;
+  logic             mon_q_square;
+  logic   [32:0]    mon_phase_acc;
+/*
+  logic             bioz_rst_reg;
+  logic             bioz_en = 1'b1;
+  logic             bioz_rst_reg;
+  logic   [31:0]    phase_inc = 32'h0666_6666;
+  logic   [31:0]    phase_offset = 32'h0;
+  logic   [31:0]    phase_offset_c = 32'h0;
+  logic   [32:0]    f_out  = 0;
+  
+  logic   [1:0]     iq_input_format;
+  logic   [5:0]     rst_val;
+
+  logic   [3:0]     iq_cic_rate;
+  logic             iq_chmod;
+  logic             iq_format_sel;
+  logic             iq_sd16rst;
+  logic             iq_int_en;
+
+  logic   [3:0]     iq_iclk_div;
+  logic             iq_adc_clk_inv;
+*/
   bit [9:0]    dc_data_val;
   bit [9:0]    sq_data_lval;
   bit [9:0]    sq_data_hval;
@@ -123,6 +163,12 @@ interface dut_interface();
 
   bit [7:0]    A2D_SPARE_TRIM_SW0;
   bit [1:0]    en_ac_dc_lead_off;        // 0:disable, 1:DC enable, 2:AC enable, 3:AC and DC both enable
+  bit          leadoff_high_low_active;  // 0:high active, 1:low active
+  bit  [1:0]   switch_duration_sel;      // 0:switch & duration, 1:switch only, 2:duration only, 3:switch & duration
+  bit [15:0] leadoff_duration_tgt;
+  bit [7:0]  leadoff_switch_tgt;
+
+
 
   logic [15:0] ch0_cic_arr[128];
   logic [15:0] ch1_cic_arr[128];

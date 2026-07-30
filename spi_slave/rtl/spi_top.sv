@@ -34,18 +34,24 @@ parameter NO_TRIM_REGS = 21
         output wire   config_zmeas_ctrl_reg,
 	output wire   zmeas_en,
         output wire   zmeas_phase_dither_en,
-	output wire [1:0]   data_type_sel,    //00 is sinwave, 01: DC, 10: square wave, 11: sinwave
+	output wire [1:0]   data_type_sel,    //00 is sinwave, 01: DC, others: sinwave
 	output wire [9:0]   dc_data,    
+	output wire [9:0]   dc_data_c,    
 
 output  wire [31:0]   phase_inc,
 output  wire [31:0]   phase_offset,
+output  wire [31:0]   phase_offset_c,
 output  wire Bioz_en,
+output  wire Bioz_reset_reg,
+output  wire [15:0] iq_reg_ctrl,
+output  wire [3:0]  iq_iclk_div, 
+output  wire        iq_adc_clk_inv,
 
 /*
 	output wire [9:0]   square_data_l,    
 	output wire [9:0]   square_data_h,    
 */
-	output wire [15:0]  square_clk_div,
+	//output wire [15:0]  square_clk_div,
 
 	output wire        zmeas_int_clr,
 	output wire        zmeas_adc_int_clr,
@@ -244,6 +250,7 @@ output  wire Bioz_en,
 
 wire [ADDR_WIDTH-1:0] addr;
 wire                   wr;
+wire                   rd;
 wire [DATA_WIDTH-1:0] wr_data;
 wire [DATA_WIDTH-1:0] rd_data;
 wire  addr_vld_for_int_clr;
@@ -288,6 +295,7 @@ spi_slave_controller#(
   .o_addr        (addr),
   .o_addr_vld_for_int_clr(addr_vld_for_int_clr),
   .o_wr          (wr),
+  .o_rd          (rd),
   .o_wr_data     (wr_data),
  
   .i_fifo_rd_data  (rd_fifo_data_sync),//i_fifo_rd_data),
@@ -313,6 +321,7 @@ spi_reg_u (
 	.atpg_en(SCANMODE),
 	.i_addr(addr),
 	.i_wr(wr),
+	.i_rd(rd),
 	.i_wr_data(wr_data),
 	.o_rd_data(rd_data),
         .i_addr_vld_for_int_clr(addr_vld_for_int_clr),
@@ -322,7 +331,12 @@ spi_reg_u (
 
 .phase_inc    (phase_inc),
 .phase_offset (phase_offset),
+.phase_offset_c (phase_offset_c),
 .Bioz_en    (Bioz_en),
+.Bioz_reset_reg    (Bioz_reset_reg),
+.iq_reg_ctrl (iq_reg_ctrl),
+.iq_iclk_div (iq_iclk_div), 
+.iq_adc_clk_inv (iq_adc_clk_inv),
 	
 	.o_meas_sync_en(meas_sync_en),
         .o_config_zmeas_ctrl_reg(config_zmeas_ctrl_reg),
@@ -331,11 +345,12 @@ spi_reg_u (
 
 	.data_type_sel(data_type_sel),    //00 is sinwave, 01: DC, 10: square wave, 11: sinwave
 	.dc_data(dc_data),    
+	.dc_data_c(dc_data_c),    
 /*
 	.square_data_l(square_data_l),    
 	.square_data_h(square_data_h),    
 */
-	.square_clk_div(square_clk_div),
+	//.square_clk_div(square_clk_div),
 
 //z-meas
 	.o_zmeas_int_clr(zmeas_int_clr),//output wire

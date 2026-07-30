@@ -81,6 +81,8 @@ class `TESTNAME extends soc_base_test;
 
   `TESTCFG top_test_cfg;
 
+   nnc_register nnc_normal_reg[];
+
   // -----------------------------------------
   // Declare the new function 
   // -----------------------------------------
@@ -128,36 +130,147 @@ class `TESTNAME extends soc_base_test;
   // -----------------------------------------
   // Declare the main_phase task of your test
   // -----------------------------------------
-  virtual task main_phase(uvm_phase phase);
+  virtual task main_phase(nnc_phase phase);
+
+    logic [7:0] default_val;
+    logic [7:0] mask_val;
+    logic [7:0] wg_addr;
+    logic [7:0] addr;
+    logic [1:0] access;
+
     phase.raise_objection(this);
+
+    super.main_phase(phase);
 
     `nnc_info("SOC_TEST", "soc_spi_reg_test start", UVM_LOW)
 
     // ==================================================================================
     // Please add your code of your test here
     // ---------------------------------------------------------------------------------- 
+
+    //`RD_NORMAL_REG(`SOC_SYSTEM_AO_STATUS, top_test_cfg.pads, top_test_cfg.rd_data);
+    //while ( top_test_cfg.rd_data[0] !== 1'b1) begin
+    //  `RD_NORMAL_REG(`SOC_SYSTEM_AO_STATUS, top_test_cfg.pads, top_test_cfg.rd_data);
+    //end
     
-    // --------------------------------------------------------
-    // This is an example RD_RESET_CHK_REG 
-    // --------------------------------------------------------
-   `nnc_info("SOC_TEST - PART I", "STARTING TO CHECK THE RESET VALUE OF NORMAL REGISTERS", UVM_LOW)
+    // --------------------------------------------------------------
+    // Created object and initialize Normal register again if needed
+    // --------------------------------------------------------------
+    nnc_normal_reg = new[`NORMAL_REG_NUM+1] ;
+    for(int i=1 ; i< nnc_normal_reg.size();i++)begin
+      addr = `DUT_IF.reg_normal[i][39:32];
+      mask_val = `DUT_IF.reg_normal[i][23:16];
+      access = `DUT_IF.reg_normal[i][1:0];
+      default_val = `DUT_IF.reg_normal[i][31:24];
 
-    // writing in base test
-   /* if (`DUT_IF.pclk_sel == 2'b00 && `DUT_IF.iclk_sel == 3'b010) begin
-      assert(top_test_cfg.randomize() with {reg_addr == `SOC_CLK_CTRL_REG; expected_data == `SOC_CLK_CTRL_REG_INIT;});
-      `RD_RESET_CHK_NORMAL_REG(top_test_cfg.reg_addr, top_test_cfg.expected_data, top_test_cfg.pads);
+      //if (i ==`SOC_OTP_DEBUG_1_REG) begin
+      //  if(`DUT_IF.altf_sel != 2'b00) default_val = `DUT_IF.reg_normal[i][31:24] || 8'h20;
+      //end
+
+      `nnc_info("SOC_TEST - NORMAL", $sformatf("addr = %0h,default_val = %0d, mask_val = %0d, access = %0d",addr,default_val,mask_val,access), NNC_LOW)
+      nnc_normal_reg[i] = nnc_register::new($sformatf("normal_reg_%0d",i), addr, default_val, mask_val, access[1:0]);
     end
-    */
 
-   /* top_test_cfg.no_of_bytes = 21;
-    top_test_cfg.rd_data_reg = new[top_test_cfg.no_of_bytes];
-    `RD_BURST_NORMAL_REG(`SOC_FLASH_TRIMDATA0, top_test_cfg.no_of_bytes, top_test_cfg.rd_data_reg);
-    for(int i=0; i<=top_test_cfg.no_of_bytes; i++) begin
-      if(top_test_cfg.rd_data_reg[i] !=0 ) begin
-        `nnc_error(get_full_name(), $sformatf("TRIM REGS do not have default value 'h0 rd_data_reg[%0d]=%0h", i,top_test_cfg.rd_data_reg[i]));
+    // --------------------------------------------------
+    // check init read
+    // --------------------------------------------------
+    // Cheking Initial values of normal registers
+    // --------------------------------------------------
+    `nnc_info("SOC_TEST - PART I", "STARTING TO CHECK THE RESET VALUE OF NORMAL REGISTERS", UVM_LOW)
+
+    `nnc_info("SOC_TEST", $sformatf("***********************************************************"), NNC_LOW)
+    `nnc_info("SOC_TEST", $sformatf("NORMAL REG: Checking intial values and compare with Spec"), NNC_LOW)
+    `nnc_info("SOC_TEST", $sformatf("************************************************************\n"), NNC_LOW)
+    for(int i=1 ; i<nnc_normal_reg.size();i++)begin
+       //if(i == 105) continue; // address 8'h69 TSC_VDAC_NOR
+       nnc_normal_reg[i].read_init();
+    end
+
+
+    // ---------------------------------------------------------------------------
+    // Checking Write 0 to registers
+    // --------------------------------------------------------------------------- 
+
+    // ******************************************************* 
+    // check write/read to all bits as 0 to normal registers
+    // *******************************************************
+    //if ((`DUT_IF.normal_reg_en == 1'b1) && (`DUT_IF.default_only_en !== 1'b1)) begin // 1
+    `nnc_info("SOC_TEST", $sformatf("***********************************************************"), NNC_LOW)
+    `nnc_info("SOC_TEST", $sformatf("NORMAL REG: write 0 to each bit of each register and compare"), NNC_LOW)
+    `nnc_info("SOC_TEST", $sformatf("************************************************************\n"), NNC_LOW)
+    for(int i=1 ; i<nnc_normal_reg.size();i++)begin
+      top_test_cfg.wr_data[0] = 'h0;
+      //if(i== `SOC_GPIO_PD_CTRL_REG) continue;
+      nnc_normal_reg[i].write_read(top_test_cfg.wr_data[0]);
+    end
+
+    // ---------------------------------------------------------------------------
+    // Checking Write 1 to registers
+    // ---------------------------------------------------------------------------
+
+    // **************************************
+    // check write/read to all bits as 1
+    // **************************************
+    `nnc_info("SOC_TEST", $sformatf("***********************************************************"), NNC_LOW)
+    `nnc_info("SOC_TEST", $sformatf("NORMAL REG: write 1 to each bit of each register and compare"), NNC_LOW)
+    `nnc_info("SOC_TEST", $sformatf("************************************************************\n"), NNC_LOW)
+    for(int i=1 ; i<nnc_normal_reg.size();i++)begin
+      top_test_cfg.wr_data[0] = 8'hFF;
+      //if(i== `SOC_GPIO_PD_CTRL_REG) continue;
+
+      /*if (i == `SOC_STIM_MON_INT) begin 
+	 `WR_NORMAL_REG(`SOC_STIM_MON_INT, 8'hff, top_test_cfg.pads);
+	 `RD_NORMAL_REG(`SOC_STIM_MON_INT, top_test_cfg.pads, top_test_cfg.rd_data);
+	 if(top_test_cfg.rd_data !== 8'hf8)
+           `nnc_error("SOC_STIM_MON_INT TEST", $sformatf("read value of register %0h is read_data=%0h not the same as exp=8'hf8",`SOC_STIM_MON_INT, top_test_cfg.rd_data))   
       end
-    end */
+      else*/ begin
+        nnc_normal_reg[i].write_read(top_test_cfg.wr_data[0]);
+      end
+    end
 
+    // ---------------------------------------------------------------------------
+    // Checking Write random to registers
+    // ---------------------------------------------------------------------------
+    // ************************************************
+    // check write/read to all bits for random value
+    // ************************************************
+    `nnc_info("SOC_TEST", $sformatf("******************************************************************"), NNC_LOW)
+    `nnc_info("SOC_TEST", $sformatf("NORMAL REG: write random to each bit of each register and compare"), NNC_LOW)
+    `nnc_info("SOC_TEST", $sformatf("*******************************************************************\n"), NNC_LOW)
+    for(int i=1 ; i<nnc_normal_reg.size();i++)begin
+      top_test_cfg.wr_data[0] = $random();
+      //if(i== `SOC_GPIO_PD_CTRL_REG) continue;
+ 
+      /*if (i == `SOC_STIM_MON_INT) begin 
+	      `WR_NORMAL_REG(`SOC_STIM_MON_INT, top_test_cfg.wr_data[0], top_test_cfg.pads);
+	      `RD_NORMAL_REG(`SOC_STIM_MON_INT, top_test_cfg.pads, top_test_cfg.rd_data);
+	       if(top_test_cfg.rd_data !== top_test_cfg.wr_data[0] & 8'hf8)
+           `nnc_error("SOC_STIM_MON_INT TEST", $sformatf("read value of register %0h is read_data=%0h not the same as exp=%0h",`SOC_STIM_MON_INT, top_test_cfg.rd_data, top_test_cfg.wr_data[0] & 8'hf8))   
+      end
+      else */begin
+        nnc_normal_reg[i].write_read(top_test_cfg.wr_data[0]);
+      end
+    end
+
+    // **************************************************
+    // check reserved reg
+    // **************************************************
+    // --------------------------------------------------
+    // Checking normal register
+    // --------------------------------------------------
+    `nnc_info("SOC_TEST", $sformatf("******************************************************************"), NNC_LOW)
+    `nnc_info("SOC_TEST", $sformatf("NORMAL REG: CHECK RESERVED REGS"), NNC_LOW)
+    `nnc_info("SOC_TEST", $sformatf("*******************************************************************\n"), NNC_LOW)
+
+    for(int i=1 ; i<nnc_normal_reg.size();i++)begin
+      top_test_cfg.wr_data[0] = $random();
+      if(^nnc_normal_reg[i].address === 1'bx)begin
+        nnc_normal_reg[i].check_reserved_regs(i,top_test_cfg.wr_data[0]);
+      end
+    end
+
+/*
     if(`DUT_IF.spi_sclk_freq > 20)begin // if SPI freq is too low than flash will be get loaded and SPI is so slow that it can not get default values, it will only get updated reload values
     for(int i=`SOC_FLASH_TRIMDATA0; i<=`SOC_FLASH_TRIMDATA20; i++) begin
       `nnc_info(get_full_name(), $sformatf("will read reg %0h", i),UVM_LOW);
@@ -198,7 +311,7 @@ class `TESTNAME extends soc_base_test;
 
     // calling task for checking reg wr rd values
     check_reg_wr_rd_values();
-   
+*/   
     // --------------------------------------------------------
     // End of test and add any needed delay time 
     // --------------------------------------------------------

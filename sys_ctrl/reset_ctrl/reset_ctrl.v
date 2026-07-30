@@ -22,6 +22,8 @@ input  wire         flash_bist_en,              // flash bist mode
 input  wire         hfosc_atpg,                 // hfosc base clock input
 input  wire         fclk,                       // fclk after clock switch
 input  wire         pclk,                       // APB clock
+input  wire 	      Bioz_reset_reg,
+output wire 	      Bioz_resetn,
 output wire         poresetn,                   // Connect to poresetn of CORTEXM0INTEGRATION
 output wire         poresetn_hf,                // hfclk poresetn
 output wire         presetn,                    // Connect to presetn of CORTEXM0INTEGRATION
@@ -92,6 +94,9 @@ assign global_rstn = por_tmout_resetn & ext_resetn;
 //assign global_rstn_atpg = atpg_en ? scan_rst_n : global_rstn;
 MX2X4M DNT_MX2 (.A(global_rstn), .B(scan_rst_n), .S0(atpg_en), .Y(global_rstn_atpg));
 
+wire Bioz_reset_reg_bak;
+assign Bioz_reset_reg_bak = (!Bioz_reset_reg) & global_rstn_atpg;
+MX2X4M DNT_MX2_BIOZ (.A(Bioz_reset_reg_bak), .B(scan_rst_n), .S0(atpg_en), .Y(Bioz_resetn));
 // --------------------
 // Reset synchronisers
 // --------------------

@@ -157,14 +157,17 @@
 `define	DATA_TYPE_SEL      	      8'h76	
 `define DC_DATA_REG_0      	      8'h77	
 `define DC_DATA_REG_1                 8'h78		   
+`define DC_DATA_REG_C_0      	      8'h79	
+`define DC_DATA_REG_C_1               8'h7A		   
+
 /*
 `define SQU_DATA_L_0       	      8'h79	   
 `define SQU_DATA_L_1       	      8'h7A  
 `define SQU_DATA_H_0                  8'h7B 		   
 `define SQU_DATA_H_1                  8'h7C
 */
-`define SQU_CLK_DIV_0                 8'h79		
-`define SQU_CLK_DIV_1                 8'h7A	
+//`define SQU_CLK_DIV_0                 8'h79		
+//`define SQU_CLK_DIV_1                 8'h7A	
 
 //new added by Xin 26Mar2026 for programmable LEDon/freq
 `define LED_ON_L                 8'h7B	
@@ -299,9 +302,19 @@
 `define PHASE_OFFSET_1            8'hE5
 `define PHASE_OFFSET_2            8'hE6
 `define PHASE_OFFSET_3            8'hE7
-`define BIOZ_CTRL                 8'hE8
+`define PHASE_OFFSET_C_0            8'hE8
+`define PHASE_OFFSET_C_1            8'hE9
+`define PHASE_OFFSET_C_2            8'hEA
+`define PHASE_OFFSET_C_3            8'hEB
+`define BIOZ_CTRL                 8'hEC
+
+`define BIOZ_FILTER_CTRL_0          8'hED
+`define BIOZ_FILTER_CTRL_1          8'hEE
+`define BIOZ_FILTER_CTRL_2          8'hEF
 
 `define DEBUG_MODE_TYPE                 8'hF0
+
+`define INT_CTRL                  8'hF3
 
 	                
 
@@ -321,6 +334,7 @@ module spi_reg #(
 	input		       atpg_en,
 	input [ADDR_WIDTH-1:0] i_addr,
 	input                  i_wr,
+	input                  i_rd,
 	input [DATA_WIDTH-1:0] i_wr_data  ,
         input                  i_addr_vld_for_int_clr,
         input                  i_burst_cmd,
@@ -331,15 +345,21 @@ module spi_reg #(
 
 output  wire [31:0]   phase_inc,
 output  wire [31:0]   phase_offset,
+output  wire [31:0]   phase_offset_c,
 output  wire Bioz_en,
+output  wire Bioz_reset_reg,
+output  wire [15:0] iq_reg_ctrl,
+output  wire [3:0]  iq_iclk_div, 
+output  wire        iq_adc_clk_inv,
         
 output wire [1:0]   data_type_sel,    //00 is sinwave, 01: DC, 10: square wave, 11: sinwave
 output wire [9:0]   dc_data,    
+output wire [9:0]   dc_data_c,    
 /*
 output wire [9:0]   square_data_l,    
 output wire [9:0]   square_data_h,    
 */
-output wire [15:0]  square_clk_div,
+//output wire [15:0]  square_clk_div,
 
      
      //system outputs
@@ -553,9 +573,11 @@ reg         zmeas_en;
 reg         zmeas_phase_dither_en;
 reg         meas_sync_en;
 
- reg [1:0]   data_type_sel_reg;    //00 is sinwave, 01: DC, 10: square wave, 11: sinwave
+ reg [1:0]   data_type_sel_reg;    //00 is sinwave, 01: DC, others: sinwave
  reg [7:0]   dc_data_reg_0;    
  reg [1:0]   dc_data_reg_1;    
+ reg [7:0]   dc_data_reg_c_0;    
+ reg [1:0]   dc_data_reg_c_1;    
 
  reg [7:0]   phase_inc_0;    
  reg [7:0]   phase_inc_1;    
@@ -565,7 +587,14 @@ reg         meas_sync_en;
  reg [7:0]   phase_offset_1;    
  reg [7:0]   phase_offset_2;    
  reg [7:0]   phase_offset_3;    
+ reg [7:0]   phase_offset_c_0;    
+ reg [7:0]   phase_offset_c_1;    
+ reg [7:0]   phase_offset_c_2;    
+ reg [7:0]   phase_offset_c_3;    
  reg [7:0]   bioz_ctrl;    
+ reg [7:0]   bioz_filter_ctrl_0;    
+ reg [7:0]   bioz_filter_ctrl_1;    
+ reg [7:0]   bioz_filter_ctrl_2;    
 
 
 /*
@@ -574,22 +603,27 @@ reg         meas_sync_en;
  reg [7:0]   square_data_h_reg_0;    
  reg [1:0]   square_data_h_reg_1;    
 */
- reg [7:0]  square_clk_div_0;
- reg [7:0]  square_clk_div_1;
+ //reg [7:0]  square_clk_div_0;
+// reg [7:0]  square_clk_div_1;
 
- assign  data_type_sel = data_type_sel_reg;    //00 is sinwave, 01: DC, 10: square wave, 11: sinwave
- assign  dc_data = {dc_data_reg_1,dc_data_reg_0};    
+ assign  data_type_sel = data_type_sel_reg;    //00 is sinwave, 01: DC, others: sinwave
+ assign  dc_data   = {dc_data_reg_1,dc_data_reg_0};    
+ assign  dc_data_c = {dc_data_reg_c_1,dc_data_reg_c_0};    
 
 
 assign phase_inc = {phase_inc_3,phase_inc_2,phase_inc_1,phase_inc_0};    
 assign phase_offset = {phase_offset_3,phase_offset_2,phase_offset_1,phase_offset_0};    
+assign phase_offset_c = {phase_offset_c_3,phase_offset_c_2,phase_offset_c_1,phase_offset_c_0};    
 assign Bioz_en = bioz_ctrl[0];
-
+assign Bioz_reset_reg = bioz_ctrl[1];
+assign iq_reg_ctrl = {bioz_filter_ctrl_1,bioz_filter_ctrl_0};
+assign iq_iclk_div = bioz_filter_ctrl_2[3:0];
+assign iq_adc_clk_inv = bioz_filter_ctrl_2[4];
 /*
  assign  square_data_l = {square_data_l_reg_1,square_data_l_reg_0};    
  assign  square_data_h = {square_data_h_reg_1,square_data_h_reg_0};    
 */
- assign  square_clk_div = {square_clk_div_1,square_clk_div_0};
+// assign  square_clk_div = {square_clk_div_1,square_clk_div_0};
 
 
 //imeas interrupt signals
@@ -634,6 +668,7 @@ wire  fifo_a_full_sts_clr;
 wire  fifo_a_empty_sts_clr;
 wire  fifo_a_error_sts_clr;
 
+reg [1:0] int_ctrl_reg;
 
 //pmu
 reg [6:0] pmu_reg0;
@@ -796,9 +831,11 @@ always@(posedge i_clk or negedge i_rst_n) begin
      zmeas_phase_dither_en <= 1'b0; 
      meas_sync_en          <= 1'b1; 
 
-    data_type_sel_reg <= 2'b0;    //00 is sinwave, 01: DC, 10: square wave, 11: sinwave
+    data_type_sel_reg <= 2'b0;    //00 is sinwave, 01: DC, others: sinwave
     dc_data_reg_0 <= 8'h0;    
     dc_data_reg_1 <= 2'h1;    
+    dc_data_reg_c_0 <= 8'h0;    
+    dc_data_reg_c_1 <= 2'h1;    
 
  phase_inc_0 <= 8'h66;    
  phase_inc_1 <= 8'h66;    
@@ -808,7 +845,14 @@ always@(posedge i_clk or negedge i_rst_n) begin
  phase_offset_1 <= 8'h0;    
  phase_offset_2 <= 8'h0;    
  phase_offset_3 <= 8'h0;    
+ phase_offset_c_0 <= 8'h0;    
+ phase_offset_c_1 <= 8'h0;    
+ phase_offset_c_2 <= 8'h0;    
+ phase_offset_c_3 <= 8'h0;    
  bioz_ctrl <= 8'h1;    
+ bioz_filter_ctrl_0 <= 8'h05;    
+ bioz_filter_ctrl_1 <= 8'h45;    
+ bioz_filter_ctrl_2 <= 8'h0;    
 
 /*
     square_data_l_reg_0 <= 8'h0;    
@@ -816,8 +860,8 @@ always@(posedge i_clk or negedge i_rst_n) begin
     square_data_h_reg_0 <= 8'h0;    
     square_data_h_reg_1 <= 2'h1;    
 */
-    square_clk_div_0 <= 8'hf;
-    square_clk_div_1 <= 8'h0;
+   // square_clk_div_0 <= 8'hf;
+   // square_clk_div_1 <= 8'h0;
    
   //zmeas ctrl
       zmeas_reg_ctrl_0    <=8'h00;    
@@ -901,16 +945,25 @@ always@(posedge i_clk or negedge i_rst_n) begin
 	    `DATA_TYPE_SEL      : data_type_sel_reg 	    <= i_wr ? i_wr_data[1:0]   : data_type_sel_reg;    //00 is sinwave, 01: DC, 10: square wave, 11: sinwave
     	    `DC_DATA_REG_0      : dc_data_reg_0 	    <= i_wr ? i_wr_data[7:0]   : dc_data_reg_0;    
     	    `DC_DATA_REG_1      : dc_data_reg_1 	    <= i_wr ? i_wr_data[1:0]   : dc_data_reg_1;    
+    	    `DC_DATA_REG_C_0      : dc_data_reg_c_0 	    <= i_wr ? i_wr_data[7:0]   : dc_data_reg_c_0;    
+    	    `DC_DATA_REG_C_1      : dc_data_reg_c_1 	    <= i_wr ? i_wr_data[1:0]   : dc_data_reg_c_1;    
 
  `PHASE_INC_0      : phase_inc_0 <= i_wr ? i_wr_data[7:0]   : phase_inc_0;    
  `PHASE_INC_1      : phase_inc_1 <= i_wr ? i_wr_data[7:0]   : phase_inc_1;    
  `PHASE_INC_2      : phase_inc_2 <= i_wr ? i_wr_data[7:0]   : phase_inc_2;    
  `PHASE_INC_3      : phase_inc_3 <= i_wr ? i_wr_data[7:0]   : phase_inc_3;    
  `PHASE_OFFSET_0   : phase_offset_0 <= i_wr ? i_wr_data[7:0]   : phase_offset_0;    
- `PHASE_OFFSET_0   : phase_offset_1 <= i_wr ? i_wr_data[7:0]   : phase_offset_1;    
- `PHASE_OFFSET_0   : phase_offset_2 <= i_wr ? i_wr_data[7:0]   : phase_offset_2;    
- `PHASE_OFFSET_0   : phase_offset_3 <= i_wr ? i_wr_data[7:0]   : phase_offset_3;    
+ `PHASE_OFFSET_1   : phase_offset_1 <= i_wr ? i_wr_data[7:0]   : phase_offset_1;    
+ `PHASE_OFFSET_2   : phase_offset_2 <= i_wr ? i_wr_data[7:0]   : phase_offset_2;    
+ `PHASE_OFFSET_3   : phase_offset_3 <= i_wr ? i_wr_data[7:0]   : phase_offset_3;    
+ `PHASE_OFFSET_C_0   : phase_offset_c_0 <= i_wr ? i_wr_data[7:0]   : phase_offset_c_0;    
+ `PHASE_OFFSET_C_1   : phase_offset_c_1 <= i_wr ? i_wr_data[7:0]   : phase_offset_c_1;    
+ `PHASE_OFFSET_C_2   : phase_offset_c_2 <= i_wr ? i_wr_data[7:0]   : phase_offset_c_2;    
+ `PHASE_OFFSET_C_3   : phase_offset_c_3 <= i_wr ? i_wr_data[7:0]   : phase_offset_c_3;    
  `BIOZ_CTRL        : bioz_ctrl      <= i_wr ? i_wr_data[7:0]   : bioz_ctrl;    
+`BIOZ_FILTER_CTRL_0  :   bioz_filter_ctrl_0      <= i_wr ? i_wr_data[7:0]   : bioz_filter_ctrl_0;      
+`BIOZ_FILTER_CTRL_1  :   bioz_filter_ctrl_1      <= i_wr ? i_wr_data[7:0]   : bioz_filter_ctrl_1;        
+`BIOZ_FILTER_CTRL_2  :   bioz_filter_ctrl_2      <= i_wr ? i_wr_data[7:0]   : bioz_filter_ctrl_2;         
 
 
 
@@ -922,8 +975,8 @@ always@(posedge i_clk or negedge i_rst_n) begin
     	    `SQU_DATA_H_1       : square_data_h_reg_1 	    <= i_wr ? i_wr_data[1:0]   : square_data_h_reg_1;    
 */
 
-    	    `SQU_CLK_DIV_0      : square_clk_div_0 	    <= i_wr ? i_wr_data[7:0]   : square_clk_div_0;
-    	    `SQU_CLK_DIV_1      : square_clk_div_1 	    <= i_wr ? i_wr_data[7:0]   : square_clk_div_1;
+    	    //`SQU_CLK_DIV_0      : square_clk_div_0 	    <= i_wr ? i_wr_data[7:0]   : square_clk_div_0;
+    	    //`SQU_CLK_DIV_1      : square_clk_div_1 	    <= i_wr ? i_wr_data[7:0]   : square_clk_div_1;
 
      //zmeas ctrl
           `ZMEAS_REG_CTRL_0    :  zmeas_reg_ctrl_0          <= i_wr ? {i_wr_data[7:4],1'b0,i_wr_data[2],1'b0,i_wr_data[0] }:  zmeas_reg_ctrl_0  ;
@@ -1071,7 +1124,9 @@ spi_reg_imeas#(
 .i_rst_n(i_rst_n),
 .i_addr(i_addr),
 .i_wr(i_wr),
+.i_rd(i_rd),
 .i_wr_data(i_wr_data),
+.int_ctrl_reg(int_ctrl_reg),
 .reg_imeas_int_sts(reg_imeas_int_sts),
 .reg_imeas_int_sts0(reg_imeas_int_sts0),
 .reg_imeas_int_sts1(reg_imeas_int_sts1),
@@ -1116,6 +1171,21 @@ end
 
 
 
+
+
+///////////////////////////
+//int control register
+///////////////////////////
+
+
+always@(posedge i_clk or negedge i_rst_n) begin
+  if(!i_rst_n)begin
+     int_ctrl_reg <= 2'b0;
+  end
+  else if ((i_addr[ADDR_WIDTH-1:0] == `INT_CTRL) & i_wr)begin
+     int_ctrl_reg <= i_wr_data[1:0];
+  end
+end
 
 
 //---------------------------------------------------------------------------------//
@@ -1571,15 +1641,24 @@ always @ (posedge i_clk or negedge i_rst_n) begin
 	       `DATA_TYPE_SEL      		:  reg_rd_data <= {6'b0,data_type_sel_reg}; 
     	       `DC_DATA_REG_0      		:  reg_rd_data <= dc_data_reg_0 ;	    
     	       `DC_DATA_REG_1      		:  reg_rd_data <= {6'b0,dc_data_reg_1} ;        
+    	       `DC_DATA_REG_C_0      		:  reg_rd_data <= dc_data_reg_c_0 ;	    
+    	       `DC_DATA_REG_C_1      		:  reg_rd_data <= {6'b0,dc_data_reg_c_1} ;        
  `PHASE_INC_0      :  reg_rd_data <= phase_inc_0;    
  `PHASE_INC_1      :  reg_rd_data <= phase_inc_1;    
  `PHASE_INC_2      :  reg_rd_data <= phase_inc_2;    
  `PHASE_INC_3      :  reg_rd_data <= phase_inc_3;    
  `PHASE_OFFSET_0   :  reg_rd_data <= phase_offset_0;    
- `PHASE_OFFSET_0   :  reg_rd_data <= phase_offset_1;    
- `PHASE_OFFSET_0   :  reg_rd_data <= phase_offset_2;    
- `PHASE_OFFSET_0   :  reg_rd_data <= phase_offset_3;    
+ `PHASE_OFFSET_1   :  reg_rd_data <= phase_offset_1;    
+ `PHASE_OFFSET_2   :  reg_rd_data <= phase_offset_2;    
+ `PHASE_OFFSET_3   :  reg_rd_data <= phase_offset_3;    
+ `PHASE_OFFSET_C_0   :  reg_rd_data <= phase_offset_c_0;    
+ `PHASE_OFFSET_C_1   :  reg_rd_data <= phase_offset_c_1;    
+ `PHASE_OFFSET_C_2   :  reg_rd_data <= phase_offset_c_2;    
+ `PHASE_OFFSET_C_3   :  reg_rd_data <= phase_offset_c_3;    
  `BIOZ_CTRL        :  reg_rd_data <= bioz_ctrl;    
+`BIOZ_FILTER_CTRL_0  :  reg_rd_data <=  bioz_filter_ctrl_0 ;      
+`BIOZ_FILTER_CTRL_1  :  reg_rd_data <=  bioz_filter_ctrl_1 ;        
+`BIOZ_FILTER_CTRL_2  :  reg_rd_data <=  bioz_filter_ctrl_2 ;         
 
 /*
     	       `SQU_DATA_L_0       		:  reg_rd_data <= square_data_l_reg_0; 	        
@@ -1587,8 +1666,8 @@ always @ (posedge i_clk or negedge i_rst_n) begin
     	       `SQU_DATA_H_0       		:  reg_rd_data <= square_data_h_reg_0; 	        
     	       `SQU_DATA_H_1       		:  reg_rd_data <= {6'b0,square_data_h_reg_1};    
 */
-    	       `SQU_CLK_DIV_0      		:  reg_rd_data <= square_clk_div_0 ;	    
-    	       `SQU_CLK_DIV_1      		:  reg_rd_data <= square_clk_div_1 ;	    
+    	       //`SQU_CLK_DIV_0      		:  reg_rd_data <= square_clk_div_0 ;	    
+    	       //`SQU_CLK_DIV_1      		:  reg_rd_data <= square_clk_div_1 ;	    
 
 
 	  	`ZMEAS_REG_CTRL_0                 :   reg_rd_data <=  zmeas_reg_ctrl_0; 
@@ -1726,6 +1805,8 @@ always @ (posedge i_clk or negedge i_rst_n) begin
              `GPIO_PU_CTRL                               :   reg_rd_data     <= {5'b0, pu_ctrl};				  	   
              `GPIO_PU_RESETn                             :   reg_rd_data     <= {7'b0, pu_resetn};                                 	 
              `GPIO_PD_TESTMODE                           :   reg_rd_data     <= {6'b0, pd_testmode};   
+
+             `INT_CTRL                                   :   reg_rd_data     <= {6'b0, int_ctrl_reg};
 
 
 

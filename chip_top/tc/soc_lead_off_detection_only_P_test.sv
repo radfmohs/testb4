@@ -120,20 +120,29 @@ class `TESTNAME extends soc_base_lead_off_detection_test;
     // This is Leadoff DURATION Interrupt test
     // ===============================================
     // Test 1
-    test_1();
+    if( `DUT_IF.switch_duration_sel != 1) begin 
+      test_1();
+    end
 
     // Test 2
-    test_2();
+    if( `DUT_IF.switch_duration_sel != 1) begin 
+      test_2();
+    end
+
 
     // ===============================================
     // This is Leadoff SWITCH Interrupt test
     // ===============================================
     // Test 1
-    test_3();
-    top_test_cfg.check_step = 1; 
+    if( `DUT_IF.switch_duration_sel != 2) begin 
+      test_3();
+      top_test_cfg.check_step = 1; 
+    end
 
     // Test 2
-    test_4();
+    if( `DUT_IF.switch_duration_sel != 2) begin 
+      test_4();
+    end
 
     `LEAD_OFF_SCB_EN = 0;
   endtask : drive_A2D_LOFF_STATN_STATP

@@ -18,584 +18,15 @@
 `define TESTNAME soc_base_test
 `define TESTCFG soc_base_test_cfg
 
-// Register Defines
-`define  SOC_IMEAS_REG_CTRL_0 	        8'h01 // Checked
-`define  SOC_IMEAS_REG_CTRL_0_INIT      8'h10
-
-`define  SOC_IMEAS_REG_CTRL_1 	        8'h02 // Checked
-`define  SOC_IMEAS_REG_CTRL_1_INIT 	8'h00
-
-`define  SOC_IMEAS_MODE_REG 		8'h03 // Checked
-`define  SOC_IMEAS_MODE_REG_INIT        8'h00
-
-`define  SOC_IMEAS_STATUS 	        8'h04 // Checked
-`define  SOC_IMEAS_STATUS_INIT          8'h00
-
-`define  SOC_IMEAS_REG_SEQ 	        8'h05 // Checked
-`define  SOC_IMEAS_REG_SEQ_INIT         8'h07
-
-`define  SOC_IMEAS_REG_RSTVAL 	        8'h06 // Checked
-`define  SOC_IMEAS_REG_RSTVAL_INIT      8'h50
-
-`define  SOC_IMEAS_CH0DATA_0 	        8'h07 // Checked
-`define  SOC_IMEAS_CH0DATA_0_INIT       8'h00
-
-`define  SOC_IMEAS_CH0DATA_1 	        8'h08 // Checked
-`define  SOC_IMEAS_CH0DATA_1_INIT       8'h00
-
-`define  SOC_IMEAS_CH1DATA_0 	        8'h09 // Checked
-`define  SOC_IMEAS_CH1DATA_0_INIT       8'h00
-
-`define  SOC_IMEAS_CH1DATA_1 	        8'h0A // Checked
-`define  SOC_IMEAS_CH1DATA_1_INIT       8'h00
-
-`define  SOC_IMEAS_CH2DATA_0 	        8'h0B // Checked
-`define  SOC_IMEAS_CH2DATA_0_INIT       8'h00
-
-`define  SOC_IMEAS_CH2DATA_1 	        8'h0C // Checked
-`define  SOC_IMEAS_CH2DATA_1_INIT       8'h00
-
-`define  SOC_IMEAS_GRP_CTL 	        8'h0D // Checked
-`define  SOC_IMEAS_GRP_CTL_INIT         8'h00
-
-`define  SOC_IMEAS_CHA_NUM_LO           8'h0E // Checked
-`define  SOC_IMEAS_CHA_NUM_LO_INIT      8'h10
-
-`define  SOC_IMEAS_CHA_NUM_HI           8'h0F // Checked
-`define  SOC_IMEAS_CHA_NUM_HI_INIT      8'h02
-
-`define  SOC_IMEAS_ALARM_INT 		8'h10 // Checked
-`define  SOC_IMEAS_ALARM_INT_INIT 	8'h00
-
-`define  SOC_IMEAS_ALARM_INT_EN 	8'h11 // Checked
-`define  SOC_IMEAS_ALARM_INT_EN_INIT 	8'h00
-
-`define  SOC_IMEAS_THRESHOLD_HI_0 	8'h12 // Checked
-`define  SOC_IMEAS_THRESHOLD_HI_0_INIT 	8'hff
-
-`define  SOC_IMEAS_THRESHOLD_HI_1 	8'h13 // Checked
-`define  SOC_IMEAS_THRESHOLD_HI_1_INIT 	8'hff
-
-`define  SOC_IMEAS_THRESHOLD_LO_0 	8'h14  // Checked
-`define  SOC_IMEAS_THRESHOLD_LO_0_INIT 	8'h00
-
-`define  SOC_IMEAS_THRESHOLD_LO_1 	8'h15  // Checked
-`define  SOC_IMEAS_THRESHOLD_LO_1_INIT 	8'h00
-
-`define  SOC_IMEAS_INPUT_FORMAT 	8'h16  // Checked
-`define  SOC_IMEAS_INPUT_FORMAT_INIT 	8'h02
-
-`define  SOC_IMEAS_EN 	                8'h17  // Checked
-`define  SOC_IMEAS_EN_INIT 	        8'h00
-
-`define  SOC_IMEAS_CH0DATA_MAX_0                     8'h18  // Checked
-`define  SOC_IMEAS_CH0DATA_MAX_0_INIT                8'h00
-
-`define  SOC_IMEAS_CH0DATA_MAX_1                     8'h19  // Checked
-`define  SOC_IMEAS_CH0DATA_MAX_1_INIT                8'h00
-
-`define  SOC_IMEAS_CH0DATA_MIN_0                     8'h1A  // Checked
-`define  SOC_IMEAS_CH0DATA_MIN_0_INIT                8'h00
-
-`define  SOC_IMEAS_CH0DATA_MIN_1                     8'h1B  // Checked
-`define  SOC_IMEAS_CH0DATA_MIN_1_INIT                8'h00
-
-`define  SOC_IMEAS_CH0DATA_DELTA_0                   8'h1C  // Checked
-`define  SOC_IMEAS_CH0DATA_DELTA_0_INIT              8'h00
-
-`define  SOC_IMEAS_CH0DATA_DELTA_1                   8'h1D  // Checked
-`define  SOC_IMEAS_CH0DATA_DELTA_1_INIT              8'h00
-
-`define  SOC_NOTCH_FILTER_EN                         8'h1E
-`define  SOC_NOTCH_FILTER_EN_INIT                    8'h00
-
-`define  SOC_ZMEAS_REG_CTRL_0 	                     8'h20
-`define  SOC_ZMEAS_REG_CTRL_0_INIT 	             8'h00
-
-`define  SOC_ZMEAS_REG_CTRL_1 	                     8'h21
-`define  SOC_ZMEAS_REG_CTRL_1_INIT 	             8'h00
-
-`define  SOC_ZMEAS_REG_CTRL_2 	                     8'h22
-`define  SOC_ZMEAS_REG_CTRL_2_INIT 	             8'h01
-
-`define  SOC_ZMEAS_REG_CTRL_3 	                     8'h23
-`define  SOC_ZMEAS_REG_CTRL_3_INIT 	             8'h00
-
-`define  SOC_ZMEAS_REG_STATUS_0                      8'h24
-`define  SOC_ZMEAS_REG_STATUS_0_INIT                 8'h00
-
-`define  SOC_ZMEAS_REG_STATUS_1 	             8'h25
-`define  SOC_ZMEAS_REG_STATUS_1_INIT 	             8'h00
-
-`define  SOC_ZMEAS_REG_DATAOUT_0 	             8'h26
-`define  SOC_ZMEAS_REG_DATAOUT_0_INIT 	             8'h00
-
-`define  SOC_ZMEAS_REG_DATAOUT_1 	             8'h27
-`define  SOC_ZMEAS_REG_DATAOUT_1_INIT 	             8'h00
-
-`define  SOC_ZMEAS_REG_DATAOUT_2 	             8'h28
-`define  SOC_ZMEAS_REG_DATAOUT_2_INIT 	             8'h00
-
-`define  SOC_ZMEAS_REG_DATAOUT_3 	             8'h29
-`define  SOC_ZMEAS_REG_DATAOUT_3_INIT 	             8'h00
-
-`define  SOC_ZMEAS_ADC_ROM_REG_0 	             8'h2A
-`define  SOC_ZMEAS_ADC_ROM_REG_0_INIT 	             8'h00
-
-`define  SOC_ZMEAS_ADC_ROM_REG_1 	             8'h2B
-`define  SOC_ZMEAS_ADC_ROM_REG_1_INIT 	             8'h00
-
-`define  SOC_ZMEAS_ADC_ROM_REG_2 	             8'h2C
-`define  SOC_ZMEAS_ADC_ROM_REG_2_INIT 	             8'h00
-
-`define  SOC_ZMEAS_ADC_ROM_REG_3 	             8'h2D
-`define  SOC_ZMEAS_ADC_ROM_REG_3_INIT 	             8'h00
-
-`define  SOC_ZMEAS_SUM_OFFSET_FORREAL_0              8'h2E
-`define  SOC_ZMEAS_SUM_OFFSET_FORREAL_0_INIT         8'h00
-
-`define  SOC_ZMEAS_SUM_OFFSET_FORREAL_1              8'h2F
-`define  SOC_ZMEAS_SUM_OFFSET_FORREAL_1_INIT         8'h00
-
-`define  SOC_ZMEAS_SUM_OFFSET_FORREAL_2              8'h30
-`define  SOC_ZMEAS_SUM_OFFSET_FORREAL_2_INIT         8'h00
-
-`define  SOC_ZMEAS_SUM_OFFSET_FORREAL_3              8'h31
-`define  SOC_ZMEAS_SUM_OFFSET_FORREAL_3_INIT         8'h00
-
-`define  SOC_ZMEAS_SUM_REAL_0 	                     8'h32
-`define  SOC_ZMEAS_SUM_REAL_0_INIT 	             8'h00
-
-`define  SOC_ZMEAS_SUM_REAL_1 	                     8'h33
-`define  SOC_ZMEAS_SUM_REAL_1_INIT 	             8'h00
-
-`define  SOC_ZMEAS_SUM_REAL_2 	                     8'h34
-`define  SOC_ZMEAS_SUM_REAL_2_INIT 	             8'h00
-
-`define  SOC_ZMEAS_SUM_REAL_3 	                     8'h35
-`define  SOC_ZMEAS_SUM_REAL_3_INIT 	             8'h00
-
-`define  SOC_ZMEAS_SUM_IMAG_0 	                     8'h36
-`define  SOC_ZMEAS_SUM_IMAG_0_INIT 	             8'h00
-
-`define  SOC_ZMEAS_SUM_IMAG_1 	                     8'h37
-`define  SOC_ZMEAS_SUM_IMAG_1_INIT 	             8'h00
-
-`define  SOC_ZMEAS_SUM_IMAG_2 	                     8'h38
-`define  SOC_ZMEAS_SUM_IMAG_2_INIT 	             8'h00
-
-`define  SOC_ZMEAS_SUM_IMAG_3 	                     8'h39
-`define  SOC_ZMEAS_SUM_IMAG_3_INIT 	             8'h00
-
-`define  SOC_ZMEAS_SUM_SHIFT_0 	                     8'h3A
-`define  SOC_ZMEAS_SUM_SHIFT_0_INIT 	             8'h00
-
-`define  SOC_ZMEAS_SUM_SHIFT_1 	                     8'h3B
-`define  SOC_ZMEAS_SUM_SHIFT_1_INIT 	             8'h00
-
-`define  SOC_ZMEAS_SUM_SHIFT_2 	                     8'h3C
-`define  SOC_ZMEAS_SUM_SHIFT_2_INIT 	             8'h00
-
-`define  SOC_ZMEAS_SUM_SHIFT_3 	                     8'h3D
-`define  SOC_ZMEAS_SUM_SHIFT_3_INIT 	             8'h00
-
-`define  SOC_ZMEAS_INT 			             8'h3E
-`define  SOC_ZMEAS_INT_INIT 			     8'h00
-
-`define  SOC_ZMEAS_ADC_INT 		             8'h3F
-`define  SOC_ZMEAS_ADC_INT_INIT 		     8'h00
-
-`define  SOC_ZMEAS_EN 	        	             8'h40
-`define  SOC_ZMEAS_EN_INIT 	        	     8'h00
-
-`define  SOC_MEAS_SYNC_EN 	                     8'h41 // Checked now
-`define  SOC_MEAS_SYNC_EN_INIT                       8'h01
-
-`define  SOC_ANA_Z_ADC_DAC_EN                        8'h42
-`define  SOC_ANA_Z_ADC_DAC_EN_INIT                   8'h00
-
-`define  SOC_ANA_Z_ADC_DAC_EN_SEL                    8'h43
-`define  SOC_ANA_Z_ADC_DAC_EN_SEL_INIT               8'h00
-
-`define  SOC_RLD_CLK_REG                             8'h49
-`define  SOC_RLD_CLK_REGINIT                         8'h00
-
-`define  SOC_LEADOFF_CLK_REG 	        	     8'h4A
-`define  SOC_LEADOFF_CLK_REG_INIT 	             8'h02
-
-`define  SOC_MCLK_DIV_REG 	        	     8'h4B
-`define  SOC_MCLK_DIV_REG_INIT 	                     8'h13
-
-`define  SOC_CHECK_CLK_DIV_HI_REG 	             8'h4C
-`define  SOC_CHECK_CLK_DIV_HI_INIT 	             8'h03
-
-`define  SOC_CHECK_CLK_DIV_LO_REG 	             8'h4D
-`define  SOC_CHECK_CLK_DIV_LO_INIT 	             8'hE7
-
-`define  SOC_CLK_CTRL_REG                            8'h4E
-`define  SOC_CLK_CTRL_REG_INIT                       8'h10 // Checked
-
-`define  SOC_PMU_REG0		                     8'h4F 
-`define  SOC_PMU_REG0_INIT		             8'h01 // Checked
-
-`define  SOC_FLASH_DEBUG1                            8'h50 
-`define  SOC_FLASH_DEBUG1_INIT                       8'h43 // Checked
-
-`define  SOC_FLASH_DEBUG2                            8'h51
-`define  SOC_FLASH_DEBUG2_INIT                       8'h00 // Checked
-
-`define  SOC_FLASH_TRIMDATA0                         8'h52
-`define  SOC_FLASH_TRIMDATA0_INIT                    8'h00 // Checked
-`define  SOC_FLASH_TRIMDATA0_RELOAD_INIT             8'h5A // Checked
-
-`define  SOC_FLASH_TRIMDATA1                         8'h53
-`define  SOC_FLASH_TRIMDATA1_INIT                    8'h00 // Checked 
-`define  SOC_FLASH_TRIMDATA1_RELOAD_INIT             8'h10 // Checked 
-
-`define  SOC_FLASH_TRIMDATA2                         8'h54
-`define  SOC_FLASH_TRIMDATA2_INIT                    8'h00 // Checked 
-`define  SOC_FLASH_TRIMDATA2_RELOAD_INIT             8'h40 // Checked 
-
-`define  SOC_FLASH_TRIMDATA3                         8'h55
-`define  SOC_FLASH_TRIMDATA3_INIT                    8'h00 // Checked 
-`define  SOC_FLASH_TRIMDATA3_RELOAD_INIT             8'h02 // Checked 
-
-`define  SOC_FLASH_TRIMDATA4                         8'h56
-`define  SOC_FLASH_TRIMDATA4_INIT                    8'h00 // Checked
-`define  SOC_FLASH_TRIMDATA4_RELOAD_INIT             8'h20 // Checked
-
-`define  SOC_FLASH_TRIMDATA5                         8'h57
-`define  SOC_FLASH_TRIMDATA5_INIT                    8'h00 // Checked
-`define  SOC_FLASH_TRIMDATA5_RELOAD_INIT             8'h01 // Checked
-
-`define  SOC_FLASH_TRIMDATA6                         8'h58
-`define  SOC_FLASH_TRIMDATA6_INIT                    8'h00 // Checked
-`define  SOC_FLASH_TRIMDATA6_RELOAD_INIT             8'h00 // Checked
-
-`define  SOC_FLASH_TRIMDATA7                         8'h59
-`define  SOC_FLASH_TRIMDATA7_INIT                    8'h00 // Checked
-`define  SOC_FLASH_TRIMDATA7_RELOAD_INIT             8'h00 // Checked
-
-`define  SOC_FLASH_TRIMDATA8                         8'h5A
-`define  SOC_FLASH_TRIMDATA8_INIT                    8'h00 // Checked
-`define  SOC_FLASH_TRIMDATA8_RELOAD_INIT             8'h04 // Checked
-
-`define  SOC_FLASH_TRIMDATA9                         8'h5B
-`define  SOC_FLASH_TRIMDATA9_INIT                    8'h00 // Checked
-`define  SOC_FLASH_TRIMDATA9_RELOAD_INIT             8'h04 // Checked
-
-`define  SOC_FLASH_TRIMDATA10                        8'h5C
-`define  SOC_FLASH_TRIMDATA10_INIT                   8'h00 // Checked
-`define  SOC_FLASH_TRIMDATA10_RELOAD_INIT            8'h01 // Checked
-
-`define  SOC_FLASH_TRIMDATA11                        8'h5D
-`define  SOC_FLASH_TRIMDATA11_INIT                   8'h00 // Checked
-`define  SOC_FLASH_TRIMDATA11_RELOAD_INIT            8'hC0 // Checked
-
-`define  SOC_FLASH_TRIMDATA12                        8'h5E
-`define  SOC_FLASH_TRIMDATA12_INIT                   8'h00 // Checked
-`define  SOC_FLASH_TRIMDATA12_RELOAD_INIT            8'h00 // Checked
-
-`define  SOC_FLASH_TRIMDATA13                        8'h5F
-`define  SOC_FLASH_TRIMDATA13_INIT                   8'h00 // Checked
-`define  SOC_FLASH_TRIMDATA13_RELOAD_INIT            8'h80 // Checked
-
-`define  SOC_FLASH_TRIMDATA14                        8'h60
-`define  SOC_FLASH_TRIMDATA14_INIT                   8'h00 // Checked
-`define  SOC_FLASH_TRIMDATA14_RELOAD_INIT            8'h00 // Checked
-
-`define  SOC_FLASH_TRIMDATA15                        8'h61
-`define  SOC_FLASH_TRIMDATA15_INIT                   8'h00 // Checked
-
-`define  SOC_FLASH_TRIMDATA16                        8'h62
-`define  SOC_FLASH_TRIMDATA16_INIT                   8'h00 // Checked
-
-`define  SOC_FLASH_TRIMDATA17                        8'h63
-`define  SOC_FLASH_TRIMDATA17_INIT                   8'h00 // Checked
-
-`define  SOC_FLASH_TRIMDATA18                        8'h64
-`define  SOC_FLASH_TRIMDATA18_INIT                   8'h00 // Checked
-
-`define  SOC_FLASH_TRIMDATA19                        8'h65
-`define  SOC_FLASH_TRIMDATA19_INIT                   8'h00 // Checked
-
-`define  SOC_FLASH_TRIMDATA20                        8'h66
-`define  SOC_FLASH_TRIMDATA20_INIT                   8'h00 // Checked
-
-
-//Vu Changed 21/07/2026 according to new manual
-`define  SOC_FLASH_UNLOCK                            8'h67
-`define  SOC_FLASH_UNLOCK_INIT                       8'h00 // Checked
-
-`define  SOC_FLASH_CTRL                              8'h68
-`define  SOC_FLASH_CTRL_INIT                         8'h00 // Checked
-
-`define  SOC_FLASH_DATA00                            8'h69
-`define  SOC_FLASH_DATA00_INIT                       8'h00 // Checked
-
-`define  SOC_FLASH_ADDR00                            8'h6A
-`define  SOC_FLASH_ADDR00_INIT                       8'h00 // Checked
-
-`define  SOC_FLASH_ADDR01                            8'h6B
-`define  SOC_FLASH_ADDR01_INIT                       8'h00 // Checked
-
-`define  SOC_FLASH_EME_DATA                          8'h6C
-`define  SOC_FLASH_EME_DATA_INIT                     8'h00 // Checked
-
-`define  SOC_FLASH_RND_ADDR                          8'h6D
-`define  SOC_FLASH_RND_ADDR_INIT                     8'h00 // Checked
-
-`define  SOC_FLASH_NVR_PRO_BYTE00                    8'h6E
-`define  SOC_FLASH_NVR_PRO_BYTE00_INIT               8'h00
-    
-`define  SOC_FLASH_NVR_PRO_BYTE01                    8'h6F
-`define  SOC_FLASH_NVR_PRO_BYTE01_INIT               8'h00
-    
-`define  SOC_FLASH_UNLOCK_PRO                        8'h70
-`define  SOC_FLASH_UNLOCK_PRO_INIT                   8'h00
-
-
-//Should Remove    
-`define  SOC_FLASH_ADDR                              8'h6A
-`define  SOC_FLASH_ADDR_INIT                         8'h00 // Checked
-
-`define  SOC_FLASH_DATA                              8'h6A
-`define  SOC_FLASH_DATA_INIT                         8'h00 // Checked
-
-`define  SOC_DEVICE_INT_STATUS_0                     8'h70
-`define  SOC_DEVICE_INT_STATUS_0_INIT                8'h00
-
-`define  SOC_DEVICE_INT_STATUS_1                     8'h71
-`define  SOC_DEVICE_INT_STATUS_1_INIT                8'h0a
-
-
-`define  SOC_PPG_CTRL_1_REG                          8'H72
-`define  SOC_PPG_CTRL_1_REG_INIT                     8'h00 // Checked
-
-`define  SOC_PPG_LED_TIME_SEL                        8'H73
-`define  SOC_PPG_LED_TIME_SEL_INIT                   8'h00 // Checked
-
-`define  SOC_PPG_LED_FREQ_SEL                        8'H74
-`define  SOC_PPG_LED_FREQ_SEL_INIT                   8'h00 // Checked
-
-`define  SOC_PPG_LED_STATUS                          8'H75
-`define  SOC_PPG_LED_STATUS_INIT                     8'h00 // Checked
-
-`define  SOC_DATA_TYPE_SEL                           8'h76
-`define  SOC_DATA_TYPE_SEL_INIT                      8'h00
-
-`define  SOC_DC_DATA_REG_0                           8'h77
-`define  SOC_DC_DATA_REG_0_INIT                      8'h00
-
-`define  SOC_DC_DATA_REG_1                           8'h78
-`define  SOC_DC_DATA_REG_1_INIT                      8'h01
-
-//`define  SOC_SQU_DATA_L_0                            8'h79
-//`define  SOC_SQU_DATA_L_0_INIT                       8'h00
-//
-//`define  SOC_SQU_DATA_L_1                            8'h7A
-//`define  SOC_SQU_DATA_L_1_INIT                       8'h00
-//
-//`define  SOC_SQU_DATA_H_0                            8'h7B
-//`define  SOC_SQU_DATA_H_0_INIT                       8'h00
-//
-//`define  SOC_SQU_DATA_H_1                            8'h7C // Checked
-//`define  SOC_SQU_DATA_H_1_INIT                       8'h01
-
-`define  SOC_SQU_CLK_DIV_0                           8'H79
-`define  SOC_SQU_CLK_DIV_0_INIT                      8'h0f // Checked
-
-`define  SOC_SQU_CLK_DIV_1                           8'H7A
-`define  SOC_SQU_CLK_DIV_1_INIT                      8'h00 // Checked
-
-`define  SOC_FIFO_WR_PTR_REG                         8'h80
-`define  SOC_FIFO_WR_PTR_REG_INIT                    8'h00
-
-`define  SOC_FIFO_RD_PTR_REG                         8'h81
-`define  SOC_FIFO_RD_PTR_REG_INIT                    8'h00
-
-`define  SOC_FIFO_COUNTER_1_REG                      8'h82
-`define  SOC_FIFO_COUNTER_1_REG_INIT                 8'h00
-
-`define  SOC_FIFO_COUNTER_2_REG                      8'h83
-`define  SOC_FIFO_COUNTER_2_REG_INIT                 8'h00
-
-`define  SOC_FIFO_CONFIG_1_REG                       8'h84
-`define  SOC_FIFO_CONFIG_1_REG_INIT                  8'h5F  // checked
-
-`define  SOC_FIFO_CONFIG_2_REG                       8'h85
-`define  SOC_FIFO_CONFIG_2_REG_INIT                  8'h1f
-
-`define  SOC_FIFO_CONFIG_3_REG                       8'h86
-`define  SOC_FIFO_CONFIG_3_REG_INIT                  8'h00
-
-`define  SOC_FIFO_STATUS_REG                         8'h87
-`define  SOC_FIFO_STATUS_REG_INIT                    8'h50
-
-`define  SOC_FIFO_DATA_REG1                          8'h88
-`define  SOC_FIFO_DATA_REG1_INIT                     8'h00
-
-`define  SOC_FIFO_DATA_REG2		             8'h89
-`define  SOC_FIFO_DATA_REG2_INIT		     8'h00
-
-`define  SOC_GPIO_PU_CTR               	             8'h90
-`ifdef POSTLAYOUT_PG
-`define  SOC_GPIO_PU_CTR_INIT                	     8'h00
-`else
-`define  SOC_GPIO_PU_CTR_INIT                	     8'h07
-`endif
-
-`define  SOC_GPIO_PU_RESETN                          8'h91
-`define  SOC_GPIO_PU_RESETN_INIT                     8'H01
-
-`define  SOC_GPIO_PD_TESTMODE			     8'h92	
-`define  SOC_GPIO_PD_TESTMODE_INIT	             8'H03
-
-`define  SOC_LEADOFF_CTRL                            8'H93
-`define  SOC_LEADOFF_CTRL_INIT                       8'h00 // Checked
-
-`define  SOC_LEADOFF_TGT_0                           8'H94
-`define  SOC_LEADOFF_TGT_0_INIT                      8'hff // Checked
-
-`define  SOC_LEADOFF_TGT_1                           8'H95
-`define  SOC_LEADOFF_TGT_1_INIT                      8'h00 // Checked
-
-`define  SOC_LEADOFF_SWITCH_TGT                      8'H96
-`define  SOC_LEADOFF_SWITCH_TGT_INIT                 8'h3f // Checked
-
-`define  SOC_ANA_TSC_1                               8'h9F
-`define  SOC_ANA_TSC_1_INIT                          8'h00 // Checked
-
-`define  SOC_ANA_BUFFER                              8'hA0
-`define  SOC_ANA_BUFFER_INIT                         8'h00 // Checked
-
-`define  SOC_ANA_ECG_CTRL1                           8'hA1
-`define  SOC_ANA_ECG_CTRL1_INIT                      8'h03 // Checked
-
-`define  SOC_ANA_ECG_CTRL2                           8'hA2
-`define  SOC_ANA_ECG_CTRL2_INIT                      8'h04 // Checked
-
-`define  SOC_ANA_LEAD_OFF                            8'hA3
-`define  SOC_ANA_LEAD_OFF_INIT                       8'h00 // Checked
-
-`define  SOC_ANA_TSC                                 8'hA4
-`define  SOC_ANA_TSC_INIT                            8'h00 // Checked
-
-`define  SOC_ANA_PPG_LED_SEL                         8'hA5
-`define  SOC_ANA_PPG_LED_SEL_INIT                    8'h00 // Checked
-
-`define  SOC_ANA_PPG_DAC0_CTRL_REG0                  8'hA6
-`define  SOC_ANA_PPG_DAC0_CTRL_REG0_INIT             8'h00 // Checked
-
-`define  SOC_ANA_PPG_DAC0_CTRL_REG1                  8'hA7
-`define  SOC_ANA_PPG_DAC0_CTRL_REG1_INIT             8'h00 // Checked
-
-`define  SOC_ANA_PPG_DAC1_CTRL_REG0                  8'hA8
-`define  SOC_ANA_PPG_DAC1_CTRL_REG0_INIT             8'h00 // Checked
-
-`define  SOC_ANA_PPG_DAC1_CTRL_REG1                  8'hA9
-`define  SOC_ANA_PPG_DAC1_CTRL_REG1_INIT             8'h00 // Checked
-
-`define  SOC_ANA_PPG_TIA_IDAC                        8'hAA
-`define  SOC_ANA_PPG_TIA_IDAC_INIT                   8'h00 // Checked
-
-`define  SOC_ANA_PPG_TIA_GAIN                        8'hAB
-`define  SOC_ANA_PPG_TIA_GAIN_INIT                   8'h00 // Checked
-
-`define  SOC_ANA_PPG_TEST                            8'hAC
-`define  SOC_ANA_PPG_TEST_INIT                       8'h00 // Checked
-
-`define  SOC_ANA_PPG_LED_EN                          8'hAD
-`define  SOC_ANA_PPG_LED_INIT                        8'h00 // Checked
-
-`define  SOC_ANA_PPG_CTRL                            8'hAE
-`define  SOC_ANA_PPG_CTRL_INIT                       8'h00 // Checked
-
-`define  SOC_ANA_SDM                                 8'hAF
-`define  SOC_ANA_SDM_INIT                            8'h00 // Checked
-
-`define  SOC_ANA_BIST                                8'hB0
-`define  SOC_ANA_BIST_INIT                           8'h00 // Checked
-
-`define  SOC_ANA_LEAD_OFF_EN                         8'hB1
-`define  SOC_ANA_LEAD_OFF_EN_INIT                    8'h00 // Checked
-
-`define  SOC_A2D_SPARE_REG0                          8'hB2
-`define  SOC_A2D_SPARE_REG0_INIT                     8'h00
-
-`define  SOC_A2D_LOFF_STATN                          8'hB3
-`define  SOC_A2D_LOFF_STATN_INIT                     8'h00 // Checked
-
-`define  SOC_A2D_LOFF_STATP                          8'hB4
-`define  SOC_A2D_LOFF_STATP_INIT                     8'h00 // Checked
-
-`define  SOC_A2D_ACLEADOFF_STATN                     8'hB5
-`define  SOC_A2D_ACLEADOFF_STATN_INIT                8'h00 // Checked
-
-`define  SOC_A2D_ACLEADOFF_STATP                     8'hB6
-`define  SOC_A2D_ACLEADOFF_STATP_INIT                8'h00 // Checked
-
-/*
-`define  SOC_ALWAYS_ON_ANA_BGH_CTRIM_DEBUG           8'hC0
-`define  SOC_ALWAYS_ON_ANA_BGH_CTRIM_DEBUG_INIT      8'h10
-
-`define  SOC_ALWAYS_ON_ANA_BGH_VTRIM_DEBUG           8'hC1
-`define  SOC_ALWAYS_ON_ANA_BGH_VTRIM_DEBUG_INIT      8'h40
-
-`define  SOC_ALWAYS_ON_ANA_LDOL1V5_TRIM_DEBUG        8'hC2
-`define  SOC_ALWAYS_ON_ANA_LDOL1V5_TRIM_DEBUG_INIT   8'h02
-
-`define  SOC_ALWAYS_ON_ANA_OSC_TRIM_DEBUG            8'hC3
-`define  SOC_ALWAYS_ON_ANA_OSC_TRIM_DEBUG_INIT       8'h20
-
-`define  SOC_ALWAYS_ON_ANA_OSC_ISEL                  8'hC4
-`define  SOC_ALWAYS_ON_ANA_OSC_ISEL_INIT             8'h01
-
-`define  SOC_ALWAYS_ON_ANA_DCLEADOFF_COMP_TH         8'hC5
-`define  SOC_ALWAYS_ON_ANA_DCLEADOFF_COMP_TH_INIT    8'h00
-
-`define  SOC_ALWAYS_ON_ANA_DCLEADOFF_ISEL            8'hC6
-`define  SOC_ALWAYS_ON_ANA_DCLEADOFF_ISEL_INIT       8'h00
-
-`define  SOC_ALWAYS_ON_ANA_DCLEADOFF_VTHNSEL         8'hC7
-`define  SOC_ALWAYS_ON_ANA_DCLEADOFF_VTHNSEL_INIT    8'h00
-
-`define  SOC_ALWAYS_ON_ANA_DCLEADOFF_VTHPSEL         8'hC8
-`define  SOC_ALWAYS_ON_ANA_DCLEADOFF_VTHPSEL_INIT    8'h00
-
-`define  SOC_ALWAYS_ON_ANA_ACLEADOFF_ISEL            8'hC9
-`define  SOC_ALWAYS_ON_ANA_ACLEADOFF_ISEL_INIT       8'h00
-*/
-
-`define  SOC_ALWAYS_ON_ANA_TRIM1                         8'hC0
-`define  SOC_ALWAYS_ON_ANA_TRIM1_INIT                    8'h10
-
-`define  SOC_ALWAYS_ON_ANA_TRIM2                         8'hC1
-`define  SOC_ALWAYS_ON_ANA_TRIM2_INIT                    8'h40
-
-`define  SOC_ALWAYS_ON_ANA_TRIM3                         8'hC2
-`define  SOC_ALWAYS_ON_ANA_TRIM3_INIT                    8'h02
-
-`define  SOC_ALWAYS_ON_ANA_TRIM4                         8'hC3
-`define  SOC_ALWAYS_ON_ANA_TRIM4_INIT                    8'h20
-
-`define  SOC_ALWAYS_ON_ANA_TRIM5                         8'hC4
-`define  SOC_ALWAYS_ON_ANA_TRIM5_INIT                    8'h01
-
-`define  SOC_ALWAYS_ON_ANA_TRIM6                         8'hC5
-`define  SOC_ALWAYS_ON_ANA_TRIM6_INIT                    8'h00
-
-`define  SOC_ALWAYS_ON_ANA_TRIM7                         8'hC6
-`define  SOC_ALWAYS_ON_ANA_TRIM7_INIT                    8'h00
-
-`define  SOC_ALWAYS_ON_ANA_TRIM8                         8'hC7
-`define  SOC_ALWAYS_ON_ANA_TRIM8_INIT                    8'h04
-
-`define  SOC_ALWAYS_ON_ANA_TRIM9                         8'hC8
-`define  SOC_ALWAYS_ON_ANA_TRIM9_INIT                    8'h04
-
-`define  SOC_ALWAYS_ON_ANA_TRIM10                        8'hC9
-`define  SOC_ALWAYS_ON_ANA_TRIM10_INIT                   8'h01
+`include "soc_register_defines.svh"
+  
+`define SET_CFG_REG(REG) \
+  top_test_cfg.reg_normal[`REG] = { \
+    `REG, \
+    `INIT_``REG, \
+    `MASK_``REG, \
+    `ACCESS_``REG \
+  };
 
 `define PGMCB_WR     4'b0010
 `define PGMCB_WR32   4'b1000
@@ -767,6 +198,17 @@ class `TESTCFG extends nnc_object;
     rand logic [1:0]     filter_gain_mult;
     rand logic [21:0]    gpio_pu_en;      // 21: RESET [20:19]: TESTMODE[1:0], [18:0]: GPI0 
     rand logic [21:0]    gpio_pd_en;      // 21: RESET [20:19]: TESTMODE[1:0], [18:0]: GPI0
+
+    // ======================================================================================
+    // reg_normal[i] struture 
+    // [39:32]: Register Address
+    // [31:24]: Initial value of register
+    // [23:16]:  Maskable bits (Write Accessible bits)
+    // [15:3]: Reserved bits
+    // [2]  : Enable checker : 1: Enable, 0: Disable
+    // [1:0]: Type of access: 0: RW1C, 1: Write Only, 2: Read Only, 3: RW, 2'bxx: reserved 
+    // ======================================================================================
+    logic [39:0]         reg_normal[`NORMAL_REG_NUM]; 
 
     function new (string name = "soc_base_test_cfg");
       super.new(name);
@@ -957,6 +399,187 @@ function void `TESTNAME::build_phase(nnc_phase phase);
   top_test_cfg = `TESTCFG::type_id::create("top_test_cfg", this);
 
   nnc_config_db#(nnc_object_wrapper)::set(this, "top_env.top_sqr.main_phase", "default_sequence", null);
+
+  `SET_CFG_REG(`REG0);
+  `SET_CFG_REG(`REG1);
+  `SET_CFG_REG(`REG2);
+  `SET_CFG_REG(`REG3);
+  `SET_CFG_REG(`REG4);
+  `SET_CFG_REG(`REG5);
+  `SET_CFG_REG(`REG6);
+  `SET_CFG_REG(`REG7);
+  `SET_CFG_REG(`REG8);
+  `SET_CFG_REG(`REG9);
+  `SET_CFG_REG(`REG10);
+  `SET_CFG_REG(`REG11);
+  `SET_CFG_REG(`REG12);
+  `SET_CFG_REG(`REG13);
+  `SET_CFG_REG(`REG14);
+  `SET_CFG_REG(`REG15);
+  `SET_CFG_REG(`REG16);
+  `SET_CFG_REG(`REG17);
+  `SET_CFG_REG(`REG18);
+  `SET_CFG_REG(`REG19);
+  `SET_CFG_REG(`REG20);
+  `SET_CFG_REG(`REG21);
+  `SET_CFG_REG(`REG22);
+  `SET_CFG_REG(`REG23);
+  `SET_CFG_REG(`REG24);
+  `SET_CFG_REG(`REG25);
+  `SET_CFG_REG(`REG26);
+  `SET_CFG_REG(`REG27);
+  `SET_CFG_REG(`REG28);
+  `SET_CFG_REG(`REG29);
+  `SET_CFG_REG(`REG30);
+  `SET_CFG_REG(`REG31);
+  `SET_CFG_REG(`REG32);
+  `SET_CFG_REG(`REG33);
+  `SET_CFG_REG(`REG34);
+  `SET_CFG_REG(`REG35);
+  `SET_CFG_REG(`REG36);
+  `SET_CFG_REG(`REG37);
+  `SET_CFG_REG(`REG38);
+  `SET_CFG_REG(`REG39);
+  `SET_CFG_REG(`REG40);
+  `SET_CFG_REG(`REG41);
+  `SET_CFG_REG(`REG42);
+  `SET_CFG_REG(`REG43);
+  `SET_CFG_REG(`REG44);
+  `SET_CFG_REG(`REG45);
+  `SET_CFG_REG(`REG46);
+  `SET_CFG_REG(`REG47);
+  `SET_CFG_REG(`REG48);
+  `SET_CFG_REG(`REG49);
+  `SET_CFG_REG(`REG50);
+  `SET_CFG_REG(`REG51);
+  `SET_CFG_REG(`REG52);
+  `SET_CFG_REG(`REG53);
+  `SET_CFG_REG(`REG54);
+  `SET_CFG_REG(`REG55);
+  `SET_CFG_REG(`REG56);
+  `SET_CFG_REG(`REG57);
+  `SET_CFG_REG(`REG58); 
+  `SET_CFG_REG(`REG59);
+  `SET_CFG_REG(`REG60);
+  `SET_CFG_REG(`REG61);
+  `SET_CFG_REG(`REG62);
+  `SET_CFG_REG(`REG63);
+  `SET_CFG_REG(`REG64);
+  `SET_CFG_REG(`REG65);
+  `SET_CFG_REG(`REG66);
+  `SET_CFG_REG(`REG67);
+  `SET_CFG_REG(`REG68);
+  `SET_CFG_REG(`REG69);
+  `SET_CFG_REG(`REG70);
+  `SET_CFG_REG(`REG71);
+  `SET_CFG_REG(`REG72);
+  `SET_CFG_REG(`REG73);
+  `SET_CFG_REG(`REG74);
+  `SET_CFG_REG(`REG75);
+  `SET_CFG_REG(`REG76);
+  `SET_CFG_REG(`REG77);
+  `SET_CFG_REG(`REG78);
+  `SET_CFG_REG(`REG79);
+  `SET_CFG_REG(`REG80);
+  `SET_CFG_REG(`REG81);
+  `SET_CFG_REG(`REG82);
+  `SET_CFG_REG(`REG83);
+  `SET_CFG_REG(`REG84);
+  `SET_CFG_REG(`REG85);
+  `SET_CFG_REG(`REG86);
+  `SET_CFG_REG(`REG87);
+  `SET_CFG_REG(`REG88);
+  `SET_CFG_REG(`REG89);
+  `SET_CFG_REG(`REG90);
+  `SET_CFG_REG(`REG91);
+  `SET_CFG_REG(`REG92);
+  `SET_CFG_REG(`REG93);
+  `SET_CFG_REG(`REG94);
+  `SET_CFG_REG(`REG95);
+  `SET_CFG_REG(`REG96);
+  `SET_CFG_REG(`REG97);
+  `SET_CFG_REG(`REG98);
+  `SET_CFG_REG(`REG99);
+  `SET_CFG_REG(`REG100);
+  `SET_CFG_REG(`REG101);
+  `SET_CFG_REG(`REG102);
+  `SET_CFG_REG(`REG103);
+  `SET_CFG_REG(`REG104);
+  `SET_CFG_REG(`REG105);
+  `SET_CFG_REG(`REG106);
+  `SET_CFG_REG(`REG107);
+  `SET_CFG_REG(`REG108);
+  `SET_CFG_REG(`REG109);
+  `SET_CFG_REG(`REG110);
+  `SET_CFG_REG(`REG111);
+  `SET_CFG_REG(`REG112);
+  `SET_CFG_REG(`REG113);
+  `SET_CFG_REG(`REG114);
+  `SET_CFG_REG(`REG115);
+  `SET_CFG_REG(`REG116);
+  `SET_CFG_REG(`REG117);
+  `SET_CFG_REG(`REG118);
+  `SET_CFG_REG(`REG119);
+  `SET_CFG_REG(`REG120);
+  `SET_CFG_REG(`REG121);
+  `SET_CFG_REG(`REG122);
+  `SET_CFG_REG(`REG123);
+  `SET_CFG_REG(`REG124);
+  `SET_CFG_REG(`REG125);
+  `SET_CFG_REG(`REG126);
+  `SET_CFG_REG(`REG127);
+  `SET_CFG_REG(`REG128);
+  `SET_CFG_REG(`REG129);
+  `SET_CFG_REG(`REG130);
+  `SET_CFG_REG(`REG131);
+  `SET_CFG_REG(`REG132);
+  `SET_CFG_REG(`REG133);
+  `SET_CFG_REG(`REG134);
+  `SET_CFG_REG(`REG135);
+  `SET_CFG_REG(`REG136);
+  `SET_CFG_REG(`REG137);
+  `SET_CFG_REG(`REG138);
+  `SET_CFG_REG(`REG139);
+  `SET_CFG_REG(`REG140);
+  `SET_CFG_REG(`REG141);
+  `SET_CFG_REG(`REG142);
+  `SET_CFG_REG(`REG143);
+  `SET_CFG_REG(`REG144);
+  `SET_CFG_REG(`REG145);
+  `SET_CFG_REG(`REG146);
+  `SET_CFG_REG(`REG147);
+  `SET_CFG_REG(`REG148);
+  `SET_CFG_REG(`REG149);
+  `SET_CFG_REG(`REG150);
+  `SET_CFG_REG(`REG151);
+  `SET_CFG_REG(`REG152);
+  `SET_CFG_REG(`REG153);
+  `SET_CFG_REG(`REG154);
+  `SET_CFG_REG(`REG155);
+  `SET_CFG_REG(`REG156);
+  `SET_CFG_REG(`REG157);
+  `SET_CFG_REG(`REG158); 
+  `SET_CFG_REG(`REG159);
+  `SET_CFG_REG(`REG160);
+  `SET_CFG_REG(`REG161);
+  `SET_CFG_REG(`REG162);
+  `SET_CFG_REG(`REG163);
+  `SET_CFG_REG(`REG164);
+  `SET_CFG_REG(`REG165);
+  `SET_CFG_REG(`REG166);
+  `SET_CFG_REG(`REG167);
+  `SET_CFG_REG(`REG168);
+  `SET_CFG_REG(`REG169);
+  `SET_CFG_REG(`REG170);
+  `SET_CFG_REG(`REG171);
+  `SET_CFG_REG(`REG172);
+  `SET_CFG_REG(`REG173);
+  `SET_CFG_REG(`REG174);
+  `SET_CFG_REG(`REG175);
+  `SET_CFG_REG(`REG176);
+  `SET_CFG_REG(`REG177);
+  `SET_CFG_REG(`REG178);
+  `SET_CFG_REG(`REG179);
 
   `nnc_info ("build_phase", "Exiting...", NNC_HIGH)
   phase.drop_objection(this);
@@ -1288,5 +911,94 @@ function void `TESTNAME::report_phase(nnc_phase phase);
    phase.drop_objection(this);
 
 endfunction
+
+// Register class
+class nnc_register;
+  string name;
+  logic [7:0] address;
+  logic [7:0] default_value;
+  logic [7:0] mask_value;
+  logic [7:0] access;
+  logic [7:0] pads;
+  //logic wavegen_reg;
+
+  function new(string name, logic[7:0] address, logic[7:0] default_value, logic[7:0] mask_value, logic[7:0] access/*, logic wavegen_reg*/);
+    this.name = name;
+    this.address = address;
+    this.default_value = default_value;
+    this.mask_value = mask_value;
+    this.access = access;
+    //this.wavegen_reg = wavegen_reg;
+    this.pads = 'h0;
+    `nnc_info("SOC_TEST", $sformatf("create nnc_register for addr %0h", address),UVM_LOW);
+  endfunction
+
+  // Read method
+  task read_init();
+    // Read data from address
+    if(^address !== 1'bx)begin
+      /*if(wavegen_reg)begin
+	`nnc_info("SOC_TEST", $sformatf("read_init :: wavegen reg address %0h", address),UVM_LOW);
+        //`RD_RESET_CHK_WAVEGEN_REG(address, default_value, pads);
+      end
+      else */begin
+	`nnc_info("SOC_TEST", $sformatf("read_init :: normal reg address %0h", address),UVM_LOW);
+        `RD_RESET_CHK_NORMAL_REG(address, default_value, pads);
+      end
+    end
+    else begin
+      `nnc_info("SOC_TEST", $sformatf("Register do not exist for read_init:: address %0h", address),UVM_DEBUG);
+    end
+  endtask
+
+  // Write method
+  task write_read(input bit[7:0] wr_data);
+    // Perform write access 
+    if(^address !== 1'bx)begin
+      if (access === 1) begin //WO - write only
+        /*if(wavegen_reg) begin
+	  `nnc_info("SOC_TEST", $sformatf("write_read WO :: wavegen reg address %0h", address),UVM_LOW);
+          //`WR_WAVEGEN_REG(address, wr_data, pads);
+        end
+        else */begin
+	  `nnc_info("SOC_TEST", $sformatf("write_read WO :: normal reg address %0h", address),UVM_LOW);
+          `WR_NORMAL_REG(address, wr_data, pads);
+        end
+      end
+      if (access === 3) begin //WR - write and read
+        /*if(wavegen_reg)begin
+	  `nnc_info("SOC_TEST", $sformatf("write_read WR :: wavegen reg address %0h", address),UVM_LOW);
+          //`WR_RD_CHK_WAVEGEN_REG(address, wr_data, pads, mask_value);
+        end
+        else */begin
+	  `nnc_info("SOC_TEST", $sformatf("write_read WR :: normal reg address %0h", address),UVM_LOW);
+          `WR_RD_CHK_NORMAL_REG(address, wr_data, pads, mask_value);
+        end
+      end
+      else begin
+      // error for writing in read only register 
+      end
+    end
+    else begin
+      `nnc_info("SOC_TEST", $sformatf("Register do not exist for write_read:: address %0h", address),UVM_DEBUG);
+    end
+  endtask
+
+  task check_reserved_regs(input logic [7:0]reserved_addr,input bit[7:0] wr_data);
+    logic [7:0] rd_data;
+    /*if(wavegen_reg)begin
+      //`nnc_info("SOC_TEST", $sformatf("check_reserved_regs WR :: wavegen reg address %0h", reserved_addr),UVM_LOW);
+      //`WR_WAVEGEN_REG(reserved_addr, wr_data, pads);
+      //`RD_WAVEGEN_REG(reserved_addr, pads, rd_data);
+      //if(rd_data !== 8'h0)`nnc_error("TEST", $sformatf("check_reserved_regs WR :: for wavegen reg reserved addr =%0h , read_data=%0h exp=8'h0",reserved_addr,rd_data))
+    end
+    else*/ begin
+      `nnc_info("SOC_TEST", $sformatf("check_reserved_regs WR :: normal reg address %0h", reserved_addr),UVM_LOW);
+      `WR_NORMAL_REG(reserved_addr, wr_data, pads);
+      `RD_NORMAL_REG(reserved_addr, pads, rd_data);
+      if(rd_data !== 8'h0)`nnc_error("TEST", $sformatf("check_reserved_regs WR :: for normal reg reserved addr =%0h , read_data=%0h exp=8'h0",reserved_addr,rd_data))
+    end
+  endtask
+endclass
 `endif
 

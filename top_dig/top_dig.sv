@@ -417,14 +417,15 @@ wire		cs_n, miso, mosi, sclk;
 
 // internal wire
 // with zmeas
-wire [1:0]   data_type_sel;    //00 is sinwave, 01: DC, 10: square wave, 11: sinwave
+wire [1:0]   data_type_sel;    //00 is sinwave, 01: DC, others: sinwave
 wire [9:0]   dc_data;    
+wire [9:0]   dc_data_c;    
 wire [9:0]   square_data;    
 
 wire [9:0]   square_data_l;    
 wire [9:0]   square_data_h;    
 
-wire [15:0]  square_clk_div;
+//wire [15:0]  square_clk_div;
 
 wire        zmeas_pclk;
 wire        zmeas_mclk;
@@ -448,6 +449,8 @@ assign      D2A_SW_Z_RXGAIN = D2A_SW_Z_RXGAIN_REG;
 
 // with imeas
 wire        imeas_dig_adc_clk;
+wire        iq_dig_adc_clk;
+wire        iq_adc_clk;
 wire LED_STATUS;
 
 wire bio_disable;
@@ -501,11 +504,18 @@ wire         flash_por_resetn; 	// flash por reset
 wire	     presetn;
 wire	     poresetn;
 wire	     ext_resetn;
+wire [15:0] iq_reg_ctrl;
+wire [3:0]  iq_iclk_div; 
+wire        iq_adc_clk_inv;
+
+wire 	    Bioz_reset_reg;
+wire 	    Bioz_resetn;
 
 wire  meas_sync_en;
 wire  config_zmeas_ctrl_reg;
 wire         zmeas_en;
-//wire         Bioz_en;
+wire         Bioz_en;
+wire         Bioz_en_sync;
 wire         zmeas_phase_dither_en;
 wire         fclk_dynen;
 
@@ -529,6 +539,7 @@ wire [7:0]   leadoff_tgt_1;
 wire [7:0]   leadoff_switch_tgt;
 wire         leadoff_int_en;
 wire	     imeas_pclk;
+wire	     iq_pclk;
 wire	     hresetreq;
 
 wire	     flash_bist_resetn_atpg;
@@ -994,10 +1005,13 @@ pinmux u_pinmux (
 
 );  
 
+wire Bioz_mclk;
+
 wire  SDM_CLK_GPIO_pha_sel;
 wire [1:0] acleadoff_clk_sel;
 wire [1:0] rld_clk_reg;
 wire [2:0]  cic_rate;
+wire [3:0]  cic_rate_iq;
 
 assign square_data_l = {d2a_trim14_from_flash[1:0],d2a_trim13_from_flash};
 assign square_data_h = {d2a_trim12_from_flash[1:0],d2a_trim11_from_flash};
@@ -1020,7 +1034,7 @@ clk_ctrl clk_ctrl_inst
   .square_data_h(square_data_h),    //input
   .square_data_l(square_data_l),    //input
 
-  .square_clk_div(square_clk_div), //from SPI //input  wire  [9:0]  checking_clk_div
+  //.square_clk_div(square_clk_div), //from SPI //input  wire  [9:0]  checking_clk_div
 
    .m1k_reg_atpg(m1k_reg_atpg),
 
@@ -1039,6 +1053,10 @@ clk_ctrl clk_ctrl_inst
   .imeas_en(spi2imeas.o_imeas_en), //from SPI
   .pmu_fclk_en(pmu_fclk_en),
   .fclk_dynen(fclk_dynen), //from SPI //input  wire fclk_dynen
+
+.iq_iclk_div(iq_iclk_div), 
+.iq_adc_clk_inv(iq_adc_clk_inv),
+
   .pclk_div(pclk_div), //from SPI //input  wire  [1:0]  pclk_div
   .iclk_div(iclk_div), //from SPI //input  wire  [2:0]  iclk_div
   .mclk_div(mclk_div), //from SPI //input  wire  [2:0]  mclk_div
@@ -1057,6 +1075,7 @@ clk_ctrl clk_ctrl_inst
 
   //.zmeas_pclk(zmeas_pclk),
   .imeas_pclk(imeas_pclk),
+  .iq_pclk(iq_pclk),
   .Bioz_mclk(Bioz_mclk),
 
 //these 3 will be removed
@@ -1064,6 +1083,8 @@ clk_ctrl clk_ctrl_inst
   .zmeas_en(Bioz_en), //from SPI
   .zmeas_mclk(zmeas_mclk),
 
+  .iq_adc_clk(iq_adc_clk),
+  .iq_dig_adc_clk(iq_dig_adc_clk),
   .imeas_adc_clk(imeas_adc_clk),
   .imeas_dig_adc_clk(imeas_dig_adc_clk)
 );
@@ -1079,6 +1100,9 @@ reset_ctrl rst_ctrl_inst
   .hfosc_atpg(hfosc_atpg),
   .fclk(fclk),
   .pclk(pclk),
+.Bioz_reset_reg(Bioz_reset_reg),
+.Bioz_resetn(Bioz_resetn),
+
   .poresetn(poresetn),
   .poresetn_hf(poresetn_hf),
   .presetn(presetn),
@@ -1106,18 +1130,22 @@ pmu u_pmu (
 );
 wire [31:0]   phase_inc;
 wire [31:0]   phase_offset;
-wire Bioz_en;
+wire [31:0]   phase_offset_c;
 
  BioZ #(
     .PHASE_W(32)
-) (
+) BioZ(
    .clk(Bioz_mclk),                          // CLK
-   .resetn(presetn),                       // Reset
+   .resetn(Bioz_resetn),                       // Reset
    .enable(Bioz_en_sync),
    //.phase_inc(32'h0666_6666),
    //.phase_offset(0),  //if don't start from 0
    .phase_inc(phase_inc),
    .phase_offset(phase_offset),  //if don't start from 0
+   .phase_offset_c(phase_offset_c),  //if don't start from 0
+  .data_type_sel(data_type_sel),    //00 is sinwave, 01: DC, others: sinwave
+  .dc_data(dc_data),    
+  .dc_data_c(dc_data_c),    
    .sin_unsigned(),
    .cos_unsigned(),
    .i_square(),
@@ -1127,69 +1155,38 @@ wire Bioz_en;
 
 
 
-// instantiate zmeas
-zmeas u_zmeas(
-   .data_type_sel(data_type_sel),    //00 is sinwave, 01: DC, 10: square wave, 11: sinwave
-   .dc_data(dc_data),    
-   .square_data(square_data),        //input from clk ctrl
-   .square_data_h(square_data_h),    //input from trim
-   .square_data_l(square_data_l),    //input from trim
-   .ecgcal_reg_ctrl( spi2imeas.o_imeas_reg_ctrl[15:8]), //imeas_reg_ctrl_1 is not used in imeas. Using it for ECG CAL
 
-   .D2A_ECGCAL_VSEL_TRIM	  (D2A_ECGCAL_VSEL_TRIM_REG),
+iq_filter_wrapper u_iq_filter_wrapper(
 
-   .D2A_SW_Z_TX_GSEL	    (D2A_SW_Z_TX_GSEL_REG),
-   .D2A_SW_Z_CALMD		    (D2A_SW_Z_CALMD_REG),
-   .D2A_SW_Z_CLK256K	    (D2A_SW_Z_CLK256K_REG),
-   .D2A_SW_Z_DDS		      (D2A_SW_Z_DDS_REG),
-   .D2A_SW_Z_RXGAIN	    (D2A_SW_Z_RXGAIN_REG),
-   //.D2A_SW_Z_EN		      (D2A_SW_Z_EN_REG),
-   .D2A_Z_EN		      (D2A_Z_EN_REG),
+  // clock and reset
 
-   .D2A_SW_Z_ADC_EN	    (D2A_SW_Z_ADC_EN_REG),
-   .D2A_SW_Z_ADC_SAMPLE	(D2A_SW_Z_ADC_SAMPLE_REG),
-   .A2D_SW_Z_ADC_D		    (10'b0),
-   .A2D_SW_Z_ADC_EOC	    (1'b0),
-   //xin add 2/oct/2022	
-   .adc_en_sel  (o_adc_en_sel),
+  .pclk(iq_pclk),
+  .adc_clk(iq_dig_adc_clk), //SDM_CLK,imeas_dig_adc_clk
+  .cic_rate(cic_rate_iq),
+  // with analog
+  //.reg_ctrl(),
+  .reg_ctrl(iq_reg_ctrl),
 
+  .presetn(Bioz_resetn),
+  // atpg enable
+  .atpg_en(atpg_en),
+  .scan_en(scan_en),  //Tri add
+  
+  .iq_adc_din_I(imeas_adc_din),	//SDM_OUT, from analog ,should connect to IADC
+  .iq_adc_din_Q(imeas_adc_din),	//SDM_OUT, from analog ,should connect to QADC
+  .iq_int_I(),
+  .iq_int_Q(),
+  .iq_int_sts_I(),
+  .iq_int_sts_Q(),
+  .int_clr(),
+  .int_length_slct(spi2imeas.int_length),
+  .chdata_I(),//output wire   [19:0]
+  .chdata_en_n_I(), //output wire   [19:0]
+  .chdata_Q(),//output wire   [19:0]
+  .chdata_en_n_Q() //output wire   [19:0]
 
-   .Z_ADC_EN_SPI(o_Z_ADC_EN_SPI),
-   // clock and reset
-   .pclk(zmeas_pclk),
-   .mclk(zmeas_mclk),    
-   .presetn(presetn),
-   //SPI:
-   .zmeas_phase_dither_en(zmeas_phase_dither_en),
-   .meas_sync_en(meas_sync_en),
-   .config_zmeas_ctrl_reg(config_zmeas_ctrl_reg),
-   .zmeas_int_clr(zmeas_int_clr),//input wire 
-   .adc_int_clr(zmeas_adc_int_clr),//input wire 
-   .reg_ctrl(zmeas_reg_ctrl),//input wire [31:0]
-   //.reg_ctrl({flash_to_zmeas_ctrl3,flash_to_zmeas_ctrl2,flash_to_zmeas_ctrl1,flash_to_zmeas_ctrl0}),//input wire [31:0] 
-   .reg_dataout(zmeas_reg_dataout),//output wire [31:0] 
-   .xn_data(zmeas_xn_data),//output wire  [9:0] 
-   .sine_for_dft(zmeas_sine_for_dft),//output wire  [9:0] 
-   .cosine_for_dft(zmeas_cosine_for_dft),//output wire  [9:0] 
-   .summation_offset_forreal(zmeas_summation_offset_forreal),//output wire [28:0] 
-   .summation_real(zmeas_summation_real),//output wire [28:0] 
-   .summation_imag(zmeas_summation_imag),//output wire [28:0] 
-   .shiftedreal_inter(zmeas_shiftedreal_inter),//output wire signed [16:0] 
-   .dft_cnt(zmeas_dft_cnt),//output wire [11:0] 
-   .reg_zmeas_int(reg_zmeas_int),//output reg 
-   .reg_zmeas_adc_int(reg_zmeas_adc_int),//output reg 
-
-   .reg_status(zmeas_reg_status),
-
-   // interrupt
-   .zmeasint(zmeas_int), //to io buf
-   .zmeasadcint(zmeas_adc_int), //to io buf
-   // atpg and rom bist
-   .atpg_en(atpg_en),
-   .scan_en(scan_en)  //Tri add
 
 );
-
 
 imeas u_imeas(
 
@@ -1282,16 +1279,22 @@ spi_top #(
   .i_mosi(mosi),
   .o_miso(miso),
 
+.iq_reg_ctrl(iq_reg_ctrl),
+.iq_iclk_div(iq_iclk_div), 
+.iq_adc_clk_inv(iq_adc_clk_inv),
    .phase_inc(phase_inc),
    .phase_offset(phase_offset),  //if don't start from 0
+   .phase_offset_c(phase_offset_c),  //if don't start from 0
+.Bioz_reset_reg(Bioz_reset_reg),
    .Bioz_en(Bioz_en),
   .data_type_sel(data_type_sel),    //00 is sinwave, 01: DC, 10: square wave, 11: sinwave
   .dc_data(dc_data),    
+  .dc_data_c(dc_data_c),    
 /*
   .square_data_h(square_data_h),    
   .square_data_l(square_data_l),    
 */
-  .square_clk_div(square_clk_div), //from SPI //input  wire  [9:0]  square_clk_div
+  //.square_clk_div(square_clk_div), //from SPI //input  wire  [9:0]  square_clk_div
 
   .ppg_ctrl_disable(ppg_ctrl_disable),
   .bio_disable(bio_disable),

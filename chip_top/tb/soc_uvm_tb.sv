@@ -19,7 +19,6 @@ import nnc_uvm_pkg::*;
 `define SYS_BLOCK_ENABLE
 `define FLASH_BLOCK_ENABLE
 `define IMEAS_BLOCK_ENABLE
-`define ZMEAS_BLOCK_ENABLE
 `define MONITOR_BLOCK_ENABLE
 `define PPG_BLOCK_ENABLE
 `define ANA_BLOCK_ENABLE
@@ -39,10 +38,6 @@ import nnc_uvm_pkg::*;
 
 `ifdef IMEAS_BLOCK_ENABLE
 `include "blocks/tb_chip_top_uvm_imeas.sv"
-`endif
-
-`ifdef ZMEAS_BLOCK_ENABLE
-`include "blocks/tb_chip_top_uvm_zmeas.sv"
 `endif
 
 `ifdef ANA_BLOCK_ENABLE

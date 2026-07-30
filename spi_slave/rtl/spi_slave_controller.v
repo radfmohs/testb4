@@ -28,6 +28,7 @@ i_cs_n           ,
 i_mosi           ,
 o_addr           ,
 o_wr             ,
+o_rd             ,
 o_wr_data        ,
 i_rd_data        ,
 o_miso           ,
@@ -53,6 +54,7 @@ input [DATA_WIDTH-1:0] i_rd_data     ;
 input [ 17:0]           i_fifo_rd_data ;
 input  i_tag_out_en;
 output reg o_wr                      ;
+output reg o_rd                      ; 
 output reg [DATA_WIDTH-1:0] o_wr_data;
 output reg [ADDR_WIDTH-1:0] o_addr   ;
 output reg o_miso                    ;
@@ -302,9 +304,31 @@ always@(posedge i_sclk, negedge i_rst_n) begin
   end
 end
 
-//-----------------------------mosi output------------------//
 
 wire i_sclk_neg = atpg_en ? i_sclk : ~i_sclk;
+// rd_enable
+//always@(posedge i_sclk, negedge i_rst_n) begin
+always@(posedge i_sclk_neg, negedge i_rst_n) begin
+  if (!i_rst_n) begin
+    o_rd <= 1'b0;
+  end 
+  else if(bit_cnt ==6'h0)begin
+    o_rd <=1'b0;
+  end 
+  else begin
+    if ((bit_cnt ==6'h15) && (cmd_reg == 1'b0)) begin 
+      o_rd <= 1'b1;
+    end 
+    else begin
+      o_rd <= 1'b0;
+    end
+  end
+end
+
+
+//-----------------------------mosi output------------------//
+
+
 //always@(posedge i_sclk, negedge i_rst_n) begin
 always@(posedge i_sclk_neg, negedge i_rst_n) begin
   if (!i_rst_n) begin

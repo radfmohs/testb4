@@ -39,7 +39,7 @@ wire         o_imeas_en;
 wire [1:0]   o_imeas_input_format;
 wire [11:0]  o_active_channel_num;
 wire         o_imeas_grp_ctl;   
-
+wire         int_length;
 //I
 wire[15:0]   ch0data_max_final;
 wire[15:0]   ch0data_min_final;
@@ -86,7 +86,7 @@ output o_imeas_en,
 output o_imeas_input_format,
 output o_active_channel_num,
 output o_imeas_grp_ctl,
-
+output int_length,
 
 input ch0data_max_final,
 input ch0data_min_final,
@@ -134,6 +134,7 @@ input o_imeas_en,
 input o_imeas_input_format,
 input o_active_channel_num,
 input o_imeas_grp_ctl,
+input int_length,
 
 
 output ch0data_max_final,

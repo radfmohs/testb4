@@ -152,7 +152,10 @@ wire sample = sample_tmp & (~sample_tmp_d1);
   
   //check format
   wire [15:0]cic_out_sel;
-  assign cic_out_sel = format_sel ? (cic_out_1+16'h8000) :cic_out_1;
+  wire [16:0] cic_unsign;
+  assign cic_unsign = {cic_out_1[15],cic_out_1} + 17'h8000;
+  //assign cic_out_sel = format_sel ? (cic_out_1+16'h8000) :cic_out_1;
+  assign cic_out_sel = format_sel ? cic_unsign[15:0] :cic_out_1;
 
   //eco out ?
   reg [2:0]cont_dely;

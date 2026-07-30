@@ -24,8 +24,6 @@ class soc_env extends nnc_env;
 
     nnc_sysc_environment       sysc_env;
 
-    nnc_zmeas_freq_environment   zmeas_freq_env;
-
     nnc_imeas_filter_environment   imeas_filter_env;
 
     nnc_spi_mon_env            spi_mon_env_i;
@@ -38,7 +36,6 @@ class soc_env extends nnc_env;
 
     virtual  nnc_spi_if        spi_mon_if;                       
     virtual  nnc_reg_interface spi_reg_if;
-    virtual  nnc_zmeas_freq_interface zmeas_mon_if;
     virtual  nnc_imeas_filter_mon_interface imeas_filter_mon_if;
     virtual  nnc_lead_off_interface vif;
 
@@ -66,7 +63,6 @@ class soc_env extends nnc_env;
 
         spi_env_i = nnc_spi_env::type_id::create("spi_env_i", this);
         sysc_env = nnc_sysc_environment::type_id::create("sysc_env", this);
-        zmeas_freq_env = nnc_zmeas_freq_environment::type_id::create("zmeas_freq_env", this);
         imeas_filter_env = nnc_imeas_filter_environment::type_id::create("imeas_filter_env", this);
         spi_mon_env_i = nnc_spi_mon_env::type_id::create("spi_mon_env_i", this);
         spi_fifo_mon = soc_fifo_mon::type_id::create("spi_fifo_mon", this);
@@ -86,7 +82,6 @@ class soc_env extends nnc_env;
         nnc_config_db#(nnc_analog_config)::set(this, "ana_env.*","ana_cfg", top_cfg.ana_cfg);
         //nnc_config_db#(ao_an_sw_config)::set(this, "ao_an_sw_scoreboard_i","ao_an_sw_cfg", top_cfg.ao_an_sw_cfg);
         nnc_config_db#(nnc_sysc_config)::set(this, "sysc_env.*", "sysc_cfg", top_cfg.sysc_cfg);          
-        nnc_config_db#(nnc_zmeas_freq_config)::set(this, "*", "zmeas_freq_cfg", top_cfg.zmeas_freq_cfg);          
         nnc_config_db#(nnc_imeas_filter_config)::set(this, "*", "imeas_filter_cfg", top_cfg.imeas_filter_cfg);          
         nnc_config_db#(nnc_spi_monitor_config)::set(this, "spi_mon_env_i", "spi_mon_cfg", top_cfg.spi_cfg);
         nnc_config_db#(nnc_ppg_config)::set(this, "ppg_env.*", "cfg", top_cfg.ppg_cfg);
@@ -95,10 +90,6 @@ class soc_env extends nnc_env;
         if (!nnc_config_db#(virtual nnc_spi_if)::get(this, "", "spi_mon_if", spi_mon_if))
           `nnc_fatal("ENS3_CHIP_ENV", "Can't get spi_mon_if")
         nnc_config_db#(virtual nnc_spi_if)::set(this, "spi_mon_env_i.*", "spi_mon_if", spi_mon_if);
-
-        if (!nnc_config_db#(virtual nnc_zmeas_freq_interface)::get(this, "", "zmeas_mon_if", zmeas_mon_if))
-          `nnc_fatal("BAF4P1_CHIP_ENV", "Can't get zmeas_mon_if")
-        nnc_config_db#(virtual nnc_zmeas_freq_interface)::set(this, "zmeas_freq_env.*", "zmeas_mon_if", zmeas_mon_if);
 
         if (!nnc_config_db#(virtual nnc_imeas_filter_mon_interface)::get(this, "", "imeas_filter_mon_if", imeas_filter_mon_if))
           `nnc_fatal("BAF4P1_CHIP_ENV", "Can't get imeas_filter_mon_if")

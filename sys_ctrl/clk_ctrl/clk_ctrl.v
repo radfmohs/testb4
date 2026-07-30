@@ -46,6 +46,9 @@ input  wire [1:0]   acleadoff_clk_sel,
 input  wire [1:0]   rld_clk_reg,
 output wire    m1k_reg_atpg,
 
+input  wire [3:0]  iq_iclk_div, 
+input  wire        iq_adc_clk_inv,
+
 input  wire  [1:0]  pclk_div,               // pclk divider
 input  wire  [2:0]  iclk_div,               // imeas adc clock divider
 input  wire  [7:0]  mclk_div,               // Bioz mclk clock divider
@@ -60,8 +63,12 @@ output wire 	      fifo_pclk,
 output wire         flash_fclk,
 output wire         Bioz_pclk,             // for Bioz pclk
 output wire         imeas_pclk,             // for imeas pclk
+output wire         iq_pclk,             // for iq pclk
 output wire         Bioz_mclk,             // Bioz mclk, 4m/N Hz
 output wire         imeas_dig_adc_clk,      // imeas adc clock for digital 
+
+output wire         iq_dig_adc_clk,      // iq adc clock for digital 
+output wire         iq_adc_clk,      // iq adc clock for analog 
 
 input  wire         notch_filter_enable,
 output wire         nf_pclk,
@@ -85,7 +92,10 @@ wire	      div_fclk_q;
 
 reg  [6:0]  iclk_div_cnt;
 reg  [6:0]  iclk_div_num;
+reg  [10:0]  iq_iclk_div_cnt;
+reg  [10:0]  iq_iclk_div_num;
 wire        iclk;
+wire        iq_iclk;
 
 reg         div2_clk_div_pre;
 wire        div2_clk_div;
@@ -180,6 +190,18 @@ u_cmsdk_clock_gate_imeas_pclk (
 .bypass     (scan_en),  //Tri change
 .gated_clk  (imeas_pclk));
 
+wire Bioz_en_sync_bak;
+reg Bioz_en_sync_bak_d1;
+reg Bioz_en_sync_bak_d2;
+
+common_clock_gate 
+u_cmsdk_clock_gate_iq_pclk (
+.clk        (pclk),
+.enable     (Bioz_en_sync),
+.bypass     (scan_en),  //Tri change
+.gated_clk  (iq_pclk));
+
+
 
 //nf gating
 common_clock_gate 
@@ -189,6 +211,7 @@ u_cmsdk_clock_gate_nf_pclk (
 .bypass     (scan_en),  //Tri change
 .gated_clk  (nf_pclk));
 
+
 //Bioz mclk div from Amir requirement
 common_sync_bit   //common_bit_sync 
  #(
@@ -197,8 +220,20 @@ common_sync_bit   //common_bit_sync
        .clk(fclk),
        .rst_(poresetn),
        .async_in(Bioz_en),
-       .sync_out(Bioz_en_sync)
+       .sync_out(Bioz_en_sync_bak)
       );
+
+always @ (posedge fclk or negedge poresetn) begin
+	if (~poresetn) begin
+ 		Bioz_en_sync_bak_d1 <= 1'b0;
+ 		Bioz_en_sync_bak_d2 <= 1'b0;
+	end else begin
+ 		Bioz_en_sync_bak_d1 <= Bioz_en_sync_bak;
+ 		Bioz_en_sync_bak_d2 <= Bioz_en_sync_bak_d1;
+	end
+end
+
+assign Bioz_en_sync = Bioz_en_sync_bak | Bioz_en_sync_bak_d1 | Bioz_en_sync_bak_d2;
 
 reg  [7:0] mclk_div_cnt; 
 always @ (posedge fclk or negedge poresetn) begin
@@ -350,8 +385,8 @@ assign  square_data = square_data_temp_reg;
 //Bioz adc clock gating
 common_clock_gate 
 u_cmsdk_clock_gate_Bioz_clk (
-//.clk        (fclk),
-.clk        (mclk_reg_final_atpg),
+.clk        (fclk),
+//.clk        (mclk_reg_final_atpg),
 .enable     (Bioz_en_sync),
 .bypass     (scan_en),  //Tri change
 .gated_clk  (Bioz_mclk));
@@ -429,7 +464,74 @@ u_cmsdk_clock_gate_iadc_clk (
 
 CLKMX2X4M DNT_DIV_SDM_CLK (.A(imeas_dig_adc_clk), .B(~imeas_dig_adc_clk ), .S0(SDM_CLK_GPIO_pha_sel), .Y(SDM_CLK_GPIO));
 //assign         SDM_CLK_GPIO = SDM_CLK_GPIO_pha_sel ? ~imeas_dig_adc_clk : imeas_dig_adc_clk;          // 
+//++++++++++++++++++++++++++++++++++++++++++++
+//for  IQ clk
+//+++++++++++++++++++++++++++++++++++++++++++++
+//imeas adc clock divider 50% duty
+reg         iq_div_fclk_d;
+reg         iq_div_fclk_d_1t;
+wire	    iq_div_fclk_q;
+always @ (*) begin
+  case (iq_iclk_div)
+    4'b0000: iq_iclk_div_num = 11'd0;
+    4'b0001: iq_iclk_div_num = 11'd1;
+    4'b0010: iq_iclk_div_num = 11'd3;
+    4'b0011: iq_iclk_div_num = 11'd7;
+    4'b0100: iq_iclk_div_num = 11'd15;
+    4'b0101: iq_iclk_div_num = 11'd31;
+    4'b0110: iq_iclk_div_num = 11'd63;
+    4'b0111: iq_iclk_div_num = 11'd127;
+    4'b1000: iq_iclk_div_num = 11'd255;
+    4'b1001: iq_iclk_div_num = 11'd511;
+    4'b1010: iq_iclk_div_num = 11'd1023;
+    4'b1011: iq_iclk_div_num = 11'd2047;
+    default: iq_iclk_div_num = 11'd0;
+  endcase
+end
 
+always @ (posedge fclk or negedge poresetn) begin
+  if (~poresetn) 
+    iq_iclk_div_cnt <= 11'b0;
+  else if (iq_iclk_div_cnt == iq_iclk_div_num)
+    iq_iclk_div_cnt <= 11'b0;
+  else
+    iq_iclk_div_cnt <= iq_iclk_div_cnt + 11'b1;
+end
+
+always @ (*) begin
+    if (iq_iclk_div_cnt == iq_iclk_div_num)
+        iq_div_fclk_d = ~iq_div_fclk_d_1t;
+    else
+        iq_div_fclk_d = iq_div_fclk_d_1t;
+end
+
+always @ (posedge fclk or negedge poresetn) begin
+    if (~poresetn)
+        iq_div_fclk_d_1t <= 1'b0;
+    else
+        iq_div_fclk_d_1t <= iq_div_fclk_d;
+end
+
+// creat_generate_clk here
+DFFRQX4M DFF_IQ_DIV_FCLK (.Q(iq_div_fclk_q), .CK(fclk), .D(iq_div_fclk_d), .RN(poresetn));
+
+CLKMX2X4M DNT_IQ_DIV_FCLK_ATPG (.A(iq_div_fclk_q), .B(scan_clk), .S0(atpg_en), .Y(iq_iclk));
+
+//imeas adc clock gating
+common_clock_gate 
+u_cmsdk_clock_gate_iq_adc_clk (
+.clk        (iq_iclk),
+.enable     (Bioz_en_sync),
+.bypass     (scan_en),  //Tri change
+.gated_clk  (iq_dig_adc_clk));
+
+wire iq_adc_inv_atpg;
+
+CLKMX2X2M DNT_IQ_ADC_CLK_ATPG (.A(iq_adc_clk_inv), .B(1'b1), .S0(atpg_en), .Y(iq_adc_inv_atpg));
+CLKMX2X4M DNT_IQ_ADC_CLK_INV  (.A(~iq_dig_adc_clk), .B(iq_dig_adc_clk), .S0(iq_adc_inv_atpg), .Y(iq_adc_clk));
+
+
+//++++++++++++++++++++++++++++++++++++++++++++
 
 //ac lead off detection clock
 reg[2:0] leadclk_div_num;

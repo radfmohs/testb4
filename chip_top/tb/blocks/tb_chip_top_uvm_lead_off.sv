@@ -23,7 +23,7 @@ assign   vif.int_sts_duration_loff_statp    = `IMEAS_TOP.int_sts_duration_loff_s
 assign   vif.int_sts_duration_acloff_statn  = `IMEAS_TOP.int_sts_duration_acloff_statn;
 assign   vif.int_sts_duration_acloff_statp  = `IMEAS_TOP.int_sts_duration_acloff_statp;
 assign   vif.lead_off_sts_clear  =   `IMEAS_TOP.int_clr;
-assign   vif.switch_tgt          =   `IMEAS_TOP.leadoff_switch_tgt;
+assign   vif.switch_tgt          =   dut_vif.leadoff_switch_tgt;
 
 `ifndef POSTLAYOUT_PG
 assign   vif.switch_tgt_cnt_loff_statn      =   `IMEAS_TOP.u_leadoff_chk_loff_statn.leadoff_switch_tgt_cnt;
@@ -43,15 +43,14 @@ assign   vif.switch_tgt_cnt      = {
                                    };
 `endif
 
+assign   vif.duration_tgt        =   dut_vif.leadoff_duration_tgt;
 `ifdef BEHAVIORAL
-assign   vif.duration_tgt        =   `IMEAS_TOP.leadoff_duration_tgt;
 
 assign   vif.duration_tgt_cnt_loff_statn    =   `IMEAS_TOP.u_leadoff_chk_loff_statn.leadoff_duration_tgt_cnt;
 assign   vif.duration_tgt_cnt_loff_statp    =   `IMEAS_TOP.u_leadoff_chk_loff_statp.leadoff_duration_tgt_cnt;
-assign   vif.duration_tgt_cnt_acloff_statn  =   `IMEAS_TOP.u_leadoff_chk_loff_statn.leadoff_duration_tgt_cnt;
-assign   vif.duration_tgt_cnt_acloff_statp  =   `IMEAS_TOP.u_leadoff_chk_loff_statp.leadoff_duration_tgt_cnt;  
+assign   vif.duration_tgt_cnt_acloff_statn  =   `IMEAS_TOP.u_leadoff_chk_acloff_statn.leadoff_duration_tgt_cnt;
+assign   vif.duration_tgt_cnt_acloff_statp  =   `IMEAS_TOP.u_leadoff_chk_acloff_statp.leadoff_duration_tgt_cnt;  
 `else
-assign   vif.duration_tgt        =   {`IMEAS_TOP.leadoff_tgt_1, `IMEAS_TOP.leadoff_tgt_0};
 assign   vif.duration_tgt_cnt    = { 
                                    `IMEAS_TOP.leadoff_duration_tgt_cnt_reg_15_.Q, 
                                    `IMEAS_TOP.leadoff_duration_tgt_cnt_reg_14_.Q, 
@@ -75,10 +74,14 @@ assign   vif.lead_off_int_en     =   `IMEAS_TOP.leadoff_int_en;
 assign   vif.lead_off_det_en     =   `IMEAS_TOP.leadoff_det_en;
 assign   vif.dc_loff_en          =   dut_vif.en_ac_dc_lead_off[0];
 assign   vif.ac_loff_en          =   dut_vif.en_ac_dc_lead_off[1];
-assign   vif.A2D_LOFF_STATN      =   `IMEAS_TOP.A2D_LOFF_STATN;
-assign   vif.A2D_LOFF_STATP      =   `IMEAS_TOP.A2D_LOFF_STATP;
-assign   vif.A2D_ACLOFF_STATN   =   `IMEAS_TOP.A2D_ACLEADOFF_STATN;
-assign   vif.A2D_ACLOFF_STATP   =   `IMEAS_TOP.A2D_ACLEADOFF_STATP;
+//assign   vif.A2D_LOFF_STATN      =   `IMEAS_TOP.A2D_LOFF_STATN;
+//assign   vif.A2D_LOFF_STATP      =   `IMEAS_TOP.A2D_LOFF_STATP;
+//assign   vif.A2D_ACLOFF_STATN   =   `IMEAS_TOP.A2D_ACLEADOFF_STATN;
+//assign   vif.A2D_ACLOFF_STATP   =   `IMEAS_TOP.A2D_ACLEADOFF_STATP;
+assign   vif.A2D_LOFF_STATN     =   (dut_vif.leadoff_high_low_active == 0) ? `IMEAS_TOP.A2D_LOFF_STATN : ~`IMEAS_TOP.A2D_LOFF_STATN;
+assign   vif.A2D_LOFF_STATP     =   (dut_vif.leadoff_high_low_active == 0) ? `IMEAS_TOP.A2D_LOFF_STATP : ~`IMEAS_TOP.A2D_LOFF_STATP;
+assign   vif.A2D_ACLOFF_STATN   =   (dut_vif.leadoff_high_low_active == 0) ? `IMEAS_TOP.A2D_ACLEADOFF_STATN : ~`IMEAS_TOP.A2D_ACLEADOFF_STATN;
+assign   vif.A2D_ACLOFF_STATP   =   (dut_vif.leadoff_high_low_active == 0) ? `IMEAS_TOP.A2D_ACLEADOFF_STATP : ~`IMEAS_TOP.A2D_ACLEADOFF_STATP;
 
 // Connect them to 
 

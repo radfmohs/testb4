@@ -12,8 +12,10 @@ module spi_reg_imeas#(
 	input                  i_rst_n,
 	input [ADDR_WIDTH-1:0] i_addr,
 	input                  i_wr,
-	input [DATA_WIDTH-1:0] i_wr_data,
-        
+	input                  i_rd,
+	input [DATA_WIDTH-1:0] i_wr_data,        
+	input [1:0]            int_ctrl_reg,
+
 	output wire          reg_imeas_int_sts,
 	output wire          reg_imeas_int_sts0,
 	output wire          reg_imeas_int_sts1,
@@ -61,6 +63,7 @@ reg         o_imeas_int_alarm_clr;
 
 assign spi2imeas.o_imeas_int_clr       = o_imeas_int_clr;
 assign spi2imeas.o_imeas_int_alarm_clr = o_imeas_int_alarm_clr;
+assign spi2imeas.int_length            = int_ctrl_reg[1];
 
 
 wire [15:0]  o_threshold_hi;
@@ -195,9 +198,12 @@ wire imeas_int_alarm_clr_reg;
 
 ////////----imeas interrupts------/////
 
-assign   imeas_int_alarm_clr_reg      = (i_addr[ADDR_WIDTH-1:0] == `IMEAS_ALARM_INT) &  i_wr & i_wr_data[0] ;
+assign   imeas_int_alarm_clr_reg      = ((i_addr[ADDR_WIDTH-1:0] == `IMEAS_ALARM_INT) &  i_wr & i_wr_data[0] & !int_ctrl_reg[0]) |
+((i_addr[ADDR_WIDTH-1:0] == `IMEAS_ALARM_INT) &  i_rd & (int_sts_switch | int_sts_duration | i_imeas_int_sts | i_imeas_int_sts0 | i_imeas_int_sts1 | i_imeas_bio_int_sts) & int_ctrl_reg[0]);
 
-assign   imeas_int_clr_reg      = (i_addr[ADDR_WIDTH-1:0] == `IMEAS_INT) &  i_wr & i_wr_data[0] ;
+
+assign   imeas_int_clr_reg      = ((i_addr[ADDR_WIDTH-1:0] == `IMEAS_INT) &  i_wr & i_wr_data[0]  & !int_ctrl_reg[0]) | 
+((i_addr[ADDR_WIDTH-1:0] == `IMEAS_INT) & i_rd & i_imeas_int_alarm_sts & int_ctrl_reg[0]);
 
 
 //assign o_imeas_int_alarm_clr    = imeas_int_alarm_clr_reg;

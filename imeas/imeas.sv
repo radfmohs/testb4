@@ -92,8 +92,11 @@ assign  leadoff_switch_tgt = spi2imeas.leadoff_switch_tgt;
 
  wire	   int_alarm_clr;
  wire	   int_clr;
+ wire	   int_length_slct;
+
 assign int_clr       = spi2imeas.o_imeas_int_clr;
 assign int_alarm_clr =  spi2imeas.o_imeas_int_alarm_clr;
+assign int_length_slct    =  spi2imeas.int_length;
 
 
  wire [15:0]  threshold_hi;
@@ -331,7 +334,38 @@ assign chdata_tmp = ppg_mode ? ((ch0data_en_n == 1'b0) ? {2'b00,ch0data} :
 assign   chdata_tmp_notch_in = notch_filter_en ? chdata_tmp : 18'b0;
 
 
-assign imeas_int = notch_filter_en? ppg_mode? imeas_int_temp : (~grp_mod)? nf_data_valid & unstable_timeout : imeas_int_temp : imeas_int_temp;
+wire imeas_int_pre;
+assign imeas_int_pre = imeas_int_temp;
+
+wire imeas_int_sts_temp;
+common_pulse_rising u_imeas_int_r(
+.d_in(imeas_int_pre),
+.clk(pclk),
+.rst_(presetn),
+.d_out(imeas_int_sts_temp)
+
+);
+
+assign imeas_int = (imeas_int_pre & !int_length_slct) | (imeas_int_sts_temp & int_length_slct);
+
+
+
+wire imeas_int_alarm_temp;
+
+wire imeas_int_alarm_sts_temp;
+common_pulse_rising u_imeas_alarm_int_r(
+.d_in(imeas_int_alarm_temp),
+.clk(pclk),
+.rst_(presetn),
+.d_out(imeas_int_alarm_sts_temp)
+
+);
+
+assign imeas_int_alarm = (imeas_int_alarm_temp & !int_length_slct) | (imeas_int_alarm_sts_temp & int_length_slct);
+
+
+
+
 
 assign ch0data_temp = notch_filter_en? ppg_mode? ch0data : (~grp_mod)? chdata_filter_reg: ch0data : ch0data; 
 
@@ -693,7 +727,7 @@ imeas_reg u_imeas_reg(
 
 .int_alarm_clr(int_alarm_clr),
 .int_alarm_sts(imeas_int_alarm_sts),
-.imeas_int_alarm(imeas_int_alarm),
+.imeas_int_alarm(imeas_int_alarm_temp),
 .int_alarm_set(int_alarm_set),
 
 //removed as the new pin list
@@ -797,6 +831,8 @@ imeas_ctrl u_imeas_ctrl(
 .format_sel(format_sel),
 .threshold_hi(threshold_hi),
 .threshold_lo(threshold_lo),
+.nf_int(nf_data_valid & unstable_timeout),
+.nf_en(notch_filter_en),
 .int_set(int_set),
 .int_set0(int_set0),
 .int_set1(int_set1),

@@ -29,6 +29,10 @@ input  wire         sd16rst,
 input  wire  [1:0]  chmod,
 input  wire  [3:0]  chnum,
 input  wire  [7:0]  rst_val,
+input  wire         nf_en,
+input  wire         nf_int,
+
+
 output wire  [15:0] ch0data,
 output wire  [15:0] ch1data,
 output wire  [15:0] ch2data,
@@ -185,7 +189,7 @@ assign chnum_out = (~grp_mod) ? chnum :
 
 //interrupt set, 1T pulse
 //assign int_set = grp_mod ? (sd16eoc_pos & (ch_cnt == 3'b010)) : sd16eoc_pos;
-assign int_set = ppg_mode ? sd16eoc_pos : grp_mod ? (sd16eoc_pos & (ch_cnt == 3'b010)) : sd16eoc_pos;
+assign int_set = nf_en? nf_int : ppg_mode ? sd16eoc_pos : grp_mod ? (sd16eoc_pos & (ch_cnt == 3'b010)) : sd16eoc_pos;
 //assign int_set = grp_mod ? (sd16eoc_pos & (ppg_mode ? (ch_cnt == 3'b001) : (ch_cnt == 3'b010))) : sd16eoc_pos;
 assign int_set0 = ppg_mode ? (filter0_en & sd16eoc_pos) : 1'b0;
 assign int_set1 = ppg_mode ? (filter1_en & sd16eoc_pos) : 1'b0;

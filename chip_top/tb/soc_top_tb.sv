@@ -36,7 +36,7 @@
 `define  FLASH_IP     `FLASH_TOP.u_32k
 `define  FLASH_BIST_MASTER_TOP `SOC_TB.u_flash_bist_master
 `define  SPIM_VIP `SOC_TB.spim_vip
-
+`define  BIOZ_TOP `DIG_TOP.BioZ
 
 `ifndef POSTLAYOUT_PG 
 `define SPI_IF_EXP_DATA  `SPI_TOP.i_fifo_rd_data
@@ -83,6 +83,8 @@
 
 `define RD_BURST_FIFO_NO_TAG `SPIM_VIP.spi_rd_burst_fifo
 // `RD_BURST_NORMAL_REG(number_of_element, data[]);
+
+`define MAX_TRIM_REG_NUM 8'h15  // 21
 
 
 import uvm_pkg::*;

@@ -18,7 +18,6 @@ class soc_chip_cfg extends nnc_object;
   //soc_ao_sysc_config		  ao_sysc_cfg;
   nnc_spi_monitor_config          spi_cfg;
   nnc_sysc_config                 sysc_cfg;
-  nnc_zmeas_freq_config           zmeas_freq_cfg;
   virtual dut_interface           dut_if;
   nnc_ppg_config                  ppg_cfg;
   nnc_lead_off_config             lead_off_cfg;
@@ -68,7 +67,6 @@ function soc_chip_cfg::new( string name = "soc_chip_cfg");
 `endif
 
   sysc_cfg = new("sysc_cfg");
-  zmeas_freq_cfg = new("zmeas_freq_cfg");
   ppg_cfg = new("ppg_cfg");
   lead_off_cfg = new("lead_off_cfg");
   imeas_filter_cfg = new("imeas_filter_cfg");

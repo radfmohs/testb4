@@ -85,77 +85,30 @@ if {[string match S3_m?? $i] == 0} {
  set_clock_uncertainty -setup   [expr {0.05 * ${hfosc_period}}]     [get_clocks hfosc_atpg]
  set_clock_uncertainty -hold    0.4      [get_clocks hfosc_atpg]
 
- # ===== fclk -- switched from hfosc_atpg
- create_generated_clock -name fclk -comb -add -master_clock hfosc_atpg \
-			-source [get_attribute [get_clocks hfosc_atpg] sources] \
-			[get_pins  u_top_dig/clk_ctrl_inst/u_cmsdk_clock_gate_hclk/DNT_ICG_CELL/ECK]
- set_clock_uncertainty -setup   [expr {0.05 * ${hfosc_period}}]     [get_clocks fclk]
- set_clock_uncertainty -hold    0.4      [get_clocks fclk]
-
  # ===== iclk -- switched from fclk
- create_generated_clock -name iclk -add -divide_by 2 -master_clock fclk \
-			-source [get_attribute [get_clocks fclk] sources] \
+ create_generated_clock -name iclk -add -divide_by 2 -master_clock hfosc_atpg \
+			-source [get_attribute [get_clocks hfosc_atpg] sources] \
 			[get_pins  u_top_dig/clk_ctrl_inst/DNT_DIV_FCLK_ATPG/Y]
  set_clock_uncertainty -setup   [expr {0.05 * ${hfosc_period}}]     [get_clocks iclk]
  set_clock_uncertainty -hold    0.4      [get_clocks iclk]
 
- # ===== pclk -- switched from fclk
- create_generated_clock -name pclk -add -comb -master_clock fclk \
-			-source [get_attribute [get_clocks fclk] sources] \
-			[get_pins  u_top_dig/clk_ctrl_inst/u_cmsdk_clock_gate_pclk/DNT_ICG_CELL/ECK]
- set_clock_uncertainty -setup   [expr {0.05 * ${hfosc_period}}]     [get_clocks pclk]
- set_clock_uncertainty -hold    0.4      [get_clocks pclk]
-
  # ===== 1K clk gen -- switched from fclk
- create_generated_clock -name m1k_atpg -add -divide_by 256 -master_clock fclk \
-			-source [get_attribute [get_clocks fclk] sources] \
+ create_generated_clock -name m1k_atpg -add -divide_by 256 -master_clock hfosc_atpg \
+			-source [get_attribute [get_clocks hfosc_atpg] sources] \
 			[get_pins  u_top_dig/clk_ctrl_inst/DNT_M1KCLK_ATPG/Y]
  set_clock_uncertainty -setup   [expr {0.05 * ${hfosc_period}}]     [get_clocks m1k_atpg]
  set_clock_uncertainty -hold    0.4      [get_clocks m1k_atpg]
-
- # ===== zmeas clocks -- switched from fclk/pclk
- create_generated_clock -name zmeas_pclk -add -comb -master_clock pclk \
-			-source [get_attribute [get_clocks pclk] sources] \
-			[get_pins  u_top_dig/clk_ctrl_inst/u_cmsdk_clock_gate_zmeas_pclk/DNT_ICG_CELL/ECK]
- set_clock_uncertainty -setup   [expr {0.05 * ${hfosc_period}}]     [get_clocks zmeas_pclk]
- set_clock_uncertainty -hold    0.4      [get_clocks zmeas_pclk]
-
- create_generated_clock -name zmeas_mclk -add -comb -master_clock fclk \
-			-source [get_attribute [get_clocks fclk] sources] \
-			[get_pins  u_top_dig/clk_ctrl_inst/u_cmsdk_clock_gate_zmeas_clk/DNT_ICG_CELL/ECK]
- set_clock_uncertainty -setup   [expr {0.05 * ${hfosc_period}}]     [get_clocks zmeas_mclk]
- set_clock_uncertainty -hold    0.4      [get_clocks zmeas_mclk]
-
- create_generated_clock -name zmeas_mclkg -add -comb -master_clock zmeas_mclk \
-			-source [get_attribute [get_clocks zmeas_mclk] sources] \
-			[get_pins u_top_dig/u_zmeas/u_zmeas_top/u_zmeas_ctrl/u_zmeas_clock_gate_mclkg/DNT_ICG_CELL/ECK]
- set_clock_uncertainty -setup   [expr {0.05 * ${hfosc_period}}]     [get_clocks zmeas_mclkg]
- set_clock_uncertainty -hold    0.4      [get_clocks zmeas_mclkg]
-
- create_generated_clock -name zmeas_mclkg_invert \
-			-invert -divide_by 1 \
-			-source [get_attribute [get_clocks zmeas_mclkg] sources] \
-			[get_pins u_top_dig/u_zmeas/u_zmeas_top/u_zmeas_ctrl/DNT_ZMEAS_MCLKG_ATPG/Y]
- set_clock_uncertainty -setup   [expr {0.05 * ${hfosc_period}}]     [get_clocks zmeas_mclkg_invert]
- set_clock_uncertainty -hold    0.4      [get_clocks zmeas_mclkg_invert]
-
- # ===== imeas clocks -- switched from iclk and pclk
- create_generated_clock -name imeas_pclk -add -comb -master_clock pclk \
-			-source [get_attribute [get_clocks pclk] sources] \
-			[get_pins  u_top_dig/clk_ctrl_inst/u_cmsdk_clock_gate_imeas_pclk/DNT_ICG_CELL/ECK]
- set_clock_uncertainty -setup   [expr {0.05 * ${hfosc_period}}]     [get_clocks imeas_pclk]
- set_clock_uncertainty -hold    0.4      [get_clocks imeas_pclk]
-
- create_generated_clock -name imeas_dig_adc_clk \
-			-divide_by 1 \
-			-source [get_attribute [get_clocks iclk] sources] \
-			[get_pins u_top_dig/clk_ctrl_inst/u_cmsdk_clock_gate_iadc_clk/DNT_ICG_CELL/ECK]
- set_clock_uncertainty -setup   [expr {0.05 * ${hfosc_period}}]     [get_clocks imeas_dig_adc_clk]
- set_clock_uncertainty -hold    0.4      [get_clocks imeas_dig_adc_clk]
+ 
+ # ===== iq_iclk -- new DFF divider from hfosc_atpg
+ create_generated_clock -name iq_iclk -add -divide_by 2 -master_clock hfosc_atpg \
+			-source [get_attribute [get_clocks hfosc_atpg] sources] \
+			[get_pins  u_top_dig/clk_ctrl_inst/DNT_IQ_DIV_FCLK_ATPG/Y]
+ set_clock_uncertainty -setup   [expr {0.05 * ${hfosc_period}}]     [get_clocks iq_iclk]
+ set_clock_uncertainty -hold    0.4      [get_clocks iq_iclk]
 
  create_generated_clock -name imeas_adc_clk \
 			-invert -divide_by 1 \
-			-source [get_attribute [get_clocks imeas_dig_adc_clk] sources] \
+			-source [get_attribute [get_clocks iclk] sources] \
 			[get_pins u_top_dig/clk_ctrl_inst/DNT_ADC_CLK_INV/Y]
  set_clock_uncertainty -setup   [expr {0.05 * ${hfosc_period}}]     [get_clocks imeas_adc_clk]
  set_clock_uncertainty -hold    0.4      [get_clocks imeas_adc_clk]
@@ -172,7 +125,7 @@ if {[string match S3_m?? $i] == 0} {
 #normal mode: sys/derived clocks async to spi_clk
 if {[string match S1?_m?? $i]} {
  set_clock_groups -asynchronous -name async_grp \
-        -group [list sys_clk vclk fclk iclk pclk m1k_atpg zmeas_pclk zmeas_mclk zmeas_mclkg zmeas_mclkg_invert imeas_pclk imeas_adc_clk imeas_dig_adc_clk hfosc_atpg] \
+        -group [list sys_clk vclk hfosc_atpg iclk iq_iclk m1k_atpg imeas_adc_clk] \
         -group [list spi_clk]
 }
 #bist mode
@@ -227,8 +180,10 @@ set_multicycle_path 1 -hold  -through [get_pins u_top_dig/flash_ctrl_top_inst/u_
 # ================================================================================================================================
 if {[string match S3_m?? $i] == 0} {
  # GPIO Pads
- set_input_delay    -clock vclk  -max $cycle40 [get_ports [all_inputs]]     -add_delay
- set_input_delay    -clock vclk  -min 0.0      [get_ports [all_inputs]]     -add_delay
+ set pure_inputs [remove_from_collection [all_inputs] [get_ports $clock_ports]]
+ set_input_delay  -clock vclk -max $cycle40 $pure_inputs -add_delay
+ set_input_delay  -clock vclk -min 0.0      $pure_inputs -add_delay
+
  set_output_delay   -clock vclk  -max $cycle40 [get_ports [all_outputs]]    -add_delay
  set_output_delay   -clock vclk  -min 0.0      [get_ports [all_outputs]]    -add_delay
 
@@ -238,20 +193,9 @@ if {[string match S3_m?? $i] == 0} {
  set_output_delay   -clock vclk  -max $cycle40 [get_pins [remove_from_collection [get_pins u_top_ana/D2A_*] $d2a_clock_pins]]   -add_delay
  set_output_delay   -clock vclk  -min 0.0      [get_pins [remove_from_collection [get_pins u_top_ana/D2A_*] $d2a_clock_pins]]   -add_delay
 
- remove_input_delay u_top_ana/A2D_LOFF_STATP
- remove_input_delay u_top_ana/A2D_LOFF_STATN
- set_input_delay -clock imeas_pclk -min 0         u_top_ana/A2D_LOFF_STATP
- set_input_delay -clock imeas_pclk -max $cycle40  u_top_ana/A2D_LOFF_STATP
- set_input_delay -clock imeas_pclk -min 0         u_top_ana/A2D_LOFF_STATN
- set_input_delay -clock imeas_pclk -max $cycle40  u_top_ana/A2D_LOFF_STATN
-
  # Flash data-in
  set_output_delay   -clock vclk        -max $cycle40 [get_pins u_top_dig/flash_ctrl_top_inst/u_32k/DIN]
  set_output_delay   -clock vclk        -min 0	     [get_pins u_top_dig/flash_ctrl_top_inst/u_32k/DIN]
-
- # zmeas / imeas analog timing
- set_output_delay -clock zmeas_mclkg -max $cycle40 [get_pins u_top_ana/D2A_SW_Z_DDS] -add_delay
- set_output_delay -clock zmeas_mclkg -min 0        [get_pins u_top_ana/D2A_SW_Z_DDS] -add_delay
 
  set_input_delay -clock imeas_adc_clk -max $cycle40 [get_pins u_top_ana/A2D_SDM_OUT] -clock_fall -add_delay
  set_input_delay -clock imeas_adc_clk -min 0        [get_pins u_top_ana/A2D_SDM_OUT] -clock_fall -add_delay

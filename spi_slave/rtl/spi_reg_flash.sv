@@ -106,7 +106,7 @@ assign spi_addr_all  = {spi_addr_all01[6:0],spi_addr_all00[7:0]};
 assign flash_op_en   = flash_trim_pro==8'hAA;
 assign nvr1_op_en    = flash_nvr_pro==16'hAAAA;
 assign nvr1_addr_en  = flash_ctrl[4] && (spi_addr_all<=15'h01FF);
-assign nvr1_addr_trim  = (spi_addr_all<=15'h01FF) && (spi_addr_all>15'h7F);
+assign nvr1_addr_trim  = (spi_addr_all<=15'h01FF) && (spi_addr_all> NO_TRIM_REGS - 1);
 
 always@(posedge i_clk or negedge i_rst_n) begin
   if(!i_rst_n)begin

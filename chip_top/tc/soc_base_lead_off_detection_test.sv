@@ -29,13 +29,18 @@ class `TESTCFG extends soc_base_test_cfg;
   // Adding your new varialbles in config test
   // -----------------------------------------------
 
-  rand logic [7:0] wr_data[256];
-  rand int         no_of_bytes; 
-  rand logic [7:0] pads;
-  rand logic [7:0] mask;
-  rand logic [7:0] expected_data;
-  logic [7:0]      rd_data[];
-  logic [1:0] check_step = 0;
+  rand logic [7:0]  wr_data[256];
+  rand int          no_of_bytes; 
+  rand logic [7:0]  pads;
+  rand logic [7:0]  mask;
+  rand logic [7:0]  expected_data;
+  rand logic        leadoff_high_low_active;
+  rand logic [1:0]  switch_duration_sel;
+  rand logic [15:0] leadoff_duration_tgt;
+  rand logic [7:0]  leadoff_switch_tgt;
+       logic [7:0]  rd_data[];
+       logic [1:0]  check_step = 0;
+
   uvm_event enable_check;
   bit test_end;
 
@@ -68,7 +73,17 @@ class `TESTCFG extends soc_base_test_cfg;
   // mask values
   constraint c_mask        { soft mask == 8'hff; }
 
-  constraint c_en_ac_dc_lead_off        { soft en_ac_dc_lead_off inside {[0:3]}; } // 0:disable, 1:DC enable, 2:AC enable, 3:AC and DC both enable
+  constraint c_en_ac_dc_lead_off         { soft en_ac_dc_lead_off inside {[0:3]}; } // 0:disable, 1:DC enable, 2:AC enable, 3:AC and DC both enable
+
+  constraint c_leadoff_high_low_active   { soft leadoff_high_low_active inside {[0:1]}; } // 0:high active, 1:low active
+
+  constraint c_switch_duration_sel       { soft switch_duration_sel inside {[0:3]}; } // 0:switch & duration, 1:switch only, 2:duration only, 3:switch & duration
+
+  //constraint c_leadoff_duration_tgt       { soft leadoff_duration_tgt inside {['h00F0:'h0110]}; } 
+  constraint c_leadoff_duration_tgt       { soft leadoff_duration_tgt inside {['h0110:'h0110]}; } 
+
+  //constraint c_leadoff_switch_tgt       { soft leadoff_switch_tgt inside {['h1F:'h8F]}; } 
+  constraint c_leadoff_switch_tgt       { soft leadoff_switch_tgt inside {['h2F:'h2F]}; } 
   // -----------------------------------------------
   // End of adding constraints of randomization
   // ===============================================
@@ -86,8 +101,6 @@ class `TESTNAME extends soc_base_test;
     logic [7:0] wr_data;
     logic [7:0] reg_addr;
     logic [7:0] rd_data;
-    logic [7:0] wr_data_leadoff_tgt_low;
-    logic [7:0] wr_data_leadoff_tgt_high;
     bit both_n_p = 0;
     bit only_n = 0;
     bit only_p = 0;
@@ -127,6 +140,10 @@ class `TESTNAME extends soc_base_test;
     if(disable_intr) top_test_cfg.en_ac_dc_lead_off = 2'b11;
    
     `DUT_IF.en_ac_dc_lead_off = top_test_cfg.en_ac_dc_lead_off;
+    `DUT_IF.leadoff_high_low_active = top_test_cfg.leadoff_high_low_active;
+    `DUT_IF.switch_duration_sel = top_test_cfg.switch_duration_sel;
+    `DUT_IF.leadoff_duration_tgt = top_test_cfg.leadoff_duration_tgt;
+    `DUT_IF.leadoff_switch_tgt = top_test_cfg.leadoff_switch_tgt;
     // -------------------
     // Scoreboard enables
     // -------------------
@@ -204,14 +221,15 @@ class `TESTNAME extends soc_base_test;
     else if(only_p) wr_data = 8'h0E;
     else if(disable_intr) wr_data = 8'h04;
     else wr_data = 8'h08; // leadoff_detection_en is OFF
+    wr_data[5:4] = `DUT_IF.switch_duration_sel ; 
+    wr_data[6] =  `DUT_IF.leadoff_high_low_active; 
     `WR_NORMAL_REG(reg_addr, wr_data, top_test_cfg.pads);
   
     // --------------------------------------------------------
     // Write to SOC_LEADOFF_TGT_0 - low-byte threshold 0xFF (default)
     // --------------------------------------------------------
     reg_addr = `SOC_LEADOFF_TGT_0; 
-    wr_data = 8'h10;
-    wr_data_leadoff_tgt_low = wr_data;
+    wr_data = `DUT_IF.leadoff_duration_tgt[7:0];
     `WR_NORMAL_REG(reg_addr, wr_data, top_test_cfg.pads);
   
     // --------------------------------------------------------
@@ -219,15 +237,14 @@ class `TESTNAME extends soc_base_test;
     // --------------------------------------------------------
     reg_addr = `SOC_LEADOFF_TGT_1; 
     //wr_data  = 8'h00;
-    wr_data  = $urandom_range(8'h01,8'h0);
-    wr_data_leadoff_tgt_high = wr_data;
+    wr_data  = `DUT_IF.leadoff_duration_tgt[15:8];
     `WR_NORMAL_REG(reg_addr, wr_data, top_test_cfg.pads);
   
     // --------------------------------------------------------
     // Write to SOC_LEADOFF_SWITCH_TGT 0x3F (Default)
     // --------------------------------------------------------
     reg_addr = `SOC_LEADOFF_SWITCH_TGT; 
-    wr_data = 8'h2F;
+    wr_data = `DUT_IF.leadoff_switch_tgt;
     `WR_NORMAL_REG(reg_addr, wr_data, top_test_cfg.pads);
   
     // --------------------------------------------------------
@@ -655,13 +672,13 @@ class `TESTNAME extends soc_base_test;
       end
       if(only_p)begin
         fork
-          check_no_duration_intr();
+          check_no_duration_intr_for_n();
         join_none
       end
       `DUT_IF.LEAD_OFF_STATN = 1'b1;
       //if(wr_data_leadoff_tgt_high != 8'h0)#400ms; else #20ms;
-      if(wr_data_leadoff_tgt_high != 8'h0) #(({wr_data_leadoff_tgt_high,wr_data_leadoff_tgt_low} + 6)*1.5*1000000);
-      else #(({wr_data_leadoff_tgt_high,wr_data_leadoff_tgt_low} + 6)*1000000);
+      if(`DUT_IF.leadoff_duration_tgt[15:8] != 8'h0) #((`DUT_IF.leadoff_duration_tgt + 6)*1.5*1000000);
+      else #((`DUT_IF.leadoff_duration_tgt + 6)*1000000);
       `DUT_IF.LEAD_OFF_STATN = 1'b0;
     end
     #7.8125ms; // 64 Hz
@@ -675,8 +692,8 @@ class `TESTNAME extends soc_base_test;
       `DUT_IF.LEAD_AC_OFF_STATN = 1'b1;
       //#20ms;
       //if(wr_data_leadoff_tgt_high != 8'h0) #400ms; else #20ms;
-      if(wr_data_leadoff_tgt_high != 8'h0) #(({wr_data_leadoff_tgt_high,wr_data_leadoff_tgt_low} + 6)*1.5*1000000);
-      else #(({wr_data_leadoff_tgt_high,wr_data_leadoff_tgt_low} + 6)*1000000);
+      if(`DUT_IF.leadoff_duration_tgt[15:8] != 8'h0) #((`DUT_IF.leadoff_duration_tgt + 6)*1.5*1000000);
+      else #((`DUT_IF.leadoff_duration_tgt + 6)*1000000);
       `DUT_IF.LEAD_AC_OFF_STATN = 1'b0;
     end
     `nnc_info(get_full_name(), $sformatf("[TEST 1] Duration Interrupt for STATN is DONE"),UVM_LOW);
@@ -693,14 +710,14 @@ class `TESTNAME extends soc_base_test;
       end
       if(only_n)begin
         fork
-          check_no_duration_intr();
+          check_no_duration_intr_for_p();
         join_none
       end
       `DUT_IF.LEAD_OFF_STATP = 1'b1;
       //#20ms;
       //if(wr_data_leadoff_tgt_high != 8'h0) #400ms; else #20ms;
-      if(wr_data_leadoff_tgt_high != 8'h0) #(({wr_data_leadoff_tgt_high,wr_data_leadoff_tgt_low} + 6)*1.5*1000000);
-      else #(({wr_data_leadoff_tgt_high,wr_data_leadoff_tgt_low} + 6)*1000000);
+      if(`DUT_IF.leadoff_duration_tgt[15:8] != 8'h0) #((`DUT_IF.leadoff_duration_tgt + 6)*1.5*1000000);
+      else #((`DUT_IF.leadoff_duration_tgt + 6)*1000000);
       `DUT_IF.LEAD_OFF_STATP = 1'b0;
     end
     #7.8125ms; // 64 Hz
@@ -714,8 +731,8 @@ class `TESTNAME extends soc_base_test;
       `DUT_IF.LEAD_AC_OFF_STATP = 1'b1;
       //#20ms;
       //if(wr_data_leadoff_tgt_high != 8'h0) #400ms; else #20ms;
-      if(wr_data_leadoff_tgt_high != 8'h0) #(({wr_data_leadoff_tgt_high,wr_data_leadoff_tgt_low} + 6)*1.5*1000000);
-      else #(({wr_data_leadoff_tgt_high,wr_data_leadoff_tgt_low} + 6)*1000000);
+      if(`DUT_IF.leadoff_duration_tgt[15:8] != 8'h0) #((`DUT_IF.leadoff_duration_tgt + 6)*1.5*1000000);
+      else #((`DUT_IF.leadoff_duration_tgt + 6)*1000000);
       `DUT_IF.LEAD_AC_OFF_STATP = 1'b0;
     end
     `nnc_info(get_full_name(), $sformatf("[TEST 2] Duration Interrupt for STATP is DONE"),UVM_LOW);
@@ -878,14 +895,14 @@ class `TESTNAME extends soc_base_test;
     `nnc_info(get_full_name(), $sformatf(" wait done for lead off switch intr inside get_and_clear_lead_off_switch_int task"),UVM_LOW);
   endtask : get_and_clear_lead_off_switch_int
 
-  task check_no_duration_intr();
-    `nnc_info(get_full_name(), $sformatf(" wait inside check_no_duration_intr task"),UVM_LOW);
-    wait(`DUT_IF.LEAD_OFF_STATN === 1'b0);
+  task check_no_duration_intr_for_p();
+    `nnc_info(get_full_name(), $sformatf(" wait inside check_no_duration_intr_for_p task"),UVM_LOW);
+    wait(`DUT_IF.LEAD_OFF_STATP === 1'b0);
 
     reg_addr = `SOC_IMEAS_STATUS; 
     `RD_NORMAL_REG(reg_addr, top_test_cfg.pads, rd_data);
-    if (rd_data[4] === 1) begin
-       `nnc_error(get_full_name(), $sformatf("ERROR for STATN unexpected duration status is asserted that is "));
+    if (rd_data[4] === 1 && `SOC_TB.vif.int_sts_duration_loff_statp === 1) begin
+       `nnc_error(get_full_name(), $sformatf("ERROR for STATP : unexpected duration status is asserted "));
     end
 
     // Reading for checking to clear
@@ -894,9 +911,29 @@ class `TESTNAME extends soc_base_test;
     if (rd_data[5] === 1) begin
        `nnc_error(get_full_name(), $sformatf("ERROR is happened when reading duration status in SOC_DEVICE_INT_STATUS_0"));
     end
-    `nnc_info(get_full_name(), $sformatf(" wait done inside check_no_duration_intr task"),UVM_LOW);
+    `nnc_info(get_full_name(), $sformatf(" finished check_no_duration_intr_for_p task"),UVM_LOW);
 
-  endtask : check_no_duration_intr
+  endtask : check_no_duration_intr_for_p
+
+  task check_no_duration_intr_for_n();
+    `nnc_info(get_full_name(), $sformatf(" wait inside check_no_duration_intr_for_n task"),UVM_LOW);
+    wait(`DUT_IF.LEAD_OFF_STATN === 1'b0);
+
+    reg_addr = `SOC_IMEAS_STATUS; 
+    `RD_NORMAL_REG(reg_addr, top_test_cfg.pads, rd_data);
+    if (rd_data[4] === 1 && `SOC_TB.vif.int_sts_duration_loff_statn === 1) begin
+       `nnc_error(get_full_name(), $sformatf("ERROR for STATN : unexpected duration status is asserted "));
+    end
+
+    // Reading for checking to clear
+    reg_addr = `SOC_DEVICE_INT_STATUS_0;
+    `RD_NORMAL_REG(reg_addr, top_test_cfg.pads, rd_data);
+    if (rd_data[5] === 1) begin
+       `nnc_error(get_full_name(), $sformatf("ERROR is happened when reading duration status in SOC_DEVICE_INT_STATUS_0"));
+    end
+    `nnc_info(get_full_name(), $sformatf(" finished check_no_duration_intr_for_n task"),UVM_LOW);
+
+  endtask : check_no_duration_intr_for_n
 
   task check_no_switch_intr();
     `nnc_info(get_full_name(), $sformatf(" wait inside check_no_switch_intr task"),UVM_LOW);

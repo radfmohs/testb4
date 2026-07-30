@@ -26,10 +26,11 @@ module dds_sincos_10b_lut128_4m #(
     input  wire                    enable,
     input  wire [PHASE_W-1:0]      phase_inc,
     input  wire [PHASE_W-1:0]      phase_offset,  //if don't start from 0
+    input  wire [PHASE_W-1:0]      phase_offset_c,  //if don't start from 0
     output wire unsigned [9:0]     sin_unsigned,
     output wire unsigned [9:0]     cos_unsigned,
-    output wire 		   i_square,
-    output wire 		   q_square,
+    output reg  		   i_square,
+    output reg  		   q_square,
     //output reg  [PHASE_W-1:0]      phase_acc
     output reg  [PHASE_W:0]      phase_acc    //incase want to use this fout
 );
@@ -40,7 +41,7 @@ module dds_sincos_10b_lut128_4m #(
     reg  signed [9:0]       sin_out;
     reg  signed [9:0]       cos_out;
     wire [PHASE_W-1:0] sin_phase = phase_acc[PHASE_W-1:0] + phase_offset;
-    wire [PHASE_W-1:0] cos_phase = phase_acc[PHASE_W-1:0] + phase_offset + PHASE_90;
+    wire [PHASE_W-1:0] cos_phase = phase_acc[PHASE_W-1:0] + phase_offset_c + PHASE_90;
 
     function signed [9:0] sine_quarter_lut;
         input [LUT_ADDR_W-1:0] addr;
@@ -211,7 +212,11 @@ module dds_sincos_10b_lut128_4m #(
             sin_out   <= sine_from_phase(sin_phase);
             cos_out   <= sine_from_phase(cos_phase);
             phase_acc <= phase_acc + phase_inc;
-        end
+        end else begin
+            phase_acc <= {(PHASE_W+1'b1){1'b0}};
+            sin_out   <= 10'sd0;
+            cos_out   <= 10'sd0;
+ 	end
     end
 
 wire signed [10:0] sin_ext = {sin_out[9], sin_out};
@@ -226,13 +231,33 @@ assign cos_unsigned = cos_offset[9:0];
 //wire [1:0] quadrant = phase_acc[PHASE_W-1:PHASE_W-2];
 
 wire[PHASE_W-1:0]   i_square_inv;
-assign i_square_inv = ~phase_acc;
-assign i_square = i_square_inv[PHASE_W-1]; 
+//assign i_square_inv = ~phase_acc;
+assign i_square_inv = ~sin_phase;
+//assign i_square = i_square_inv[PHASE_W-1]; 
+    always @(posedge clk or negedge rstn) begin
+        if (~rstn)
+		i_square <= 1'b0;
+	else if(enable) 
+		i_square <=  i_square_inv[PHASE_W-1];
+	else 
+		i_square <= 1'b0;
+
+    end
 // 0~180 deg = 1, 180~360 deg = 0
 
 wire[PHASE_W-1:0]   q_square_inv;
-assign q_square_inv = ~(phase_acc + PHASE_90);
-assign q_square = q_square_inv[PHASE_W-1];
+//assign q_square_inv = ~(phase_acc + PHASE_90);
+assign q_square_inv = ~cos_phase;
+//assign q_square = q_square_inv[PHASE_W-1];
+    always @(posedge clk or negedge rstn) begin
+        if (~rstn)
+		q_square <= 1'b0;
+	else if(enable)
+		q_square <= q_square_inv[PHASE_W-1];
+	else 
+		q_square <= 1'b0;
+
+    end
  // shift 90 square wave
 
 endmodule
