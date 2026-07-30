@@ -61,211 +61,116 @@ Bit5:4 lead off switch/duration selector
 10: duration only
 11: switch&duration
 2)	LEADOFF_INT for leadoff interrupt status
-3.0	8/7/2026	Zhen 	1.	port the flash code of BMS6 to BAF4P1(flash comtroller and flash bist )
+2.3	8/7/2026	Zhen 	1.	port the flash code of BMS6 to BAF4P1(flash comtroller and flash bist )
 2.	Modify the code based on the original architecture of baf1p4(trims, coeffs,ATM etc)
+2.4	26/0/2026	Xin	 Add the Bioz module
 
  Contents
 
 REVISION HISTORY	1
-CONTENTS	4
-FEATURES	14
-APPLICATIONS	14
-1. OVERVIEW	14
-1.1. BLOCK DIAGRAM	16
-2. REGISTERS	19
-2.1. REGISTER MAP	19
-3. ALWAYS ON POWER DOMAIN	23
-3.1. OVERVIEW	23
-3.2. SHADOW REGISTERS	24
-4. SWITCHABLE POWER DOMAIN	26
-4.1. SYSTEM CONTROL	26
-4.1.1. Reset Control	27
-4.1.2. Clock Control	27
-4.1.3. Power managRDnt unit (PMU)	27
-4.2. REGISTERS	28
-5. FLASH CONTROLLER	30
-5.1. OVERVIEW	30
-5.2. BLOCK DIAGRAM	31
-5.3. FUNCTION	31
-5.3.1. Reload analog trim	32
-5.3.2. Reload Redundancy Parameter	33
-5.3.3. Write Analog Trim Data to Flash NVR0 Memory	33
-5.3.4. Read Data from Flash NVR0 Memory	33
-5.3.5. Write Data to Flash Memory (MAIN - 32K, NVR0 (512-byte except for first 32-address of TRIMs, RND (512-byte)	34
-5.3.6. Write function for TRIM registers (to write from SPI into AO shadow registers)	34
-5.3.7. Sector erase	35
-5.3.8. Chip erase	35
-5.3.9. Deep Standby mode	36
-5.3.10. DEBUG MODE	36
-5.4. FLASH BIST CONTROLLER	36
-5.4.1. Block Diagram	36
-5.5. PIN TABLE	37
-5.6. ATM MODE	38
-5.6.1. Introduction	38
-5.6.2. Protection NVR0	40
-5.7. FSM	40
-5.8. TEST BENCH	40
-5.9. TIMING	41
-5.10. REGISTERS	41
-5.10.1. FLASH_DEBUG1: Offset Address: 0x50	43
-5.10.2. FLASH_DEBUG2: Offset Address: 0x51	43
-5.10.3. FLASH_TRIM0: Offset Address: 0x52	44
-5.10.4. FLASH_TRIM1: Offset Address: 0x53	44
-5.10.5. FLASH_TRIM2: Offset Address: 0x54	44
-5.10.6. FLASH_TRIM3: Offset Address: 0x55	44
-5.10.7. FLASH_TRIM4: Offset Address: 0x56	44
-5.10.8. FLASH_TRIM5: Offset Address: 0x57	45
-5.10.9. FLASH_TRIM6: Offset Address: 0x58	45
-5.10.10. FLASH_TRIM7: Offset Address: 0x59	45
-5.10.11. FLASH_TRIM8: Offset Address: 0x5A	45
-5.10.12. FLASH_TRIM9: Offset Address: 0x5B	45
-5.10.13. FLASH_TRIM10: Offset Address: 0x5C	46
-5.10.14. FLASH_TRIM11: Offset Address: 0x5D	46
-5.10.15. FLASH_TRIM12: Offset Address: 0x5E	46
-5.10.16. FLASH_TRIM13: Offset Address: 0x5F	46
-5.10.17. FLASH_TRIM14: Offset Address: 0x60	47
-5.10.18. FLASH_TRIM15: Offset Address: 0x61	47
-5.10.19. FLASH_TRIM16: Offset Address: 0x62	47
-5.10.20. FLASH_TRIM17: Offset Address: 0x63	47
-5.10.21. FLASH_TRIM18: Offset Address: 0x64	47
-5.10.22. FLASH_TRIM19: Offset Address: 0x65	48
-5.10.23. FLASH_TRIM20: Offset Address: 0x66	48
-5.10.24. FLASH_UNLOCK: Offset Address: 0x67	48
-5.10.25. FLASH_CTRL: Offset Address: 0x68	48
-5.10.26. FLASH_DATA00: Offset Address: 0x69	49
-5.10.27. FLASH_ADDR00: Offset Address: 0x6A	49
-5.10.28. FLASH_ADDR01: Offset Address: 0x6B	49
-5.10.29. FLASH_NVR_PRO_BYTE00: Offset Address: 0x6E	49
-5.10.30. FLASH_NVR_PRO_BYTE01: Offset Address: 0x6F	49
-5.10.31. FLASH_UNLOCK_PRO: Offset Address: 0x70	50
-5.10.32. FLASH_EME_DATA00: Offset Address: 0x6C	50
-5.10.33. FLASH_RND_ADDR: Offset Address: 0x6D	50
-5.10.34. DEVICE_INT_STATUS_0: Offset Address: 0xD0	50
-5.10.35. DEVICE_INT_STATUS_1: Offset Address: 0xD1	51
-6. ANALOG REGISTERS	53
-6.1. REGISTERS	53
-6.1.1. Analog Registers	53
-6.1.2. Analog Debug Registers	59
-7. BIOELECTRIC FILTER	62
-7.1. BLOCK DIAGRAM	62
-7.2. CONFIGURATION SEQUENCE	63
-7.2.1. Single channel conversion mode	63
-7.2.2. Single channel continuous conversion mode	65
-7.2.3. Group conversion mode	66
-7.3. NOTCH FILTER (50 HZ)	67
-7.3.1. Unstable time for filter	67
-7.3.2. The following are the design specifications for the low-pass filter.	68
-7.3.3. Filter coefficient	68
-7.3.4. Coefficient calculation	69
-7.3.5. Register	71
-7.4. BIOELECTRIC REGISTERS	71
-7.4.1. BIOELECTRIC_REG_CTRL_0: Offset Address: 01h	71
-7.4.2. BIOELECTRIC_CH_MODE: Offset Address: 03h (Bioelectric_channel_mode_register)source	75
-7.4.3. BIOELECTRIC_INT: Offset Address: 04h (bioelectric_interrupt_register)	75
-7.4.4. BIOELECTRIC_REG_SEQ: Offset Address: 05h (Sequence Control Register)	76
-7.4.5. BIOELECTRIC_REG_RSTVAL: Offset Address: 06h (Reset Count Register)	77
-7.4.6. BIOELECTRIC_CH0DATA_0: Offset Address :07h (Channel 0 LSB Data)	77
-7.4.7. BIOELECTRIC_CH0DATA_1: Offset Address :08h (Channel 0 MSB Data)	77
-7.4.8. BIOELECTRIC_CH1DATA_0: Offset Address 09h (Channel 1 LSB Data)	77
-7.4.9. BIOELECTRIC_CH1DATA_1: Offset Address 0Ah (Channel 1 MSB Data)	78
-7.4.10. BIOELECTRIC_CH2DATA_0: Offset Address :0Bh (Channel 2 LSB Data)	78
-7.4.11. BIOELECTRIC_CH2DATA_1: Offset Address: 0Ch (Channel 2 MSB Data)	78
-7.4.12. BIOELECTRIC_GRP_CTRL: Offset Address: 0Dh	78
-7.4.13. BIOELECTRIC_CHA_NUM_LO: Offset Address: 0Eh (Channel number of ADC _LSB)	79
-7.4.14. BIOELECTRIC_CHA_NUM_HI: Offset Address: 0Fh (Channel number of ADC_MSB)	79
-7.4.15. BIOELECTRIC_ALARM_INT: Offset Address: 10h	79
-7.4.16. BIOELECTRIC_ALARM_INT_EN: Offset Address: 11h	79
-7.4.17. BIOELECTRIC_THRESHOLD_HI_0: Offset Address: 12h	80
-7.4.18. BIOELECTRIC_THRESHOLD_HI_1: Offset Address: 13h	80
-7.4.19. BIOELECTRIC_THRESHOLD_LO_0: Offset Address: 14h	80
-7.4.20. BIOELECTRIC_THRESHOLD_LO_1: Offset Address: 15h	80
-7.4.21. BIOELECTRIC_INPUT_FORMAT: Offset Address: 16h	80
-7.4.22. BIOELECTRIC_EN: Offset Address: Offset Address:17h	80
-7.4.23. BIOELECTRIC_CH0DATA_MAX_0: Offset Address :18h (Bioelectric channel0 max value lsb bits)	81
-7.4.24. BIOELECTRIC_CH0DATA_MAX_1: Offset Address :19h (Bioelectric channel0 max value msb bits)	81
-7.4.25. BIOELECTRIC_CH0DATA_MIN_0: Offset Address :1Ah (Bioelectric channel0 min value lsb bits)	81
-7.4.26. BIOELECTRIC_CH0DATA_MIN_1: Offset Address :1Bh (Bioelectric channel1 min value msb bits)	81
-7.4.27. BIOELECTRIC_CH0DATA_DELTA_0: Offset Address :1Ch (Bioelectric channel0 delta value Register lsb)	82
-7.4.28. BIOELECTRIC_CH0DATA_DELTA_1: Offset Address :1Dh (Bioelectric channel0 delta value Register msb)	82
-7.4.29. NOTCH_FILTER_EN: Offset Address :1Eh (notch filter enable)	82
-7.4.30. LEADOFF_INT: Offset Address: 1Fh (leadoff_interrupt_register)	82
-8. ZMEAS	83
-8.1. BLOCK DIAGRAM	83
-8.2. CONFIGURATION SEQUENCE	84
-8.3. APB ZMEAS REGISTERS:	1
-8.3.1. ZMEAS_REG_CTRL_0: Offset Address:0x20	1
-8.3.2. ZMEAS_REG_CTRL_1: Offset Address:0x21	1
-8.3.3. ZMEAS_REG_CTRL_2: Offset Address:0x22	2
-8.3.4. ZMEAS_REG_CTRL_3: Offset Address:0x23	2
-8.3.5. ZMEAS_EN: Offset Address:0x40	3
-8.3.6. ZMEAS_SYNC_EN: Offset Address:0x41	3
-9. SPI FIFO	4
-9.1. FIFO FEATURES	4
-9.2. CONFIGURATION SEQUENCE	4
-9.3. FORMAT OF FIFO DATA	5
-9.4. REGISTERS	5
-9.4.1. FIFO_WR_PTR_REG (FIFO Write Pointer): Offset Address: 80h	6
-9.4.2. FIFO_RD_PTR_REG (FIFO Read Pointer): Offset Address: 81h	6
-9.4.3. FIFO Counter 1: Offset Address: 82h	6
-9.4.4. FIFO Counter 2: Offset Address: 83h	7
-9.4.5. FIFO Configuration 1: Offset Address: 84h	7
-9.4.6. FIFO Configuration 2: Offset Address: 85h	8
-9.4.7. FIFO Configuration 3: Offset Address: 86h	9
-9.4.8. IFO Status: Offset Address: 87h	11
-9.4.9. FIFO Data 1: Offset Address: 88h	12
-9.4.10. FIFO Data 2: Offset Address: 89h	12
-10. GPIO	14
-10.1. GPIO_PU_CTRL: OFFSET ADDRESS: 90H	14
-10.2. GPIO_PU_RESETN: OFFSET ADDRESS: 91H	14
-10.3. GPIO_PD_TESTMODE: OFFSET ADDRESS: 92H	14
-11. PPG CONTROLLER	15
-12. BIO ELECTRICITY	27
-12.1. REGISTERS	30
-12.1.1. BIOELECTRIC_CH_MODE: Offset Address:03h (Channel Mode Register)	30
-12.1.2. BIOELECTRIC_INPUT_FORMAT: Offset Address: 16h	31
-12.1.3. ZMEAS_REG_CTRL_0: REG_CTRL Register - Offset Address:0x20-0x23	31
-12.1.4. MCLK_DIV_REG: Offset Address: 0x51	31
-12.1.5. CHECK_CLK_DIV_HI  & CHECK_CLK_DIV_L0: Offset Address: 0x52-0x53	32
-12.1.6. BIOELECTRIC_REG_CTRL_0 (Control Register): Offset Address: 01h	32
-12.1.7. BIOELECTRIC_INT: Offset Address: 04h	32
-12.1.8. BIOELECTRIC_EN: Offset Address: 17h	32
-12.1.9. (Bioelectric channel0 max value Register): Offset Address: 18h-19h	32
-12.1.10. (Bioelectric channel0 max value Register): Offset Address: 1Ah-1Bh	33
-12.1.11. (Bioelectric channel0 delta value Register): Offset Address: 1Ch-1Dh	33
-12.1.12. DATA_TYPE_SEL: Offset Address: 0x76	33
-12.1.13. DC_DATA_REG_0: Offset Address: 0x77	34
-12.1.14. DC_DATA_REG_1: Offset Address: 0x78	34
-12.1.15. SQU_CLK_DIV_0: Offset Address: 0x79	34
-12.1.16. SQU_DIV_CLK_1: Offset Address: 0x7A	34
-13. LEAD OFF DETECTION:	35
-13.1. REGISTERS	35
-13.1.1. LEADOFF_CTRL: Offset Address: 0x93	35
-13.1.2. LEADOFF_TGT_0: Offset Address: 0x94	37
-13.1.3. LEADOFF_TGT_1: Offset Address: 0x95	37
-13.1.4. LEADOFF_SWITCH_TGT: Offset Address: 0x96	37
-13.1.5. BIOELECTRIC_INT: Offset Address: 04h	37
-14. SPI CONTROLLER	38
-14.1. OVER_VIEW:	38
-14.2. FUNCTIONAL DESCRIPTION:	39
-14.3. INTERFACE	39
-14.4. SPI SLAVE CONTROLLER SPECIFICATION:	41
-14.4.1. Communication:	41
-14.4.2. SPI Modes:	42
-14.4.3. Data communication format between Master and Slave	42
-14.4.4. SPI-Timing Characteristics:	49
-15. TYPICAL APPLICATION SCENARIO	50
-15.1. BIOELECTRIC CONFIGURATION SEQUENCE:	50
-15.2. ZMEAS CONFIGURATION SEQUENCE:	51
-16. SAMPLE DEMO	52
-NEW CHANGES FOR USING 256 BYTES OF FLASH	53
+CONTENTS	3
+FEATURES	5
+APPLICATIONS	6
+OVERVIEW	7
+1.1	BLOCK DIAGRAM	8
+REGISTERS	11
+1.2	REGISTER MAP	12
+ALWAYS ON POWER DOMAIN	16
+1.3	OVERVIEW	17
+1.4	SHADOW REGISTERS	18
+SWITCHABLE POWER DOMAIN	19
+1.5	SYSTEM CONTROL	20
+1.5.	Reset Control	20
+1.5.	Clock Control	20
+1.5.	Power managRDnt unit (PMU)	20
+1.6	REGISTERS	21
+FLASH CONTROLLER	23
+1.7	OVERVIEW	24
+1.8	BLOCK DIAGRAM	24
+1.9	FUNCTION	25
+1.9.	Reload analog trim	25
+1.9.	Reload Redundancy Parameter	27
+1.9.	Write Analog Trim Data to Flash NVR0 Memory	27
+1.9.	Read Data from Flash NVR0 Memory	27
+1.9.	Write Data to Flash Memory (MAIN - 32K, NVR0 (512-byte except for first 32-address of TRIMs, RND (512-byte)	28
+1.9.	Write function for TRIM registers (to write from SPI into AO shadow registers)	29
+1.9.	Sector erase	29
+1.9.	Chip erase	30
+1.9.	Deep Standby mode	30
+1.9.	DEBUG MODE	30
+1.10	FLASH BIST CONTROLLER	30
+1.10.	Block Diagram	31
+1.11	PIN TABLE	31
+1.12	ATM MODE	32
+1.12.	Introduction	32
+1.12.	Protection NVR0	34
+1.13	FSM	34
+1.14	TEST BENCH	34
+1.15	TIMING	35
+1.16	REGISTERS	36
+FLASH_UNLOCK: Offset Address: 0x67	42
+FLASH_CTRL: Offset Address: 0x68	42
+FLASH_DATA00: Offset Address: 0x69	42
+FLASH_ADDR00: Offset Address: 0x6A	43
+FLASH_ADDR01: Offset Address: 0x6B	43
+FLASH_NVR_PRO_BYTE00: Offset Address: 0x6E	43
+FLASH_NVR_PRO_BYTE01: Offset Address: 0x6F	43
+FLASH_UNLOCK_PRO: Offset Address: 0x70	43
+FLASH_EME_DATA00: Offset Address: 0x6C	43
+FLASH_RND_ADDR: Offset Address: 0x6D	44
+ANALOG	46
+ANALOG REGISTERS	47
+1.17	REGISTERS	48
+1.17.	Analog Registers	48
+1.17.	Analog Debug Registers	53
+BIOELECTRIC FILTER	55
+1.18	BLOCK DIAGRAM	56
+1.19	CONFIGURATION SEQUENCE	57
+1.19.	Single channel conversion mode	57
+1.19.	Single channel continuous conversion mode	58
+1.19.	Group conversion mode	59
+1.20	NOTCH FILTER (50 HZ)	61
+1.21	BIOELECTRIC REGISTERS	66
+BIOZ MEASUREMENT	75
+1.	BLOCK DIAGRAM	76
+1.21.	Direct Digital Synthesis (DDS) and Square-Wave Generation of Sine and Cosine	77
+1.21.	Introduction to DDS	77
+1.21.	Introduction to Square-Wave (Commutating Mixer) Generation of Sine and Cosine	77
+1.21.	DDS sin/cos generation	77
+1.21.	Square-Wave (Commutating Mixer) Generation	77
+1.22	CONFIGURATION SEQUENCE	77
+1.23	APB BIOZ REGISTERS:	77
+SPI FIFO	78
+1.24	FIFO FEATURES	78
+1.25	CONFIGURATION SEQUENCE	78
+1.26	FORMAT OF FIFO DATA	78
+1.27	REGISTERS	78
+GPIO	78
+PPG CONTROLLER	78
+BIO ELECTRICITY	78
+LEAD OFF DETECTION:	78
+SPI CONTROLLER	78
+1.28	OVER_VIEW:	78
+1.29	FUNCTIONAL DESCRIPTION:	78
+1.30	INTERFACE	78
+1.31	SPI SLAVE CONTROLLER SPECIFICATION:	78
+1.31.	Communication:	78
+1.31.	SPI Modes:	78
+1.31.	Data communication format between Master and Slave	78
+1.31.	SPI-Timing Characteristics:	78
+TYPICAL APPLICATION SCENARIO	78
+1.32	BIOELECTRIC CONFIGURATION SEQUENCE:	78
+1.33	ZMEAS CONFIGURATION SEQUENCE:	78
+SAMPLE DEMO	78
+NEW CHANGES FOR USING 256 BYTES OF FLASH	78
 
  
-Figure 1 . Top Level Block Diagram of BAF4P1	16
-Figure 2 . Analog PMU of BAF4P1	17
-Figure. 5  Switchable domain clock control Block Diagram	27
-Figure. 6  Flash Controller Block Diagram	31
-Figure. 7  BIOELECTRIC Block Diagram	63
-Figure. 8  ZMEAS Block Diagram	84
+Figure 1. Top Level Block Diagram of BAF4	11
+Figure 2. Analog PMU of BAF4	12
+Figure. 5 Switchable domain clock control Block Diagram	22
+Figure. 6 Flash Controller Block Diagram	26
+Figure. 7 BIOELECTRIC Block Diagram	50
+Figure. 8 ZMEAS Block Diagram	71
  
 
 
@@ -300,7 +205,7 @@ Applications
 ·	Sweat sensors
 ·	Wearable devices
 
-1. Overview
+Overview
 
 The BAF4 is an ultra-low power, low-voltage programmable analog front-end (AFE) ECG, PPG and impedance (only resistance (not phase)) spectroscopy chip. This chip is compatible with 3V battery power supplies. The analog front-end circuit of BAF4 is mainly composed of low-noise operational amplifiers and a 16-bit high-precision ADC (plus 50 Hz notch filter). The working electrode bias voltage accuracy can reach up to 10 bits, supporting three-electrode and four-electrode electrochemical sensors. In bias standby mode, the current of BAF4 is as low as 4uA, and during current acquisition, it is as low as 35uA, with leakage current less than 100nA when the system is shut down. The system integrates an impedance detection module for measuring electrochemical impedance, as well as a high-precision temperature sensor to ensure the safety of the sensor.
 The BAF4 has both analog and digital design. Digital design has two domains (switchable and always on). Always on domain (top_dig_always_on) will contain system control (reset and clock control) as well as Shadow Registers block. The main job of always on domain is to keep trim values while most of the chip is in low power mode (switchable domain will have no power).
@@ -311,7 +216,7 @@ Switchable domain will be turned off when chip is set to low power mode. Next fi
 
 
 
- 1.1. Block Diagram
+ 1.1	Block Diagram
 Figure 1. Top Level Block Diagram of BAF4P1
  
 
@@ -319,14 +224,14 @@ Figure 1. Top Level Block Diagram of BAF4P1
  Figure 2. Analog PMU of BAF4P1
  
 
-source: PMU SYSTEM DIAGRAM.VSDX
+source: PMU System diagram.vsdx
 
 
 
  Figure 3.  System diagram of BAF4P1
  
 
-source: BAF4_SYSTEM DIAGRAM.VSDX
+source: BAF4_System diagram.vsdx
 
 
 
@@ -335,8 +240,8 @@ source: BAF4_SYSTEM DIAGRAM.VSDX
 
 
 
- 2. Registers
-2.1. Register Map
+ Registers
+1.2	Register Map
 Address	I-MeasurRDnt Registers	Attribute	Default Value
 01h	BIOELECTRIC_REG_CTRL_0		
 02h	BIOELECTRIC_REG_CTRL_1		
@@ -523,8 +428,8 @@ C7h	ALWAYS_ON_ANA_TRIM8
 C8h	ALWAYS_ON_ANA_ TRIM9		
 C9h	ALWAYS_ON_ANA_ TRIM10		
 
-3. Always on power domain
-3.1. Overview
+Always on power domain
+1.3	Overview
 This power domain includes pin-mux, reset control, clock control and shadow register module.
 Figure below shows how always on block shadow register values (connected to analog) getting updated from switchable domain registers.
  
@@ -540,7 +445,7 @@ Figure 4.  Always on Block Diagram
 7) Switchable reset will reset SPI trim values to default 0. But these values will not affect anything, until we write them into flash and reload into AO shadow registers
 8) SPI analog control registers can ONLY be written to shadow register by write always_on_spi_write (bit7 of CLK_CTRL_REG)
 
-3.2. Shadow Registers
+1.4	Shadow Registers
 Shadow registers are used to store the registers which will control analog module because we should guarantee these registers have power when switchable domain does power down.
 The shadow registers include two sources, one is from SPI controller, another is from flash controller. We use SPI controller to config registers to control analog module and we use flash controller to get the trim value to trim analog module performance.
  
@@ -548,22 +453,22 @@ The shadow registers include two sources, one is from SPI controller, another is
 
 Every time the switchable domain goes from power down to power on, the flash will automatically load the trim value to flash trim shadow registers and some of these trim registers can be read back by SPI for debugging purposes. The analog control register can be written to SPI control register by SPI controller, however, these registers cannot control analog directly, they must be written to shadow registers using the always_on_spi_write register (bit7 of CLK_CTRL_REG), then these shadow registers can control analog top directly.
 Note: every time set always_on_spi_write, you must guarantee the always_on_spi_write is 0, then set the always_on_spi_write, otherwise, you need reset always_on_spi_write to 0 firstly, then set always_on_spi_write to 1, that means you must let the always_on_spi_write has a change from low to high.
-4. Switchable Power domain
-4.1. System control
+Switchable Power domain
+1.5	System control
 This block contains the clock control, reset control and pmu
-4.1.1. Reset Control
+1.5.	Reset Control
 In this block, flash reset and the normal reset have their own POR timers respectively. The final POR after timer will be synchronized with different clocks such as SPI and system clock and will generate different reset signals.
-4.1.2. Clock Control
+1.5.	Clock Control
 This block is responsible for generating clocks for the rest of the switchable power domain modules.
 The following diagram shows the clock control unit connections and how the output clocks are generated. As can be seen, all the output clocks are 50% duty cycle, MEAS/ZMEAS clock are divisible from the original clocks.
  
 
 Figure. 5 Switchable domain clock control Block Diagram
 
-4.1.3. Power managRDnt unit (PMU)
+1.5.	Power managRDnt unit (PMU)
 This unit has a state machine which will manage putting the switchable power domain into the clock gating mode and returning from the clock gating mode. The entire chip can also be turned off (including always on power domain) through an external pin called CHP_EN (managed by analog switches).
 SPI register bit sleepdeep can put the switchable power domain into clock gating mode. Once in this mode, the fclk from above clock control module will be disabled. SPI register bit hresetq can wake up the switchable power domain returning to normal model from the clock gating mode. Flash controller can get into the deep sleep mode along with/without the switchable power domain
-4.2. Registers
+1.6	Registers
 RLD_CLK_REG: Offset Address: 0x49
 Bit	Field Name	Attribute	Default	Field Description
 7:2	RESERVED	RO	0	reserved
@@ -587,7 +492,7 @@ Bit	Field Name	Attribute	Default	Field Description
 
 MCLK_DIV: Offset Address: 0x4B
 Bit	Field Name	Attribute	Default	Field Description
-7:0	MCLK_DIV	WR	8’h13	This clock will be used as zmeas main clock for generate different SINWAVE of DAC
+7:0	MCLK_DIV	WR	8’h0	This clock will be used as zmeas main clock for generate different SINWAVE of DAC
 0: same as fclk, 256K
 N: 256k/(N+1)
 Default is 256k/20=12.8K, if default SINWAVE is 500hz(256K main clock), then SINWAVE is 500/20=25hz
@@ -660,60 +565,60 @@ Bit	Field Name	Attribute	Default	Field Description
 
 
 
-5. FLASH Controller
-5.1. Overview
+FLASH Controller
+1.7	Overview
 The FLASH IP is GSMC Embedded FLASH IP has many sectors. Each Sector has 512-byte.
 32Kx8-bit (MAIN Region for User Purpose) (64 Sectors).
 2 Non-Volatile Register (NVR0（1st NVR）region for User Purpose and NVR1（2nd NVR） region for Manufacturer Purpose Only) Sectors.
 1 Redundant (RND region for Manufacture Purpose only in case a need of re-mapping when Main Region has a bad sector) Sector. 
 Before investigating this chapter, please investigate the following documents first, it will be good to understand the FLASH IP:
 logical/chip_top/imp/tech/HHG_FS13Q7P6_FPFLE032K09DA_32Kx8/datasheet/HHG_FPFLE032K09DA_DS.pdf or the link : 
-HHG_FPFLE032K09DA_DS.PDF
+HHG_FPFLE032K09DA_DS.pdf
 logical/chip_top/imp/tech/HHG_FS13Q7P6_FPFLE032K09DA_32Kx8/application_notes/HHG_FPFLE032K09DA_AP.pdf  or the link: 
-HHG_FPFLE032K09DA_AP.PDF
+HHG_FPFLE032K09DA_AP.pdf
 
-5.2. Block Diagram
+1.8	Block Diagram
 
 A functional block diagram of the flash controller is shown as below.
   
 
 Figure. 6 Flash Controller Block Diagram
-5.3. Function
+1.9	Function
 There are some functions: reload Analog Trim, reload redundancy parameter, write Analog Trim to Flash, read data from Flash, write data to Flash, sector erase, chip erase, ATM modes, protection NVR0, these features are described in detail as below
-5.3.1. Reload analog trim
+1.9.	Reload analog trim
  
 
-5.3.1.1. Reload Function for Flash IP Trim Tag (the value of NVR1 Trim Tag is 0x5A)
+1.9.1.1.	Reload Function for Flash IP Trim Tag (the value of NVR1 Trim Tag is 0x5A)
 After power on, read NVR1 Trim Tag (1-byte), read Flash IP trimming configuration (8-byte), read Analog NVR1 Trim Tag (1-byte) and read Analog trimming configuration (28-byte data if trim tag is matched)
 After chip power is on, will reload configuration data in Flash to SPI registers if Trim Tag is matched, then reload Trim.
 	The value of FLASH IP Trim Tag is 0x5A
       Read the value of trim bits tag (the address is 0x0210 of FLASH NVR1):  If the value is 0x5A, then read the value of trimming configuration region (the address is 0x0200~0x0207 of FLASH NVR1), at the same time, write the data that read into Flash IP Configuration registers.
 	The value of FLASH IP Trim Tag is not 0x5A
        Read the value of Trim Tag bits (the address is 0x0210 of FLASH NVR1): If the value is not 0x5A, then doesn’t read the value of trimming configuration region (the address is 0x0200~0x0207 of FLASH NVR1). As a result, there is no update on Flash IP Configuration registers.
-5.3.1.2. The value of Analog Trim Tag is 0x5A
+1.9.1.2.	The value of Analog Trim Tag is 0x5A
 1.	Read the value of Analog Trim Tag, the address is 0x0000 of FLASH NVR0, and it is used to judge whether to use Analog Trim or not (Analog Trim will be used if Analog Trim Tag is 0x5A).
 2.	Read the value of Analog trimming information in FLASH, (the address is 0x0001~0x001F of FLASH NVR0), at the same time, write the data that read into Analog Trim registers.
 3.	The Analog Trim Data (updated the value from) can be read by SPI bus, the SPI register addresses are 0x43~0x61.
-5.3.1.3. The value of Analog Trim Tag is not 0x5A
+1.9.1.3.	The value of Analog Trim Tag is not 0x5A
 1.	Read the value of Analog Trim Tag, the address is 0x0000 of FLASH NVR0, and it is used to judge whether to use analog trim or not (Analog Trim will not be used if Analog Trim Tag is not 0x5A).
 2.	Cannot update the value of Analog Trim Data registers from FLASH.
 3.	The Analog Trim Data(default values) can be read by SPI bus, the SPI register addresses are 0x43~0x61.
 
-5.3.2. Reload Redundancy Parameter
+1.9.	Reload Redundancy Parameter
 For loading the bad Main Array sector information from FLASH NVR1 (0x3F).
 1. The factory stores the bad Main Array sector information in FLASH NVR1.
-2. After Chip power on, and after reloading Trim Data, will reload redundancy data to RND_REG.
+2. After Chip power on, and after reloading Trim Data, will reload redundancy data to rnd_reg.
 
-5.3.3. Write Analog Trim Data to Flash NVR0 Memory
+1.9.	Write Analog Trim Data to Flash NVR0 Memory
 1.	Data ready: write the data to SPI Trim Data registers.
 2.	Set FLASH_UNLOCK_PRO to 0xAA.
 3.	Set FLASH_NVR_PRO_BYTE00 to 0xAA.
 4.	Set FLASH_NVR_PRO_BYTE01 to 0xAA.
-5.	Set “UNLOCK” bit in FLASH_UNLOCK register to 1'b1. After this operation is completed, the “unlock” bit of FLASH_UNLOCK register will be automatically cleared.
+5.	Set “unlock” bit in FLASH_UNLOCK register to 1'b1. After this operation is completed, the “unlock” bit of FLASH_UNLOCK register will be automatically cleared.
 6.	Power down, and power on.
 7.	Read the value that is written on step 1.
 8.	Check whether the written data and read data are consistent.
-5.3.4. Read Data from Flash NVR0 Memory
+1.9.	Read Data from Flash NVR0 Memory
 This function is used to read data from flash via SPI.
 1.	Set FLASH_UNLOCK_PRO register to 0xAA.
 2.	Write FLASH_ADDR00, FLASH_ADDR01 registers to give the addresses.
@@ -721,7 +626,7 @@ This function is used to read data from flash via SPI.
 4.	Read bit-2 of FLASH_UNLOCK register until bit-2 is 0.
 5.	Go back to step 2 to read the next data.
 
-5.3.5. Write Data to Flash Memory (MAIN - 32K, NVR0 (512-byte except for first 32-address of TRIMs, RND (512-byte)
+1.9.	Write Data to Flash Memory (MAIN - 32K, NVR0 (512-byte except for first 32-address of TRIMs, RND (512-byte)
 This function is used to write data to Flash via SPI, if a program for Main Array is needed, set FLASH_CTRL-bit4 to 1’b0 or if a program for NVR0 is required, set bit-4 of FLASH_CTRL Register to 1’b1, data will be programmed as below:
 Note: the first 128 addresses of NVR0 (TRIM Data Region) can’t be accessed by this function
 1.	Set FLASH_UNLOCK_PRO register to 0xAA.
@@ -736,14 +641,14 @@ Set FLASH_NVR_PRO_BYTE01 register to 0xAA.
 6.	Read bit-3 of FLASH_UNLOCK register until bit-3 is 0.
 7.	Go back to step 2 to write the next data.
 
-5.3.6. Write function for TRIM registers (to write from SPI into AO shadow registers)
+1.9.	Write function for TRIM registers (to write from SPI into AO shadow registers)
 In order to update the AO shadow registers without writing into Flash trim locations, we can use the following steps. In this case, the SPI trim registers go to the flash first and then update AO shadow registers using SPI_WRITE, without having to use FLASH_UNLOCK. Then the user can go to step 2 in the previous section to also write the final value to the flash. 
 1.	Data ready: write the data to SPI reg
 2.	Set SPI_WRITE bit to 1 in FLASH_UNLOCK register
 3.	Wait at least 3 AO clocks, then set SPI_WRITE bit to 0 in FLASH_UNLOCK register
 4.	Check whether the written data and read data are consistent, written DATA from SPI REG should be the same of DATA on AO TRIM registers
 
-5.3.7. Sector erase
+1.9.	Sector erase
 This function is used to erase data via SPI, if erasing main array is needed, set FLASH_CTRL-bit4 to 0, if it is required to erase NVR0~NVR1, set FLASH_CTRL-bit4 to 1; user can select external clock(1mhz) or internal clock (128khz)
 
 1.	Set FLASH_UNLOCK_PRO register (0x6C) to 0xAA
@@ -753,22 +658,22 @@ Set FLASH_NVR_PRO_BYTE00 register (0x6A) to 0xAA
 Set FLASH_NVR_PRO_BYTE01 register (0x6B) to 0xAA
 Ø	No: go to step3
 3.	Configure FLASH_ADDR01 register (0x69) to give the sector address.
-4.	Set 1’b1 to bit-4 of FLASH_UNLOCK register (0x65) to enable SPI_SER after this operation is completed, the SPI_SER will be automatically cleared.
+4.	Set 1’b1 to bit-4 of FLASH_UNLOCK register (0x65) to enable spi_ser after this operation is completed, the spi_ser will be automatically cleared.
 5.	Read bit-4 of FLASH_UNLOCK register (0x65) until the bit-4 is 0.
 6.	Read the data again (will be 0xFFFF_FFFF) to confirm if it is successfully erased.
 7.	Go back to step 2 to erase the next sector if needed.
 
-5.3.8. Chip erase
+1.9.	Chip erase
 Note that chip erase only erases main array and RDN sectors, user can select external clock (1Mhz) or internal clock (128Khz)
 1.	Set FLASH_UNLOCK_PRO (0x6C) to 0xAA
 2.	Write 1’b1 to FLASH_UNLOCK register (0x65) by setting bit-5 to enable spi_cer after this operation is completed, the spi_cer will be automatically cleared.
 3.	Read bit-5 of FLASH_UNLOCK register (0x65) until bit-5 is 0.
 4.	Read the data again (will be 0xFFFF_FFFF) to confirm if it is successfully erased.
 
-5.3.9. Deep Standby mode
+1.9.	Deep Standby mode
 The device enters the Deep Standby mode when both DPSTB and CEb are high, all internal circuitries are not enabled during this mode
 This function will be valid when enabling PMU register bit[3], that is when write this bit to 1 via SPI, flash state machina will enter DPSLEEP state, then flash IP will enter Deep Standby mode, flash_fclk will be gate
-5.3.10. DEBUG MODE
+1.9.	DEBUG MODE
 Used for reading and writing tests on the trim register in the flash controller
 READ step:
 1. Set DEBUG_MODE_TYPE register to 0x01, enter READ DEBUG MODE
@@ -782,12 +687,12 @@ WIRTE step:
 4. Read data via SPI, the address is FLASH_EME_DATA00
 
 
-5.4. Flash Bist Controller
-5.4.1. Block Diagram
+1.10	Flash Bist Controller
+1.10.	Block Diagram
  
 
 
-5.5. Pin table
+1.11	Pin table
 Name 	Direction 	Width 	Description 
 Input signals
 TCK	I 	1 	BIST Clock
@@ -825,19 +730,19 @@ BIST_FLASH_RDATA 	I	32 	Read data from flash IP
 When flash_bist_en is asserted (set TESTMOD[1:0]=2’b10 and IOPAD_GPIO[5] = 0)
 More information, please refer to this document:
 logical/chip_top/imp/tech/HHG_FS13Q7P6_FPFLE032K09DA_32Kx8/BIST/Datasheet/BIS_ FPFLE032K09DA _DS.pdf or the link:
-BIS_ FPFLE032K09DA _DS.PDF
+BIS_ FPFLE032K09DA _DS.pdf
 
 
 
 
 
 
-5.6. ATM mode
-5.6.1. Introduction
+1.12	ATM mode
+1.12.	Introduction
 This function is used to write Analog trim to Analog trim reg and Flash by GPIO in Analog test mode, this process is to write the data in the pads in Analog test mode to the Analog trim registers and then use the UNLOCK signal to write the data in Analog Trim registers to Flash memory.
  
 
-5.6.1.1. Write Analog trim register by GPIO
+1.12.1.1.	Write Analog trim register by GPIO
 
 1.	Enter Analog test mode 
 2.	Select ATMx according to the Analog Trim that user wants to test 
@@ -850,17 +755,17 @@ In summary, every change of IO pad values will immediately go to the Analog Trim
 Notes:
 Trim values of all ATM modes will remain in Analog Trim (as long as the chip is powered) and will be written into the flash, each time UNLOCK is activated, regardless of which ATM step we are at. As a result, if any previous trim values in the memory are not final, do not UNLOCK, otherwise all trim values will be written at once. More specifically, when the flash is programmed, it is required to use the external clock, because the internal clock is 128Khz (7.8us), Tpgs and Tprog can’t use this clock.
 
-5.6.2. Protection NVR0
+1.12.	Protection NVR0
 There are two registers that is used to protect NVR0, that is, if user want to program or erase NVR0, need to set those registers to specified value, otherwise user can’t program/erase NVR0.
 
-5.7. FSM
+1.13	FSM
 The FSM functions mainly allow proper sequencing of FLASH write signals and to control the ownership of the Flash input control between the read and write slave.
 The read slave listens directly to SPI signals for incoming requests and functions exactly like a single cycle memory slave. If a valid read request is detected, the address is registered, and data is returned on the next clock. 
 A 20-bit timer is used to provide a timing count for State Transitions. An 8-bit state register is used to store the current state. The timer is reset to 0 whenever a next state transition is detected. 
 Each state then will drive the appropriate trigger high/low for one cycle to the outdrv registers to signal that the respective async signals need to be driven high or low or maintain previous driven levels.
 To enable control signals between read/write, bit[6] of the state registers which indicates either READ or PROG branch is used as the control. Hence, if bit[6] is asserted (PROG) then all control signals will be taken from the write slave and conversely from the read slave when bit[6] is 0 (READ)
 And given that the 20-bit counter is only required in the actual write control, it is only enabled once the FSM transitions to the PROG branch reduce unnecessary toggling
-5.8. Test Bench
+1.14	Test Bench
 Application scenario	Test point
 Chip power on	Reload configuration Datas from NVR1 (depend on Flash IP Trim Tag)
 Reload Analog trims from NVR0 (depend on Analog Trim Tag)
@@ -906,7 +811,7 @@ Reload done0: Reload is on going	Flash IP trims
 0	1	0	1
 0	1	1	1
 
-5.9. Timing
+1.15	Timing
 	Parameter 	System Clock(128khz)	External Clock(1mhz)
  
  
@@ -926,7 +831,7 @@ Erase	Tnvrs	2 clocks	7 clocks
 	Trcv	10 clocks	55 clocks
 
 
-5.10. Registers
+1.16	Registers
 FLASH address	SPI address	Type	Default	Signal Name	Flash signals
  	50h	R	00h	debug1	
  	51h	R	00h	debug2	
@@ -977,7 +882,7 @@ FLASH address	SPI address	Type	Default	Signal Name	Flash signals
 0x2b				coeff_a3_section2[7:0]	coeff_a3_section2
 0x2c				coeff_a3_section2[15:8]	coeff_a3_section2
 
-5.10.1. FLASH_DEBUG1: Offset Address: 0x50
+FLASH_DEBUG1: Offset Address: 0x50
 Bit	Field Name	Attribute	Default	Field Description
 7	FLASH_BLOCK	RO	0	Debug flash signal: BLOCK
 6	FLASH_OEB	RO	1	Debug flash signal: OEb
@@ -988,7 +893,7 @@ Bit	Field Name	Attribute	Default	Field Description
 1	FLASH_WEB	RO	1	Debug flash signal: WEb
 0	FLASH_CEB	RO	1	Debug flash signal: CEb
 
-5.10.2. FLASH_DEBUG2: Offset Address: 0x51
+FLASH_DEBUG2: Offset Address: 0x51
 Bit	Field Name	Attribute	Default	Field Description
 7	VALID_TRIM_TAG_STS	RO	0	After flash busy becomes low: 
 1: analog trim tag is invalid
@@ -1001,112 +906,112 @@ Bit	Field Name	Attribute	Default	Field Description
 1	FLASH_PORB	RO	0	Debug flash signal: PORb
 0	FLASH_VALID_CONFEN	RO	0	Debug flash signal: CONFEN_valid
 
-5.10.3. FLASH_TRIM0: Offset Address: 0x52
+FLASH_TRIM0: Offset Address: 0x52
 Bit	Field Name	Attribute	Default	Field Description
 7:0	FLASH_TRIM0	R/W	8’b0	FLASH to Analog Trim0 (TRIM TAG REG)
 This register is read with SPI_CLK so the initial default values are 8’b0. If trim tag is unsuccessful, the default values from flash is 8’b0. After successful trim tag, final flash value will be read by spi
  
-5.10.4. FLASH_TRIM1: Offset Address: 0x53
+FLASH_TRIM1: Offset Address: 0x53
 Bit	Field Name	Attribute	Default	Field Description
 7:0	FLASH_TRIM1	R/W	8’b0	FLASH to Analog Trim1(BGH_VTRIM)
 This register is read with SPI_CLK so the initial default values are 8’b0. If trim tag is unsuccessful, the default values from flash is 8’b0. After successful trim tag, final flash value will be read by spi
 
-5.10.5. FLASH_TRIM2: Offset Address: 0x54
+FLASH_TRIM2: Offset Address: 0x54
 Bit	Field Name	Attribute	Default	Field Description
 7:0	FLASH_TRIM2	R/W	8’b0	FLASH to Analog Trim2(BGH_CTRIM)
 This register is read with SPI_CLK so the initial default values are 8’b0. If trim tag is unsuccessful, the default values from flash is 8’b0. After successful trim tag, final flash value will be read by spi
 
-5.10.6. FLASH_TRIM3: Offset Address: 0x55
+FLASH_TRIM3: Offset Address: 0x55
 Bit	Field Name	Attribute	Default	Field Description
 7:0	FLASH_TRIM3	R/W	8’b0	FLASH to Analog Trim3(LDO1V5_VTRIM)
 This register is read with SPI_CLK so the initial default values are 8’b0. If trim tag is unsuccessful, the default values from flash is 8’b0. After successful trim tag, final flash value will be read by spi
 
-5.10.7. FLASH_TRIM4: Offset Address: 0x56
+FLASH_TRIM4: Offset Address: 0x56
 Bit	Field Name	Attribute	Default	Field Description
 7:0	FLASH_TRIM4	R/W	8’b0	FLASH to Analog Trim4(OSC_TRIM)
 This register is read with SPI_CLK so the initial default values are 8’b0. If trim tag is unsuccessful, the default values from flash is 8’b0. After successful trim tag, final flash value will be read by spi
 
-5.10.8. FLASH_TRIM5: Offset Address: 0x57
+FLASH_TRIM5: Offset Address: 0x57
 Bit	Field Name	Attribute	Default	Field Description
 7:0	FLASH_TRIM5	R/W	8’b0	FLASH to Analog Trim5 (OSC_ISEL_SEL)
 This register is read with SPI_CLK so the initial default values are 8’b0. If trim tag is unsuccessful, the default values from flash is 8’b0. After successful trim tag, final flash value will be read by SPI
 
-5.10.9. FLASH_TRIM6: Offset Address: 0x58
+FLASH_TRIM6: Offset Address: 0x58
 Bit	Field Name	Attribute	Default	Field Description
 7:0	FLASH_TRIM6	R/W	8’b0	FLASH to Analog Trim6 (D2A_DCLEADOFF_COMP_TH_TRIM)
 This register is read with SPI_CLK, so the initial default values are 8’b0. If trim tag is unsuccessful, the default values from flash is 8’b0. After successful trim tag, final flash value will be read by SPI 
 
-5.10.10. FLASH_TRIM7: Offset Address: 0x59
+FLASH_TRIM7: Offset Address: 0x59
 Bit	Field Name	Attribute	Default	Field Description
 7:0	FLASH_TRIM7	R/W	8’b0	FLASH to Analog Trim7 (D2A_DCLEADOFF_ISEL_TRIM)
 This register is read with SPI_CLK, so the initial default values are 8’b0. If trim tag is unsuccessful, the default values from flash is 8’b0. After successful trim tag, final flash value will be read by SPI
 
-5.10.11. FLASH_TRIM8: Offset Address: 0x5A
+FLASH_TRIM8: Offset Address: 0x5A
 Bit	Field Name	Attribute	Default	Field Description
 7:0	FLASH_TRIM8	R/W	8’b0	FLASH to Analog Trim8(D2A_ACLEADOFF_VTHNSEL_TRIM)
 This register is read with SPI_CLK so the initial default values are 8’b0. If trim tag is unsuccessful, the default values from flash is 8’b0. After successful trim tag, final flash value will be read by SPI
 
-5.10.12. FLASH_TRIM9: Offset Address: 0x5B
+FLASH_TRIM9: Offset Address: 0x5B
 Bit	Field Name	Attribute	Default	Field Description
 7:0	FLASH_TRIM9	R/W	8’b0	FLASH to Analog Trim9(D2A_ACLEADOFF_VTHPSEL_TRIM)
 This register is read with SPI_CLK so the initial default values are 8’b0. If trim tag is unsuccessful, the default values from flash is 8’b0. After successful trim tag, final flash value will be read by SPI
 
-5.10.13. FLASH_TRIM10: Offset Address: 0x5C
+FLASH_TRIM10: Offset Address: 0x5C
 Bit	Field Name	Attribute	Default	Field Description
 7:0	FLASH_TRIM10	R/W	8’b0	FLASH to Analog Trim10(D2A_ACLEADOFF_ISEL_TRIM)
 This register is read with SPI_CLK so the initial default values are 8’b0. If trim tag is unsuccessful, the default values from flash is 8’b0. After successful trim tag, final flash value will be read by SPI
 
-5.10.14. FLASH_TRIM11: Offset Address: 0x5D
+FLASH_TRIM11: Offset Address: 0x5D
 Bit	Field Name	Attribute	Default	Field Description
 7:0	FLASH_TRIM11	R/W	8’b0	FLASH to digitial Trim0(VSEL TRIM_H[7:0])
 This register is read with SPI_CLK so the initial default values are 10’b0. If trim tag is unsuccessful, the default values from flash is 10’b0. After successful trim tag, final flash value will be read by spi
 
-5.10.15. FLASH_TRIM12: Offset Address: 0x5E
+FLASH_TRIM12: Offset Address: 0x5E
 Bit	Field Name	Attribute	Default	Field Description
 7:0	FLASH_TRIM12	R/W	8’b0	FLASH to digitial Trim0(VSEL TRIM_H[9:8])
 This register is read with SPI_CLK so the initial default values are 10’b0. If trim tag is unsuccessful, the default values from flash is 10’b0. After successful trim tag, final flash value will be read by spi
 
-5.10.16. FLASH_TRIM13: Offset Address: 0x5F
+FLASH_TRIM13: Offset Address: 0x5F
 Bit	Field Name	Attribute	Default	Field Description
 7:0	FLASH_TRIM13	R/W	8’b0	FLASH to digitial Trim1(VSEL TRIM_L[7:0])
 This register is read with SPI_CLK so the initial default values are 10’b0. If trim tag is unsuccessful, the default values from flash is 10’b0. After successful trim tag, final flash value will be read by spi
 
-5.10.17. FLASH_TRIM14: Offset Address: 0x60
+FLASH_TRIM14: Offset Address: 0x60
 Bit	Field Name	Attribute	Default	Field Description
 7:0	FLASH_TRIM14	R/W	8’b0	FLASH to digitial Trim1(VSEL TRIM_L[9:8])
 This register is read with SPI_CLK so the initial default values are 10’b0. If trim tag is unsuccessful, the default values from flash is 10’b0. After successful trim tag, final flash value will be read by SPI
 
-5.10.18. FLASH_TRIM15: Offset Address: 0x61
+FLASH_TRIM15: Offset Address: 0x61
 Bit	Field Name	Attribute	Default	Field Description
 7:0	FLASH_TRIM15	R/W	8’b0	FLASH to Analog Trim15 (AO spare register)
 This register is read with SPI_CLK so the initial default values are 8’b0. If trim tag is unsuccessful, the default values from flash is 8’b0. After successful trim tag, final flash value will be read by SPI 
 
-5.10.19. FLASH_TRIM16: Offset Address: 0x62
+FLASH_TRIM16: Offset Address: 0x62
 Bit	Field Name	Attribute	Default	Field Description
 7:0	FLASH_TRIM16	R/W	8’b0	FLASH to Analog Trim16 (AO spare register)
 This register is read with SPI_CLK so the initial default values are 8’b0. If trim tag is unsuccessful, the default values from flash is 8’b0. After successful trim tag, final flash value will be read by SPI
 
-5.10.20. FLASH_TRIM17: Offset Address: 0x63
+FLASH_TRIM17: Offset Address: 0x63
 Bit	Field Name	Attribute	Default	Field Description
 7:0	FLASH_TRIM17	R/W	8’b0	FLASH to Analog Trim17(AO spare register)
 This register is read with SPI_CLK so the initial default values are 8’b0. If trim tag is unsuccessful, the default values from flash is 8’b0. After successful trim tag, final flash value will be read by SPI
 
-5.10.21. FLASH_TRIM18: Offset Address: 0x64
+FLASH_TRIM18: Offset Address: 0x64
 Bit	Field Name	Attribute	Default	Field Description
 7:0	FLASH_TRIM18	R/W	8’b0	FLASH to Analog Trim18(AO spare register)
 This register is read with SPI_CLK so the initial default values are 8’b0. If trim tag is unsuccessful, the default values from flash is 8’b0. After successful trim tag, final flash value will be read by SPI
 
-5.10.22. FLASH_TRIM19: Offset Address: 0x65
+FLASH_TRIM19: Offset Address: 0x65
 Bit	Field Name	Attribute	Default	Field Description
 7:0	FLASH_TRIM19	R/W	8’b0	FLASH to Analog Trim19(SW spare register)
 This register is read with SPI_CLK so the initial default values are 8’b0. If trim tag is unsuccessful, the default values from flash is 8’b0. After successful trim tag, final flash value will be read by SPI
 
-5.10.23. FLASH_TRIM20: Offset Address: 0x66
+FLASH_TRIM20: Offset Address: 0x66
 Bit	Field Name	Attribute	Default	Field Description
 7:0	FLASH_TRIM120	R/W	8’b0	FLASH to Analog Trim20( SW spare register)
 This register is read with SPI_CLK so the initial default values are 8’b0. If trim tag is unsuccessful, the default values from flash is 8’b0. After successful trim tag, final flash value will be read by SPI
 
-5.10.24. FLASH_UNLOCK: Offset Address: 0x67
+FLASH_UNLOCK: Offset Address: 0x67
 Bit	Field Name	Attribute	Default	Field Description
 7:6	RESERVED	RO	2’b00	Not use
    5	FLASH_CER	R/W	1’b0	Chip erase command
@@ -1117,7 +1022,7 @@ Bit	Field Name	Attribute	Default	Field Description
 0	UNLOCK	R/W	1’b0	The command is used to write trim value from SPI registers to NVR0
 In order to do UNLOCK, Flash MUST have a clock of 1Mhz (external CLK)
  
-5.10.25. FLASH_CTRL: Offset Address: 0x68
+FLASH_CTRL: Offset Address: 0x68
 Bit	Field Name	Attribute	Default	Field Description
 7:5	RESERVED	RO	3’b000	Reserved
   4	NVR 	R/W	1’b0	Enable NVR Accession
@@ -1126,15 +1031,15 @@ Bit	Field Name	Attribute	Default	Field Description
 3:2	RESERVED	RO	2’b00	Reserved
 1:0	RESERVED	RO	2’b00	Reserved
  
-5.10.26. FLASH_DATA00: Offset Address: 0x69
+FLASH_DATA00: Offset Address: 0x69
 Bit	Field Name	Attribute	Default	Field Description
 7:0	FLASH DATA00	R/W	8’hFF	The data that will be wrote into flash DIN[7:0]
  
-5.10.27. FLASH_ADDR00: Offset Address: 0x6A
+FLASH_ADDR00: Offset Address: 0x6A
 Bit	Field Name	Attribute	Default	Field Description
 7:0	BYTES_ADDRESS_SELECTION	R/W	8’h00	Select which address is being obtained in a row
  
-5.10.28. FLASH_ADDR01: Offset Address: 0x6B
+FLASH_ADDR01: Offset Address: 0x6B
 Bit	Field Name	Attribute	Default	Field Description
 7	RESERVED	R	1’b0	 
 6:0	ROW_SELECTION	R/W	7’h00	Row Selection is being obtained
@@ -1142,27 +1047,27 @@ Bit	Field Name	Attribute	Default	Field Description
 ROW_SELECTION[0]: be used to select row 
 ROW_SELECTION[6:1]: be used to select sector 
  
-5.10.29. FLASH_NVR_PRO_BYTE00: Offset Address: 0x6E
+FLASH_NVR_PRO_BYTE00: Offset Address: 0x6E
 Bit	Field Name	Attribute	Default	Field Description
 7:0	FLASH_NVR_PRO_BYTE00	RW	8’h00	FLASH_NVR_PRO_BYTE[7:0]
 It is used to obtain the operation permission on the NVR0 sector. The NVR0 can be operated only when the half-word is 0xAAAA
  
-5.10.30. FLASH_NVR_PRO_BYTE01: Offset Address: 0x6F
+FLASH_NVR_PRO_BYTE01: Offset Address: 0x6F
 Bit	Field Name	Attribute	Default	Field Description
 7:0	FLASH_NVR_PRO_BYTE01	RW	8’h00	FLASH_NVR_PRO_BYTE[15:8]
 It is used to obtain the operation permission on the NVR0 sector. The NVR0 can be operated only when the half-word is 0xAAAA
  
-5.10.31. FLASH_UNLOCK_PRO: Offset Address: 0x70
+FLASH_UNLOCK_PRO: Offset Address: 0x70
 Bit	Field Name	Attribute	Default	Field Description
 7:0	FLASH_UNLOCK_PRO	RW	8’h00	PASSWORD For UNLOCK 
 This byte is used to obtain permission to operate UNLOCK registers.  It is able to operate UNLOCK registers only when the byte is 0xAA
  
-5.10.32. FLASH_EME_DATA00: Offset Address: 0x6C
+FLASH_EME_DATA00: Offset Address: 0x6C
 Bit	Field Name	Attribute	Default	Field Description
 7:0	FLASH EME DATA00	R	8’h00	READ DATA REGISTER
 The data that is read from flash DOUT[7:0]
  
-5.10.33. FLASH_RND_ADDR: Offset Address: 0x6D
+FLASH_RND_ADDR: Offset Address: 0x6D
 Bit	Field Name	Attribute	Default	Field Description
 7:0	FLASH_RND_ADDR	R	8’hFF	the information about RDN sector replacement is stored in NVR1
 -FLASH_RND_ADDR[7]: 
@@ -1172,7 +1077,19 @@ Bit	Field Name	Attribute	Default	Field Description
 -FLASH_RND_ADDR[5:0]: 
 the addresses of main array that is replaced by RDN sector (because Main Size is 32KB, there are 64 sectors so we use 6-bit to identify the bad sector to replace)
 
-5.10.34. DEVICE_INT_STATUS_0: Offset Address: 0xD0
+
+DEBUG_MODE_TYPE: Offset Address: 0xF0
+Bit	Field Name	Attribute	Default	Field Description
+7:0	DEBUG_MODE_TYPE	RW	8’h00	8‘h01 : read data from shadow register
+8‘h02 : write data into shadow register
+
+
+
+
+
+
+
+DEVICE_INT_STATUS_0: Offset Address: 0xD0
 Bit	Field Name	Attribute	Default	Field Description
 7	RESERVED	RO	4’b0	Reserved
 6	LEAD_OFF_SWITCH_INT_STS	RO	1’b0	Lead off switch interrupt
@@ -1185,7 +1102,7 @@ this duration interrupt includes all duration type, no matter it is N or P, ac o
 1	ZMEAS_INT_STS	RO	1’B0	Zmeas_interrupt
 0	ZMEAS_ADC_INT_STS	RO	1’b0	zmeas_adc_interrupt
 
-5.10.35. DEVICE_INT_STATUS_1: Offset Address: 0xD1
+DEVICE_INT_STATUS_1: Offset Address: 0xD1
 Bit	Field Name	Attribute	Default	Field Description
 7	RESERVED	RO	1’b0	Reserved
 6	BIOELEC_INT_STS	RO	1’B0	bioelectric_interrupt_status
@@ -1239,21 +1156,21 @@ Bit	Field Name	Attribute	Default	Field Description
 7:6	RESERVED	RO		
 5:0	LED_FREQ_H	R/W	6’b0	LED_FREQ_H
 
-
-6. Analog Registers
+Analog 
+Analog Registers
 
   Below are the set of analog registers which stores the values needed for the analog block, these registers are configurable through the SPI by enabling SPI Write AO bit.
-6.1. Registers
-6.1.1. Analog Registers
+1.17	Registers
+1.17.	Analog Registers
 
-6.1.1.1. ANA_TSC_1: Offset Address: 0x9F
+ANA_TSC_1: Offset Address: 0x9F
 Bit	Field Name	Attribute	Default	Field Description
 7:1	RESERVED	RO	7’B000	Reserved
 0		R/W	1’b0	TSC_INA_EN
 
 
 	
-6.1.1.2. ANA_BUFFER: Offset Address: 0xA0
+ANA_BUFFER: Offset Address: 0xA0
 Bit	Field Name	Attribute	Default	Field Description
 7:5	RESERVED	RO	3’b0	Reserved
 4	ECG_ELECTRODE_EN	R/W	1’B0	ECG_ELECTRODE_EN (Electrode mode switch)
@@ -1263,14 +1180,14 @@ Bit	Field Name	Attribute	Default	Field Description
 0	VCM1P5_BUF_EN 	R/W	1’B0	VCM1P5_BUF_EN 
 
 
-6.1.1.3. ANA_ECG_CTRL_1   Offset Address: 0xA1
+ANA_ECG_CTRL_1   Offset Address: 0xA1
 Bit	Field Name	Attribute	Default	Field Description
 7:5	ECG_DDA_GSEL	R/W	3’H0	ECG_DDA_GSEL
 4:2	ECG_PGA_GSEL	R/W	3’H0	ECG_PGA_GSEL
 1	ECG_LPF_EN	R/W	1’B1	ECG_LPF_EN
 0	ECG_PGA_EN	R/W	1’B1	ECG_PGA_EN
 
-6.1.1.4. ANA_ECG_CTRL_2: Offset Address: 0xA2
+ANA_ECG_CTRL_2: Offset Address: 0xA2
 Bit	Field Name	Attribute	Default	Field Description
 7	RESERVED	RO	1’h0	Reserved    
 6	ECG_CAL_EN	R/W	1’B0	ECG_CAL_EN
@@ -1279,20 +1196,20 @@ Bit	Field Name	Attribute	Default	Field Description
 2	ECG_DDA_EN	R/W	1’B1	ECG_DDA_EN
 1:0	ECG_DDA_CLKSEL	R/W	2’b0	ECG_DDA_CLKSEL
 
-6.1.1.5. ANA_DC_LEAD_OFF_CTRL:  Offset Address: 0xA3
+ANA_DC_LEAD_OFF_CTRL:  Offset Address: 0xA3
 Bit	Field Name	Attribute	Default	Field Description
 7:2	RESERVED	RO	6’H0	Reserved
 1	DC_LEAD_OFF_VIN_FLIP	R/W	1’B0	DC_LEAD_OFF_VIN_FLIP
 0	DC_LEAD_OFF_RMODE_EN	R/W	1’b0	DC_LEAD_OFF_RMODE_EN (1 refers to resistor mode, and 0 refers to current mode)
 
-6.1.1.6. ANA_TSC: Offset Address: 0xA4
+ANA_TSC: Offset Address: 0xA4
 Bit	Field Name	Attribute	Default	Field Description
 7:5	TSC_INA_GEL	R/W	3’B000	TSC_INA_GEL
 4	TSC_EN	R/W	1’B0	TSC_EN
 3:1	TSC_BJT_SEL	R/W	3’B000	TSC_BJT_SEL
 0	TSC_OUT_SEL	R/W	1’b0	TSC_OUT_SEL
 
-6.1.1.7. ANA_PPG_LED_SEL: Offset Address: 0xA5
+ANA_PPG_LED_SEL: Offset Address: 0xA5
 Bit	Field Name	Attribute	Default	Field Description
 7:3	RESERVED	RO	-	Reserved
 2:1	PPG_LED_SEL	R/W	2’H0	PPG_LED_SEL
@@ -1300,43 +1217,43 @@ Bit	Field Name	Attribute	Default	Field Description
 
 
 
-6.1.1.8. ANA_PPG_DAC0_CTRL_REG0: Offset Address: 0xA6
+ANA_PPG_DAC0_CTRL_REG0: Offset Address: 0xA6
 Bit	Field Name	Attribute	Default	Field Description
 7:0	PPG_DAC0_VSEL7:0]	R/W	8’H0	PPG_DAC0_VSEL7:0]
 
-6.1.1.9. ANA_PPG_DAC0_CTRL_REG1: Offset Address: 0xA7
+ANA_PPG_DAC0_CTRL_REG1: Offset Address: 0xA7
 Bit	Field Name	Attribute	Default	Field Description
 7:5	RESERVED	RO	-	Reserved
 4	PPG_DAC0_EN	R/W	1’B0	PPG_DAC0_EN
 3:0	PPG_DAC0_VSEL [11:8]	R/W	4’H0	PPG_DAC0_VSEL [11:8]
 
-6.1.1.10. ANA_PPG_DAC1_CTRL_REG0: Offset Address: 0xA8
+ANA_PPG_DAC1_CTRL_REG0: Offset Address: 0xA8
 Bit	Field Name	Attribute	Default	Field Description
 7:0	PPG_DAC1_VSEL [7:0]
 	R/W	8’H0	PPG_DAC1_VSEL [7:0]
 
-6.1.1.11. ANA_PPG_DAC1_CTRL_REG1: Offset Address: 0xA9
+ANA_PPG_DAC1_CTRL_REG1: Offset Address: 0xA9
 Bit	Field Name	Attribute	Default	Field Description
 7:5	RESERVED	RO	-	Reserved
 4	PPG_DAC1_EN	R/W	1’B0	PPG_DAC1_EN
 3:0	PPG_DAC1_VSEL [11:8]	R/W	4’H0	PPG_DAC1_VSEL [11:8]
 
-6.1.1.12. ANA_PPG_TIA_IDAC: Offset Address: 0xAA
+ANA_PPG_TIA_IDAC: Offset Address: 0xAA
 Bit	Field Name	Attribute	Default	Field Description
 7:0	PPG_TIA_IDAC	R/W	8’H0	PPG_TIA_IDAC Value
 
-6.1.1.13. ANA_PPG_TIA_GAIN: Offset Address: 0xAB
+ANA_PPG_TIA_GAIN: Offset Address: 0xAB
 Bit	Field Name	Attribute	Default	Field Description
 7:4	RESERVED	RO	4’h0	Reserved
 3:0	PPG_TIA_GAIN	R/W	4’H0	PPG_TIA_GAIN
- 6.1.1.14. ANA_PPG_TEST_REG: Offset Address: 0xAC
+ ANA_PPG_TEST_REG: Offset Address: 0xAC
 Bit	Field Name	Attribute	Default	Field Description
 7:6	RESERVED	RO	2’b0	Reserved
 5:4	PPG_PDV_REF_SEL	R/W	2’H0	PPG_PDV_REF_SEL
 3:2 	PPG_TEST_IN	R/W	2’H0	PPG_TEST_IN
 1:0	PPG_TEST_OUT	R/W	2’H0	PPG_TEST_OUT
 
-6.1.1.15. ANA_PPG_LED_EN_REG: Offset Address: 0xAD
+ANA_PPG_LED_EN_REG: Offset Address: 0xAD
 Bit	Field Name	Attribute	Default	Field Description
 7:6	RESERVED	-	2’b0	Reserved
 5	PPG_DAC_BUFFER_EN	R/W	1’b0	PPG_DAC_BUFFER_EN
@@ -1346,41 +1263,41 @@ Bit	Field Name	Attribute	Default	Field Description
 1	PPG_AF_EN	R/W	1’H0	PPG_AF_EN
 0	 PPG_LED_STANDBYEN     	R/W	1’B0	 PPG_LED_STANDBYEN     
 
-6.1.1.16. ANA_PPG_CTRL_REG: Offset Address: 0xAE
+ANA_PPG_CTRL_REG: Offset Address: 0xAE
 Bit	Field Name	Attribute	Default	Field Description
 7:3	RESERVED	RO	5’b0	Reserved
 2	PPG_LED_EN	R/W	1’H0	PPG_LED_EN
 1	PPG_TIA_EN 	R/W	1’B0	PPG_TIA_EN 
 0 	PPG_SH_CK	R/W	1’B0	PPG_SH_CK
 
-6.1.1.17. ANA_SDM_REG: Offset Address: 0xAF
+ANA_SDM_REG: Offset Address: 0xAF
 Bit	Field Name	Attribute	Default	Field Description
 7:3	RESERVED	RO	5’b0	Reserved
 2	SDM_EN	R/W	1’B0	SDM_EN
 1:0 	SDM_BIAS[1:0]	R/W	3’h0	SDM_BIAS[1:0]
 
-6.1.1.18. ANA_BIST: Offset Address: 0xB0
+ANA_BIST: Offset Address: 0xB0
 Bit	Field Name	Attribute	Default	Field Description
 7:4	RESERVED	RO	4’b0	Reserved
 3	BIST_EN	R/W	1’B0	BIST_EN
 2:0 	BIST_ISEL	R/W	3’h0	BIST_ISEL
 
-6.1.1.19. ANA_LEAD_OFF_EN:  Offset Address: 0xB1
+ANA_LEAD_OFF_EN:  Offset Address: 0xB1
 Bit	Field Name	Attribute	Default	Field Description
 7:2	RESERVED	RO	6’B0	Reserved
 1	AC_ECG_LEAD_OFF_EN	R/W	1’B0	AC_ECG_LEAD_OFF_EN
 0	DC_ECG_LEAD_OFF_EN	R/W	1’B0	DC_ECG_LEAD_OFF_EN
 
-6.1.1.20.  A2D_SPARE_REG0: Offset Address: 0xB2
+ A2D_SPARE_REG0: Offset Address: 0xB2
 Bit	Field Name	Attribute	Default	Field Description
 7:0	A2D_SPARE_REG_0	RO	8’H0	Analog to Digital spare register 0
 
-6.1.1.21. A2D_LOFF_STATN: Offset Address: 0xB3
+A2D_LOFF_STATN: Offset Address: 0xB3
 Bit	Field Name	Attribute	Default	Field Description
 7:1	RESERVED	RO	7’h0	Reserved
 0	ECG_DC_LEAD_OFF_STATN	RO	1’b0	Analog to Digital   ECG_DC_LEAD_OFF_STATN
 
-6.1.1.22. A2D_LOFF_STATP: Offset Address: 0xB4
+A2D_LOFF_STATP: Offset Address: 0xB4
 Bit	Field Name	Attribute	Default	Field Description
 7:1	RESERVED	RO	7’h0	Reserved
 0	ECG_DC_LEAD_OFF_STATP	RO	1’b0	Analog to Digital   ECG_DC_LEAD_OFF_STATP 
@@ -1388,66 +1305,66 @@ Bit	Field Name	Attribute	Default	Field Description
 
 
 
-6.1.1.23. A2D_ACLEADOFF_STATN: Offset Address: 0xB5
+A2D_ACLEADOFF_STATN: Offset Address: 0xB5
 Bit	Field Name	Attribute	Default	Field Description
 7:1	RESERVED	RO	7’h0	Reserved
 0	ECG_AC_LEAD_OFF_STATN	RO	1’b0	Analog to Digital   ECG_AC_LEAD_OFF_STATN 
 
-6.1.1.24. A2D_ACLEADOFF_STATP: Offset Address: 0xB6
+A2D_ACLEADOFF_STATP: Offset Address: 0xB6
 Bit	Field Name	Attribute	Default	Field Description
 7:1	RESERVED	RO	7’h0	Reserved
 0	ECG_AC_LEAD_OFF_STATP	RO	1’b0	Analog to Digital   ECG_AC_LEAD_OFF_STATP
 
-6.1.2. Analog Debug Registers
+1.17.	Analog Debug Registers
 (Analog register values from the always on shadow register, to check whether the user configured analog register values are properly loaded to the shadow registers in the always on block)
 (Analog Register values are loaded to the shadow registers in the always_on_block, when the always_on_spi_write=1 (CLK_CTRL_REG[7]), generally user need to supply the always_on_spi_write pulse (0->1) after configuring the analog registers (to load those values in always on shadow register)
 
-6.1.2.1. ALWAYS_ON_ANA_TRIM1: Offset Address: 0xC0
+ALWAYS_ON_ANA_TRIM1: Offset Address: 0xC0
 Bit	Field Name	Attribute	Default	Field Description
 7:5	RESERVED	RO	3’b0	Spare bits
 4:0	BGH_VTRIM	RO	5’b10000	bgh_vtrim value in _always_on. Default value 5’b10000. Value changes at SPI read to final flash value, if trim tag successful.
 
-6.1.2.2. ALWAYS_ON_ANA_TRIM2: Offset Address: 0xC1
+ALWAYS_ON_ANA_TRIM2: Offset Address: 0xC1
 Bit	Field Name	Attribute	Default	Field Description
 7	RESERVED	RO	1’b0	Spare bits
 6:0	BGH_CTRIM	RO	7’b1000000	bgh_ctrim value in _always_on. Default value 7’b1000000. Value changes at SPI read to final flash value, if trim tag successful
 
-6.1.2.3. ALWAYS_ON_ANA_TRIM3: Offset Address: 0xC2
+ALWAYS_ON_ANA_TRIM3: Offset Address: 0xC2
 Bit	Field Name	Attribute	Default	Field Description
 7:2	RESERVED	RO	6’b0	Spare bits
 1:0	LDO1V5_TRIM	RO	2’b10	ldo1v5_trim value in _always_on. Default value 2’b10. Value changes at SPI read to final flash value, if trim tag successful
 
-6.1.2.4. ALWAYS_ON_ANA_TRIM4: Offset Address: 0xC3
+ALWAYS_ON_ANA_TRIM4: Offset Address: 0xC3
 Bit	Field Name	Attribute	Default	Field Description
 7:6	RESERVED	RO	2’b0	Spare bits
 5:0	OSC_TRIM	RO	6’b100000	osc_trim value in _always_on. Default value 6’b100000. Value changes at SPI read to final flash value, if trim tag successful
 
-6.1.2.5. ALWAYS_ON_ANA_TRIM5: Offset Address: 0xC4
+ALWAYS_ON_ANA_TRIM5: Offset Address: 0xC4
 Bit	Field Name	Attribute	Default	Field Description
 7:1	RESERVED	RO	2’b0	Spare bits
 0	OSC_ISEL	RO	1’b1	OSC_ISELvalue in _always_on. Default value 1’b1. Value changes at SPI read to final flash value, if trim tag successful
 
-6.1.2.6. ALWAYS_ON_ANA_TRIM6: Offset Address: 0xC5
+ALWAYS_ON_ANA_TRIM6: Offset Address: 0xC5
 Bit	Field Name	Attribute	Default	Field Description
 7:6	RESERVED	RO	5’b0	Spare bits
 2:0	DCLEADOFF_COMP_TH	RO	3‘b000	DCLEADOFF_COMP_TH value in _always_on. Default value 3’b000. Value changes at SPI read to final flash value, if trim tag successful
 
-6.1.2.7. ALWAYS_ON_ANA_TRIM7: Offset Address: 0xC6
+ALWAYS_ON_ANA_TRIM7: Offset Address: 0xC6
 Bit	Field Name	Attribute	Default	Field Description
 7:6	RESERVED	RO	5’b0	Spare bits
 2:0	DCLEADOFF_ISEL	RO	3’b000	DCLEADOFF_ISEL value in _always_on. Default value 3’b000. Value changes at SPI read to final flash value, if trim tag successful
 
-6.1.2.8. ALWAYS_ON_ANA_TRIM8: Offset Address: 0xC7
+ALWAYS_ON_ANA_TRIM8: Offset Address: 0xC7
 Bit	Field Name	Attribute	Default	Field Description
 7:3	RESERVED	RO	5’b0	Spare bits
 2:0	ACLEADOFF_VTHNSEL	RO	3’b100	ACLEADOFF_VTHNSEL value in _always_on. Default value 3’b100. Value changes at SPI read to final flash value, if trim tag successful
 
-6.1.2.9. ALWAYS_ON_ANA_TRIM9: Offset Address: 0xC8
+ALWAYS_ON_ANA_TRIM9: Offset Address: 0xC8
 Bit	Field Name	Attribute	Default	Field Description
 7:3	RESERVED	RO	5’b0	Spare bits
 2:0	ACLEADOFF_VTHPSEL	RO	3’b100	ACLEADOFF_VTHPSEL value in _always_on. Default value 3’b100. Value changes at SPI read to final flash value, if trim tag successful
 
-6.1.2.10. ALWAYS_ON_ANA_TRIM10: Offset Address: 0xC9
+ALWAYS_ON_ANA_TRIM10: Offset Address: 0xC9
 Bit	Field Name	Attribute	Default	Field Description
 7:4	RESERVED	RO	4’b0	Spare bits
 3:0	ACLEADOFF_ISEL	RO	4’b1	ACLEADOFF_ISEL value in _always_on. Default value 4’b0001. Value changes at SPI read to final flash value, if trim tag successful
@@ -1455,8 +1372,8 @@ Bit	Field Name	Attribute	Default	Field Description
 
 
 
-7. BIOELECTRIC FILTER
-7.1. Block Diagram
+BIOELECTRIC FILTER
+1.18	Block Diagram
 The SD16 module consists of an on-chip programmable gain amplifier (PGA), and a sigma-delta analog-to-digital converter (ADC).
 The ADC has up to eight fully differential multiplexed analog input pairs. The converter is based on a first order
 Sigma-delta modulator whose output is over sampled followed by a digital decimation filter. 
@@ -1474,8 +1391,8 @@ CIC (cascade integrator comb) is a simple, hardware economical decimation filter
 BIOELECTRIC CTRL module samples the 16-bit data from filter when EOC, and based on different channel mode, generate interrupt status, and load the convert data to registers. 
  
 Figure. 7 BIOELECTRIC Block Diagram
-7.2.  Configuration Sequence
-7.2.1. Single channel conversion mode
+1.19	 Configuration Sequence
+1.19.	Single channel conversion mode
 1)	Select iclk (SDM clk) frequency using CLK_CTRL_REG register
 2)	Enable BIOELECTRIC by writing into BIOELECTRIC_EN register, which will start generating SDM adc clk
 3)	Select input data format using BIOELECTRIC_INPUT_FORMAT register
@@ -1490,7 +1407,7 @@ Figure. 7 BIOELECTRIC Block Diagram
 
 
  
- 7.2.2. Single channel continuous conversion mode
+ 1.19.	Single channel continuous conversion mode
 
 1)	Select iclk (SDM clk) frequency using CLK_CTRL_REG register
 2)	Enable BIOELECTRIC by writing into BIOELECTRIC_EN register, which will start generating SDM adc clk
@@ -1502,7 +1419,7 @@ Figure. 7 BIOELECTRIC Block Diagram
 8)	When conversion complete, SD16EOC is asserted, then hardware loads the conversion data into registers of channel 0
 9)	After few conversions, software set SD16RST to 1’b1 to finish conversion, read the conversion data 	of channel 0 using BIOELECTRIC_CH0DATA or using SPI_FIFO
  
- 7.2.3. Group conversion mode
+ 1.19.	Group conversion mode
 1)	Select iclk (SDM clk) frequency using CLK_CTRL_REG register 
 2)	 Enable BIOELECTRIC by writing into BIOELECTRIC_EN register, which will start generating SDM adc clk
 3)	Select input data format using BIOELECTRIC_INPUT_FORMAT register
@@ -1519,11 +1436,11 @@ There are 2 options afterwards:
  
 
 For ADC, there are 9 channels, but only 3 channels can be filtered by SINC. From register CHANNEL NUMBER of ADC, 3 channels can be selected, you can select any 3 channels from 9 channels, the bit3 to bit0 indicate data in the channel number will be filtered out to SINCA, the bit7 to bit4 indicate the data in the channel number will be filtered out to SINCB, and the bit11 to bit8 indicate the data in the channel number will be filtered out to SINCC. 
-7.3. Notch filter (50 Hz)
+1.20	Notch filter (50 Hz)
 An IIR notch filter is also implRDnted at the output of bioelectric (SINC filter) which is ADC 16 bit output. This ADC output will be filtered for any 50 Hz noise. In fact, the stop band of the filter can be changed to any stop band by changing the coefficients. Not only the stop band, other characteristics can also be changed by the change of the coefficients: stop bandwidth, stopband attenuation, gain, filter type (Butterworth, Chebyshev)
 To change design parameters of the filter, you need to ensure that you use Matlab Filter Designer tool with Response Type: Bandstop, Design Method: IIR, and Match exactly: stopband, as options (see figure below). Final filter design must have Order 4 and Sections 2 and the following fixed parameters for quantization. Green underlined sections must be the same as figures below. Yellow highlighted values can be changed to generate new coefficients/filter.
 
-7.3.1. Unstable time for filter
+1.20.1.1.	Unstable time for filter
 Notch filter require a certain stabilization period after system initialization before valid data output. This settling time corresponds to 1% of the noise amplitude. Specifically, given the noise amplitude as A, stable data output is allowed only when the noise amplitude fluctuation falls within the range of -0.01A to +0.01A.
 Convert to dB:
 Auntable_time = -20log10(A/0.01A) = -40dB
@@ -1536,13 +1453,14 @@ Note: Data interrupts are output normally if any notch filter is disabled. Inter
 
  
 
-
-
-
+The formula for register setting time
+ 
+Register data: A（decimalism）ICLK: B（decimalism）output Y（decimalism）
+Y= A* 1E9/256000 *（2^B）*  OSR
 
 Now you can use the parameters generated above to change the filter response and characteristic as required. There are already default values in the design for 1000 Hz sampling rate and 50 Hz notch.
 
-7.3.2. The following are the design specifications for the low-pass filter.
+1.20.1.2.	The following are the design specifications for the low-pass filter.
 Parameter 	Value 	Description 
 Order 	8-order and 4 -section	The filter is of 8th order and divided into 4 cascaded sections.
 Apass1	1dB	Maximum passband ripple
@@ -1558,7 +1476,7 @@ coefficients	16	The filter coefficients are quantized into 16-bit binary values,
 
 
 
-7.3.3. Filter coefficient
+1.20.1.3.	Filter coefficient
 
 FLASH ADDR
 {MSB,LSB}	coefficients	Default value of {0XBE,0xBD,0xBC}
@@ -1585,7 +1503,7 @@ Scaleconst4	0x3f1c
 
 
 
-7.3.4. Coefficient calculation
+1.20.1.4.	Coefficient calculation
 
 import subprocess
 import sys
@@ -1657,7 +1575,7 @@ if __name__ == "__main__":
     fs_arg = sys.argv[1]
     run_matlab_filter_design(fs_arg)
 
-7.3.5.  Register 
+1.20.1.5.	 Register 
 
 NF_UNSTABLE_TIME_0: Offset Address: 97h
 Bit	Field Name	Attribute	Default	Field Description
@@ -1667,8 +1585,9 @@ NF_UNSTABLE_TIME_1: Offset Address: 98h
 Bit	Field Name	Attribute	Default	Field Description
 7:0	NF_UNSTABLE_TIME	RW	00h	Notch filter unstable time（MSB）
 
-7.4. BIOELECTRIC Registers
-7.4.1. BIOELECTRIC_REG_CTRL_0: Offset Address: 01h
+1.21	aBIOELECTRIC Registers
+
+BIOELECTRIC_REG_CTRL_0: Offset Address: 01h
 Bit	Field Name	Attribute	Default	Field Description
 7	PPG_MODE	RW	0b	PPG mode:
 0: normal mode
@@ -1725,7 +1644,7 @@ The preferred sequence to config registers is if we want to use PPG mode:
 •	Set bioelectric_en to 1
 
 
- 7.4.2. BIOELECTRIC_CH_MODE: Offset Address: 03h (Bioelectric_channel_mode_register)source 
+ BIOELECTRIC_CH_MODE: Offset Address: 03h (Bioelectric_channel_mode_register)source 
 Bit	Field Name	Attribute	Default	Field Description
 7:4	CHA_NUM	RW	0	Channel number select:
 0000: channel 0
@@ -1746,7 +1665,7 @@ Bit	Field Name	Attribute	Default	Field Description
 10: Group conversion mode (support channel 0/1/2, above channel 3 is not supported)
 11: Reserved
 
-7.4.3. BIOELECTRIC_INT: Offset Address: 04h (bioelectric_interrupt_register)
+BIOELECTRIC_INT: Offset Address: 04h (bioelectric_interrupt_register)
 Bit	Field Name	Attribute	Default	Field Description
 7:6 	RESERVED	RO	0 	Reserved
 5 	INT_SWITCH_STS 	RW1C 	0 	Lead off switch interrupt, write 1, interrupt status will be cleared 
@@ -1761,7 +1680,7 @@ Note: the int_duration include all duration interrupt, no matter it is N or P, a
 Note: Here, RW1C means write bit 1 of this register to write to clear
 
 
-7.4.4. BIOELECTRIC_REG_SEQ: Offset Address: 05h (Sequence Control Register)
+BIOELECTRIC_REG_SEQ: Offset Address: 05h (Sequence Control Register)
 Bit	Field Name	Attribute	Default	Field Description
 7:3	RESERVED	RO	5’b0	Reserved
 2	SD16RST	RW	1’b1	A/D converter software reset control bit 
@@ -1769,93 +1688,94 @@ Bit	Field Name	Attribute	Default	Field Description
 1: Enable
 1:0	RESERVED	RW	2’b11	Reserved
 
- 7.4.5. BIOELECTRIC_REG_RSTVAL: Offset Address: 06h (Reset Count Register)
+ BIOELECTRIC_REG_RSTVAL: Offset Address: 06h (Reset Count Register)
 Bit	Field Name	Attribute	Default	Field Description
 7:0	RST_COUNT	RW	50h	In group conversion mode, when channel number change, reset of filter should be last some time to sample the correct from ADC  
 
-7.4.6. BIOELECTRIC_CH0DATA_0: Offset Address :07h (Channel 0 LSB Data)
+BIOELECTRIC_CH0DATA_0: Offset Address :07h (Channel 0 LSB Data)
 Bit	Field Name	Attribute	Default	Field Description
 7:0	CHA0_DATA_LSB	RO	0	Channel_0_data LSB Bits [7:0]
 In single channel mode, each channel data is stored into the register, the latter channel data will override the former
 In group mode, only channel 0 data is stored into the register
 
-7.4.7. BIOELECTRIC_CH0DATA_1: Offset Address :08h (Channel 0 MSB Data)
+BIOELECTRIC_CH0DATA_1: Offset Address :08h (Channel 0 MSB Data)
 Bit	Field Name	Attribute	Default	Field Description
 7:0	CHA0_DATA_MSB	RO	0	Channel_0_data MSB Bits [15:8]
 In single channel mode, each channel data is stored into the register, the latter channel data will override the former
 In group mode, only channel 0 data is stored into the register
 
-7.4.8. BIOELECTRIC_CH1DATA_0: Offset Address 09h (Channel 1 LSB Data)
+BIOELECTRIC_CH1DATA_0: Offset Address 09h (Channel 1 LSB Data)
 Bit	Field Name	Attribute	Default	Field Description
 7:0	CHA1_DATA_LSB	RO	0	Channel_1_data LSB bits [7:0]
 In single channel mode, this register is not used 
 In group mode, only channel 1 data is stored into the register
 
-7.4.9. BIOELECTRIC_CH1DATA_1: Offset Address 0Ah (Channel 1 MSB Data)
+BIOELECTRIC_CH1DATA_1: Offset Address 0Ah (Channel 1 MSB Data)
 Bit	Field Name	Attribute	Default	Field Description
 7:0	CHA1_DATA_MSB	RO	0	Channel_1_data MSB bits [15:8]
 In single channel mode, this register is not used 
 In group mode, only channel 1 data is stored into the register
 
-7.4.10. BIOELECTRIC_CH2DATA_0: Offset Address :0Bh (Channel 2 LSB Data)
+BIOELECTRIC_CH2DATA_0: Offset Address :0Bh (Channel 2 LSB Data)
 Bit	Field Name	Attribute	Default	Field Description
 7:0	CHA2_DATA_LSB	RO	0	Channel_2_data LSB Bits [7:0]
 In single channel mode, this register is not used 
 In group mode, only channel 2 data is stored into the register  
 
-7.4.11. BIOELECTRIC_CH2DATA_1: Offset Address: 0Ch (Channel 2 MSB Data)
+BIOELECTRIC_CH2DATA_1: Offset Address: 0Ch (Channel 2 MSB Data)
 Bit	Field Name	Attribute	Default	Field Description
 7:0	CHA2_DATA_MSB	RO	0	Channel_2_data MSB Bits [15:8]
 In single channel mode, this register is not used 
 In group mode, only channel 2 data is stored into the register
  
-7.4.12. BIOELECTRIC_GRP_CTRL: Offset Address: 0Dh 
+BIOELECTRIC_GRP_CTRL: Offset Address: 0Dh 
 Bit	Field Name	Attribute	Default	Field Description
 7:1	RESERVED	R0	7’h0	RESERVED
 0	BIOELECTRIC_GRP_CTRL	RW	0	Bioelectric grp control
 
-7.4.13. BIOELECTRIC_CHA_NUM_LO: Offset Address: 0Eh (Channel number of ADC _LSB)
+BIOELECTRIC_CHA_NUM_LO: Offset Address: 0Eh (Channel number of ADC _LSB)
 Bit	Field Name	Attribute	Default	Field Description
 7:0	CHANNEL NUMBER of ADC_LSB	WR	8’h10	There are 8 channels of ADC However, there are 3 SINC filters at the ADC outputs, only 3 channels can be selected to be filtered in auto scan mode
 [3:0] channel number which input to SINCA 
 [7:4] channel number which input to SINCB
 
 
-7.4.14. BIOELECTRIC_CHA_NUM_HI: Offset Address: 0Fh (Channel number of ADC_MSB)
+BIOELECTRIC_CHA_NUM_HI: Offset Address: 0Fh (Channel number of ADC_MSB)
 Bit	Field Name	Attribute	Default	Field Description
 7:4	RESERVED	RO	2’H0	RESERVED
 3:0	CHANNEL NUMBER of ADC_MSB	WR	8’h02	There are 8 channels of ADC However, there are 3 SINC filters at the ADC outputs, only 3 channels can be selected to be filtered in auto scan mode
 [3:0] channel number which input to SINCC  
 
-7.4.15. BIOELECTRIC_ALARM_INT: Offset Address: 10h
+BIOELECTRIC_ALARM_INT: Offset Address: 10h
 Bit	Field Name	Attribute	Default	Field Description
 7:1	RESERVED	-	0	Reserved
 0	Bioelectric alarm interrupt	RO, write to clear	0	Bioelectric alarm interrupt status
 When the bioelectric output is higher than threshold high (address is 0x3A-0x3B) or lower than threshold low(0x3C-0x3D), then interrupt
-7.4.16.  BIOELECTRIC_ALARM_INT_EN: Offset Address: 11h
+ 
+BIOELECTRIC_ALARM_INT_EN: Offset Address: 11h
 Bit	Field Name	Attribute	Default	Field Description
 7:1	RESERVED	-	0	Reserved
 0	BIOELEC_ALARM INT_EN	WR	0	Bioelectric alarm interrupt enable
 1: enable
 0: disable
 
-7.4.17. BIOELECTRIC_THRESHOLD_HI_0: Offset Address: 12h
+BIOELECTRIC_THRESHOLD_HI_0: Offset Address: 12h
 Bit	Field Name	Attribute	Default	Field Description
 7:0	BIOELEC_ALARM_THRESHOLD_HIGH_LSB_VALUE	WR	8’hff	Bioelectric alarm high threshold LSB Bits
 
-7.4.18. BIOELECTRIC_THRESHOLD_HI_1: Offset Address: 13h
+BIOELECTRIC_THRESHOLD_HI_1: Offset Address: 13h
 Bit	Field Name	Attribute	Default	Field Description
 7:0	BIOELEC_ALARM_THRESHOLD_HIGH_MSB_VALUE	WR	8’hff	Bioelectric alarm high threshold MSB Bits
 
-7.4.19. BIOELECTRIC_THRESHOLD_LO_0: Offset Address: 14h
+BIOELECTRIC_THRESHOLD_LO_0: Offset Address: 14h
 Bit	Field Name	Attribute	Default	Field Description
 7:0	BIOELEC_ALARM_THRESHOLD_LOW_LSB_VALUE	WR	0	Bioelectric alarm low threshold LSB bits    
 
-7.4.20. BIOELECTRIC_THRESHOLD_LO_1: Offset Address: 15h
+BIOELECTRIC_THRESHOLD_LO_1: Offset Address: 15h
 Bit	Field Name	Attribute	Default	Field Description
 7:0	BIOELEC_ALARM_THRESHOLD_LOW_MSB_VALUE	WR	0	Bioelectric alarm low threshold MSB bits
 
-7.4.21. BIOELECTRIC_INPUT_FORMAT: Offset Address: 16h
+BIOELECTRIC_INPUT_FORMAT: Offset Address: 16h
 Bit	Field Name	Attribute	Default	Field Description
 7:2	RESERVED	RO	0	Reserved
 1:0	BIOELEC_INPUT_FORMAT	WR	10	Bioelectric input format:
@@ -1863,7 +1783,7 @@ Bit	Field Name	Attribute	Default	Field Description
 01: 0 is treated as 1, and 1 is treated as -1
 Others: 0 treated as -1, and 1 is treated as 1
 
-7.4.22. BIOELECTRIC_EN: Offset Address: Offset Address:17h
+BIOELECTRIC_EN: Offset Address: Offset Address:17h
 Bit	Field Name	Attribute	Default	Field Description
 7:1	RESERVED	RO	0	Reserved
 0	BIOELECTRIC_EN	WR	0	Bioelectric enable
@@ -1872,31 +1792,31 @@ Bit	Field Name	Attribute	Default	Field Description
 
 Note: if want to disable the bioelectric_en to save power when bioelectric will not be used, should wait for any BIOELECTRIC_INT, then disable bioelectric_en, otherwise, there is the possibility that bioelectric_en is low but at the same time, the bioelectric is done, this bioelectric_done  pulse will keep active because bioelectric_en is to gate the bioelectric clock.
 
-7.4.23. BIOELECTRIC_CH0DATA_MAX_0: Offset Address :18h (Bioelectric channel0 max value lsb bits)
+BIOELECTRIC_CH0DATA_MAX_0: Offset Address :18h (Bioelectric channel0 max value lsb bits)
 Bit	Field Name	Attribute	Default	Field Description
 7:0	BIOELEC_MAX_VALUE_LSB	RO	0H	Bioelectric max value lsb in checking period
 
-7.4.24. BIOELECTRIC_CH0DATA_MAX_1: Offset Address :19h (Bioelectric channel0 max value msb bits)
+BIOELECTRIC_CH0DATA_MAX_1: Offset Address :19h (Bioelectric channel0 max value msb bits)
 Bit	Field Name	Attribute	Default	Field Description
 7:0	BIOELEC_MAX_VALUE_MSB	RO	0H	Bioelectric max value msb in checking period
 
-7.4.25. BIOELECTRIC_CH0DATA_MIN_0: Offset Address :1Ah (Bioelectric channel0 min value lsb bits) 
+BIOELECTRIC_CH0DATA_MIN_0: Offset Address :1Ah (Bioelectric channel0 min value lsb bits) 
 Bit	Field Name	Attribute	Default	Field Description
 7:0	BIOELEC_MIN_VALUE_LSB	RO	0H	Bioelectric min value lsb  in checking period
 
-7.4.26. BIOELECTRIC_CH0DATA_MIN_1: Offset Address :1Bh (Bioelectric channel1 min value msb bits) 
+BIOELECTRIC_CH0DATA_MIN_1: Offset Address :1Bh (Bioelectric channel1 min value msb bits) 
 Bit	Field Name	Attribute	Default	Field Description
 7:0	BIOELECTRIC_MIN_VALUE_MSB	RO	0H	Bioelectric min value msb  in checking period
 
-7.4.27. BIOELECTRIC_CH0DATA_DELTA_0: Offset Address :1Ch (Bioelectric channel0 delta value Register lsb)
+BIOELECTRIC_CH0DATA_DELTA_0: Offset Address :1Ch (Bioelectric channel0 delta value Register lsb)
 Bit	Field Name	Attribute	Default	Field Description
 7:0	BIOELECTRIC_DELTA_VALUE_LSB	RO	0H	Bioelectric delta value lsb bits in checking period which means max value minus min value
 
-7.4.28. BIOELECTRIC_CH0DATA_DELTA_1: Offset Address :1Dh (Bioelectric channel0 delta value Register msb)
+BIOELECTRIC_CH0DATA_DELTA_1: Offset Address :1Dh (Bioelectric channel0 delta value Register msb)
 Bit	Field Name	Attribute	Default	Field Description
 7:0	BIOELECTRIC_DELTA_VALUE_MSB	RO	0H	Bioelectric delta value msb bits in checking period which means max value minus min value
 
-7.4.29. NOTCH_FILTER_EN: Offset Address :1Eh (notch filter enable)
+NOTCH_FILTER_EN: Offset Address :1Eh (notch filter enable)
 Bit	Field Name	Attribute	Default	Field Description
 7:3	RESERVED	RO	0H	reserved
 2:1	GAIN_SEL	RW	0H	00:no gain
@@ -1911,122 +1831,112 @@ if output always is  less than 16'h1fff,we can get x2 gain，0x4 gain,
 
 0	NOTCH_FILTER_EN	RW	0H	Notch filter enable
 
-7.4.30. LEADOFF_INT: Offset Address: 1Fh (leadoff_interrupt_register)
+LEADOFF_INT: Offset Address: 1Fh (leadoff_interrupt_register)
 Bit	Field Name	Attribute	Default	Field Description
 7:0 	LEADOFF_INT	RW1C	0 	int_sts_switch_acloff_statp,int_sts_duration_acloff_statp,int_sts_switch_acloff_statn,int_sts_duration_acloff_statn,  int_sts_switch_loff_statp,int_sts_duration_loff_statp,int_sts_switch_loff_statn,int_sts_duration_loff_statn
 
 Note: Here, RW1C means write bit 1 of  BIOELECTRIC_INT (0x4) to write to clear
 
-8. ZMEAS
-System consists of digital frequency generator that can excite the target impedance (Zunknown) with user specified allowable frequency and process the response signal from the impedance.
-8.1. Block Diagram
-The system is arranged as Analog Blocks followed by Digital Controller as shown in Figure 1. The ZMEAS system can be configured by the user as per the allowable user configuration specifications using SPI.
+BioZ measurement
+This block mainly includes the Direct Digital Synthesis (DDS) and Square-Wave Generation of Sine and Cosine .
+System use I/Q stimulation frequency to excite the target impedance (Zunknown) with user specified allowable frequency and process the response signal from the impedance.
+1.22	Block Diagram
+
+
+
+ Figure. 8 BioZ Block Diagram
+1.22.	Direct Digital Synthesis (DDS) and Square-Wave Generation of Sine and Cosine
+1.22.	Introduction to DDS
+A Direct Digital Synthesizer (DDS) is a digital core that generates a highly stable, phase-programmable periodic waveform from a single reference clock. A phase accumulator increments a phase word every clock cycle; this phase word is converted, via a phase-to-amplitude mapping (a sine look-up table for an analog output, or simple phase-decision logic for a two-level output), into the excitation sine wave and into the 0°/90°/180°/270° timing edges used elsewhere in the front end.
+Because the excitation signal and the demodulation references are all derived from the same phase accumulator, the DDS guarantees that the excitation frequency ω and the reference phases used for the I and Q channels remain perfectly synchronous and drift-free with respect to one another. This phase coherence is essential,, the accuracy of I and Q depends entirely on the phase alignment between the received tissue voltage v(t) and the reference sin(ωt)/cos(ωt). Any phase error between the excitation and the reference appears directly as an error in the measured phase θ, and therefore in the recovered reactance X.
+1.22.	Introduction to Square-Wave (Commutating Mixer) Generation of Sine and Cosine
+Rather than synthesizing true analog sine and cosine references with a DAC and reconstruction filter, the demodulator instead multiplies the received voltage v(t) by a two-level (±1) square wave that is phase-locked to the DDS. This is the commutating mixer (chopper mixer) approach. Multiplying by a ±1 square wave can be implemented with a single analog switch, or a small switch network, rather than a linear four-quadrant multiplier.
+Compared with an analog sine/cosine multiplier, the commutating mixer:
+·	Simplifies the analog circuit – no sine DAC, no reconstruction filter, and no analog multiplier core are needed for the reference path.
+·	Removes multiplier non-linearity and offset – a switch has only two states, so it contributes negligible harmonic distortion or gain compression compared with a linear multiplier.
+·	Reduces power – switching a MOS device dissipates far less power than driving an analog multiplier or a sine-shaping DAC.
+·	Still preserves the measurement – the fundamental (ω) component of the square wave carries exactly the same phase information as an ideal sine wave; only a fixed, known scale factor is introduced.
+1.22.	DDS sin/cos generation
+DDS Sine/Cosine, 10-bit Output, 128-step Quarter LUT, 4(8M?) MHz Clock.
+128-step Quarter LUT already hard-coded
+Configuration this uses:
+Output amplitude width : unsigned 10-bit
+Quarter-wave LUT steps : 128
+Full-cycle phase steps : 128 * 4 = 512
+Phase accumulator      : 32-bit
+Nominal clock          : 4(8M?) MHz
  
+The RTL does not hard-code the clock frequency. Moving from 2 MHz to 4 MHz or to 8MHz mainly changes the frequency control word, phase_inc. Frequency Control
+f_out = phase_inc * f_clk / 2^PHASE_W
+phase_inc = round(f_out * 2^PHASE_W / f_clk)
+ 
+For:
+f_clk   = 4_000_000 Hz
+PHASE_W = 32
+Examples: Frequency phase_inc 
+0 Hz 32'h0000_0000 
+1 kHz 32'h0010_624E 
+10 kHz 32'h00A3_D70A 
+50 kHz 32'h0333_3333 
+100 kHz 32'h0666_6666 
+400 kHz 32'h1999_999A 
+ 
+Connect to IQ demodulation reference inputs with matching REF_W=10:
+ref_sin = sin_out;
+ref_cos = cos_out;
+ 
+Important Distinction LUT steps and samples per output cycle are different:
+LUT full-cycle phase steps = 512
+samples_per_cycle = f_clk / f_out
+ 
+At 4 MHz:
+400 kHz -> 10 samples/cycle
+100 kHz -> 40 samples/cycle 
+50 kHz -> 80 samples/cycle
+1.22.	Square-Wave (Commutating Mixer) Generation
+1. excitation sine reference
+   For a DAC/current source used to generate a sinusoidal excitation current, this already described in DDS sin/cos generation chapter.
 
+2. I-channel commutating square wave
+   0°/180° toggling, equivalent to a +/-1 square wave relative to the sine reference
 
- Figure. 8 ZMEAS Block Diagram
-8.2. Configuration Sequence
+3. Q-channel commutating square wave
+   90°/270° toggling, equivalent to a square wave with a cosine reference of ±1
+I Square Wave: 0°–180° is +1, 180°–360° is -1
+Q Square Wave: +1/-1 with a 90° phase shift
+
+1.23	Configuration Sequence
 The sequence expected to be followed by firmware control for functional mode of ZMEAS is 
-1.	Enable ZMEAS by writing into ZMEAS_EN register
-2.	Configure the zmeas module in NO-OP CTRL[15:13] (MODE) =000
-3.	Configure all the settings CTRL[D12:D0] and [D31:D16]
-4.	Configure zmeas in INIT mode i.e. MODE=001, maintain reset reg_ctrl[] values
-5.	START_CALC with f/w delay: MODE=011
-6.	Wait for data be generated
-7. Configure ZMEAS module in STANDBY mode by making MODE=110
-8.3. APB ZMEAS Registers:
-8.3.1. ZMEAS_REG_CTRL_0: Offset Address:0x20
+1.	Configure the phase_inc according to the frequency needed as described above
+2.	If the phase does not from 0, user can config the phase_offset
+3.	Enable BioZ by writing into BioZ_EN register
+4.	Then user will get the I/Q stimulation signals and Commutating Mixer signals
+Waveform is just like this
+ 
+1.24	APB BioZ Registers:
+
+PHASE_INC: Offset Address:0xE0-E3
 Bit	Field Name	Attribute	Default	Field Description
-7	D2A_Z_TX_GSEL_1	RW	0	Tx gain selector bit1
-6	MEASURE_CALIBRATE 
-	
-RW	0	0: measurRDnt mode 
-1: calibration mode 
-5:4	TRX_CTRL 
-	RW	0	Bit0:  Tx gain selector bit0
-control the amplitude of sin wave coming out of DAC.
-00:150mV, 01:300mV, 10:450mV 11:600mV
-Bit1: zmeas enable
-This enable is just for analog module only
-3	RESERVED	RO	0	Reserved
-2	PGA_GAIN 
-	RW	0
-	0: gain 1X 
-1: gain 3x 
-1	RESERVED	RO	0	Reserved
-0	RESET_MEASURRDNT 
-	RW	0
-	0: normal operation 
-1: zmeas will reset itself to wait for next user 
-controlled MODE and INIT values: To Review
-
-8.3.2. ZMEAS_REG_CTRL_1: Offset Address:0x21
+31:0	PHASE_INC	RW	32’h66666	Phase_inc for calculating the freq
+E3 is high byte, E0 is low byte.
+PHASE_OFFSET: Offset Address:0xE4-E7
 Bit	Field Name	Attribute	Default	Field Description
-7:5	REG_MODE	RW	3’h0	Sets control mode
-000: NO OPERATION
-001: INIT
-011: START_CALC
-010: POWER_DOWN
-110: STANDBY
-4	REPEAT_CALCULATION 
-	RW 
-	0	1: repeat_calculation, 
-0: 512p DFT only once 
-3	RESERVED	-	-	Reserved
-2
-	
-ENABLE_INTR 
-	
-RW	0 
-	0: interrupt generation not enabled 
-1: interrupt generation enabled for indicating Real and Imaginary values for impedance 
-measurRDnts are ready for read. 
-1	RESERVED	-	-	Reserved
-0	ENABLE_ADC_INTR
-	
-RW	0 
-	0: adc interrupt generation not enabled 
-1: interrupt generation enabled for indicating 
-ADC_IN data every 16KHz, once adc_en. 
-This can be used for letting uC calculate DFT. 
+31:0	PHASE_OFFSET	RW	32’h0	Phase_offset for freq
 
-8.3.3. ZMEAS_REG_CTRL_2: Offset Address:0x22
+BIOZ_CTRL: Offset Address:0xE8
 Bit	Field Name	Attribute	Default	Field Description
-7:4	REG_SETTLING_TIME_VAL_LSB	RW	0	number of cycle delay between start calculation or repeat calculation command and ADC commencRDnt time.
-(LSB bits)
-3	RESERVED	-	-	Reserved
-2:0	REG_FREQ_VAL	RW	1	user can select frequency for impedance measurRDnt, out of the available frequency 
-001: 500Hz
-010: 1KHz
-011: 2KHz
-100: 4KHz
-000: no frequency
-
-8.3.4. ZMEAS_REG_CTRL_3: Offset Address:0x23
-Bit	Field Name	Attribute	Default	Field Description
-8:5	REG_NUMBER_OF_REPEAT_CYCLE_VAL	RW	0	number of repeats to facilitate average successive readings by repeating current frequency point calculation. Control register should have repeat flag set. i.e. control_reg=0x7000. User can enter any value from [1,2,3,4,5,6,7,8]
-4:0	REG_SETTLING_TIME_VAL_MSB	RW	0	number of cycle delay between start calculation or repeat calculation command and ADC commencRDnt time.
-(MSB_Bits)
-
-8.3.5. ZMEAS_EN: Offset Address:0x40
-Bit	Field Name	Attribute	Field Description
-7:2	RESERVED	RO	RESERVED
-1	ZMEAS_PHASE_DITHER_EN	W/R	zmeas_phase_dither_en
-0	ZMEAS_EN	WR	Zmeas enable
-
-8.3.6. ZMEAS_SYNC_EN: Offset Address:0x41
-Bit	Field Name	Attribute	Default	Field Description
-7:1	RESERVED	RO	0	RESERVED
-0	ZMEAS_SYNC_EN	WR	1	Zmeas sync enable
-0: keep reg_ctrl as SPI clock domain
-1: sync reg_ctrl to pclk clock domain
+7:1	reserved	RW	0	-
+0	BIOZ_EN	RW	1	BIOZ enable
+0: disable
+1: enable
 
 
- 9. SPI FIFO
+
+ SPI FIFO
 There is also a synchronous FIFO available in the switch able power domain, the measured bioelectric data is input to the FIFO, and output of the FIFO is mapped to the register which can be accessed via SPI slave. FIFO status empty, full, half full etc are mapped to registers which also can be accessed via SPI slave, the before mentioned status can be combined to generate interrupt, the interrupt signal is connected to pinmux module and then connected to INTB pin, that can be used to notify any external device. So, if interrupt is detected by external device such as MCU, then external device can read the FIFO status from SPI, to know if FIFO need to be read or stop read. Details of this block, please refer to the synchronous FIFO document.
-9.1. FIFO Features
+1.25	FIFO Features
 FIFO has size of 128 and each of elRDnt is 18-bit running with the frequency of 256Khz
-9.2. Configuration Sequence
+1.26	Configuration Sequence
 1- Set Conversion Mode (CHA_MODE) in (Channel Mode Register) to select mode (Single, Continuous, Group) 
   + Channel Mode Register at address 0x03, set bit [1:0] 
     - 00:  Single channel conversion mode
@@ -2046,46 +1956,47 @@ There is another way to use FIFO Empty Status instead of using FIFO Almost Full 
 This is often used in Single Read request from SPI Master.
 - FIFO_ERR or FIFO_A_EMPTY or FIFO_FULL in (FIFO Status Register) are supported to support more features for Users.
 - FIFO_ERR and FIFO_FULL in (FIFO Status Register) should not happen because when this condition has happened, then DATA will be lost because BIOELECTRIC is always sending DATA to FIFO and never stop sending.
-9.3. Format of FIFO Data
+1.27	Format of FIFO Data
 Table 1: FIFO DATA FORMAT (FIFO_DATA[17:0]) 
  
 Table 2: FIFO BYTE DATA ORDER
  
-9.4. Registers
- 9.4.1. FIFO_WR_PTR_REG (FIFO Write Pointer): Offset Address: 80h	
+1.28	Registers
+ FIFO_WR_PTR_REG (FIFO Write Pointer): Offset Address: 80h	
 Bit	Field Name	Attribute	Default	Field Description
 7:0		RO	00h	FIFO Write Pointer
 FIFO_WR_PTR[7:0] points to the FIFO location where the next item is to be written. This pointer advances for each item pushed on to the FIFO by the internal conversion process. The write pointer is an 8-bit counter and wraps around to count 0x00 on the next item after count 0xFF
 
-9.4.2. FIFO_RD_PTR_REG (FIFO Read Pointer): Offset Address: 81h	
+FIFO_RD_PTR_REG (FIFO Read Pointer): Offset Address: 81h	
 Bit	Field Name	Attribute	Default	Field Description
 7:0		RO	00h	FIFO Read Pointer
 FIFO_RD_PTR[7:0] points to the location where the next item from the FIFO is read using the serial interface. This advances each time an item is read from the FIFO. The read pointer can be both read and written to. This allows an item to be reread from the FIFO if it has not already been overwritten. The read pointer is updated from an 8-bit counter and wraps around to count 0x00 from count 0xFF. Writing to the read pointer can affect the state of status register bits related to the FIFO and lead to unexpected behavior. Writing to the FIFO read pointer should be used for debug purposes only.
 
 
-9.4.3. FIFO Counter 1: Offset Address: 82h	
+FIFO Counter 1: Offset Address: 82h	
 Bit	Field Name	Attribute	Default	Field Description
 7		RO	0	Reserved
 6:0		RO	0	OVF_COUNTER[6:0] logs the number of items lost if the FIFO is not read in a timely fashion. This counter holds/ saturates at count value 0x7F. When a complete item is popped from the FIFO (when the read pointer advances), the OVF_COUNTER is reset to zero. This counter is essentially a debug tool. It should be read immediately before reading the FIFO in order to check if an overflow condition has occurred.
-9.4.4. FIFO Counter 2: Offset Address: 83h 		
+
+FIFO Counter 2: Offset Address: 83h 		
 Bit	Field Name	Attribute	Default	Field Description
 7:0		RO	0	        FIFO DATA COUNT [7]: 1 when full of FIFO happened
 FIFO_DATA_COUNT [6:0] is a read-only register which holds the number of items available in the FIFO for the processor to read. This incrRDnts when a new item is pushed to the FIFO, and decrRDnts when the processor reads an item from the FIFO.
 
 
-9.4.5. FIFO Configuration 1: Offset Address: 84h	
+FIFO Configuration 1: Offset Address: 84h	
 Bit	Field Name	Attribute	Default	Field Description
 7:0		RW	5Fh	FIFO Almost Full Level
 FIFO_A_FULL_LEVEL[7:0] sets the watermark for the FIFO and determines when FIFO_A_FULL_STS gets asserted. The FIFO_A_FULL_STS bit is set when the FIFO contains FIFO_A_FULL_LEVEL[7:0] items. If the FIFO_A_FULL_EN  interrupt enable bit is set an interrupt is asserted on the FIFO INT pin. This condition should prompt the applications processor to read samples out of the FIFO before it fills. The FIFO_A_FULL_STS bit and the interrupt on the FIFO INT pin are cleared when the status register is written 1. The microcontroller can read both the FIFO_WR_PTR and FIFO_RD_PTR to calculate the number of items available in the FIFO, or just read the OVF_COUNTER and FIFO_DATA_COUNT registers, and read as many items as needed to empty the FIFO. Alternatively, if the microcontroller always responds much faster than the selected sample rate, it can read FIFO_A_FULL_LEVEL[7:0] items when it detects an A_FULL interrupt to empty the FIFO.
 
 
-9.4.6. FIFO Configuration 2: Offset Address: 85h 	
+FIFO Configuration 2: Offset Address: 85h 	
 Bit	Field Name	Attribute	Default	Field Description
 7:0		RW	1Fh	FIFO Almost Empty Level
 FIFO_A_EMPTY_LEVEL[7:0] sets the watermark for the FIFO and determines when FIFO_A_EMPTY_STS  gets asserted. The FIFO_A_EMPTY_STS bit is set when the FIFO contains FIFO_A_EMPTY_LEVEL[7:0] items. If the FIFO_A_EMPTY_EN  interrupt enable bit is set an interrupt is asserted on the FIFO INT pin. This condition should prompt the applications processor to read samples out of the FIFO before it fills. The FIFO_A_EMPTY_STS bit and the interrupt on the FIFO INT pin are cleared when the status register is written 1. 
 
 
-9.4.7. FIFO Configuration 3: Offset Address: 86h	
+FIFO Configuration 3: Offset Address: 86h	
 Bit	Field Name	Attribute	Default	Field Description
 7	FIFO_ERROR_INT_EN	RW	0	FIFO_ERR_INT_EN: Error Interrupt Enable
 The FIFO_ERR_INT_EN bit defines the interrupt output to PIN behavior when the FIFO_ERR_STS is 1. If FIFO_ERR_INT_EN is set low, FIFO INT pin will be not connected to FIFO_RR_STS. If FIFO_ERR_INT_EN is set high, then the FIFO INT pin will be connected to FIFO_ERR_STS.
@@ -2106,7 +2017,7 @@ The FIFO_ROLL_EN bit defines the rollover behavior when the FIFO is full. If FIF
 The FIFO_FLUSH_EN bit is used for flushing the FIFO. If FIFO_FLUSH_EN is set high then the FIFO is emptied and the FIFO_WR_PTR[7:0], FIFO_RD_PTR[7:0], FIFO_DATA_CNT[8:0] and FIFO_OVF_CNT[6:0] are reset to zero.
 
 F
-9.4.8. IFO Status: Offset Address: 87h
+IFO Status: Offset Address: 87h
 Bit	Field Name	Attribute	Default	Field Description
 7	FIFO_ERROR_INT_STS	RW1C	0	FIFO_ERR_STS: Error Status
 1: writing to FIFO when FIFO is full or Reading FIFO when FIFO is empty
@@ -2139,20 +2050,20 @@ B- PPG Mode is enabled (Filter0 and Filter1 are used only and in Single mode onl
 2’b11: No supported
 
 
-9.4.9. FIFO Data 1: Offset Address: 88h
+FIFO Data 1: Offset Address: 88h
 Bit	Field Name	Attribute	Default	Field Description
 7:0	FIFO_MSB_DATA	RO	00	MSB Byte of DATA from FIFO
 FIFO_DATA1[7:0] is a read-only register used to retrieve MSB Byte data from the FIFO. This is for debug mode, used for reading MSB Byte DATA from FIFO in current FIFO Read Pointer. Reading this doesn’t make the change FIFO Read Pointer
 
 
-9.4.10. FIFO Data 2: Offset Address: 89h
+FIFO Data 2: Offset Address: 89h
 Bit	Field Name	Attribute	Default	Field Description
 7:0	FIFO_LSB_DATA	RO	00	LSB Byte of DATA from FIFO
 FIFO_DATA2[7:0] is a read-only register used to retrieve LSB Byte data from the FIFO. This is for debug mode, used for reading LSB Byte DATA from FIFO in current FIFO Read Pointer. Reading this doesn’t make the change FIFO Read Pointer
 
- 10. GPIO 
+ GPIO 
 
-10.1. GPIO_PU_CTRL: Offset Address: 90h
+GPIO_PU_CTRL: Offset Address: 90h
 Bit	Field Name	Attribute	Default	Field Description
 7:3	RESERVED	-	-	Reserved
 2:0	GPIO_PU_EN	
@@ -2161,7 +2072,7 @@ RW	3’b000	GPIO PULL UP CONTROL REGISTER
 1: PULL UP
 note that the default is 111 in rtl
 
-10.2. GPIO_PU_RESETN: Offset Address: 91h
+GPIO_PU_RESETN: Offset Address: 91h
 Bit	Field Name	Attribute	Default	Field Description
 7:1	RESERVED	-	-	Reserved
 0	EXT_RESET_PU_EN	
@@ -2169,7 +2080,7 @@ RW	1’b1	EXTERNAL RESET PULL UP CONTROL REGISTER
 0: FLOATING
 1: PULL UP
 
-10.3. GPIO_PD_TESTMODE: Offset Address: 92h
+GPIO_PD_TESTMODE: Offset Address: 92h
 Bit	Field Name	Attribute	Default	Field Description
 7:2	RESERVED	-	-	Reserved
 1:0	TESTMODE_PD_EN	
@@ -2181,7 +2092,7 @@ RW	2’b11	TESTMODE PULL DOWN CONTROL REGISTER
 
 
 
-11. PPG controller
+PPG controller
 Available SPI registers	Directly connecting	FSM
 ppg_enable	ppg_enable = 0 (mode 1)	ppg_enable = 1 (mode 2)
 Registers used in Mode1 or Mode 2:		Spi ppg reg -->ppg_controller-->analog ppg
@@ -2454,7 +2365,7 @@ Bit	Field Name	Attribute	Default	Field Description
 
 
 
-12. Bio Electricity 
+Bio Electricity 
  
 
 
@@ -2536,15 +2447,14 @@ The check period frequency range is 1K/65536 to 1Khz and accordingly, the check 
 
 And check in every checking period separately.
 The SINC value comparing is based on unsigned number, so this following register set to 1
-12.1. Registers
-12.1.1. BIOELECTRIC_CH_MODE: Offset Address:03h (Channel Mode Register) 
+BIOELECTRIC_CH_MODE: Offset Address:03h (Channel Mode Register) 
 Bit 	Field Name 	Attribute	Default 	Field Description 
 2 	FORMAT_SEL 	RW 	0 	Data after digital filter format select 
 0: signed twos complRDnt 
 1: unsigned integer  
  
 And this register is preferred to set to 10
-12.1.2. BIOELECTRIC_INPUT_FORMAT: Offset Address: 16h 
+BIOELECTRIC_INPUT_FORMAT: Offset Address: 16h 
 Bit 	Field Name 	Attribute 	Default 	Field Description 
 31:2 	- 	RO 	0 	Reserved 
 1:0 	Bioelectric_input_format 	WR 	10 	Bioelectric input format: 
@@ -2552,7 +2462,7 @@ Bit 	Field Name 	Attribute 	Default 	Field Description
 01: 0 is treated as 1, and 1 is treated as -1 
 Others: 0 treated as -1, and 1 is treated as 1 
  
-12.1.3. ZMEAS_REG_CTRL_0: REG_CTRL Register - Offset Address:0x20-0x23
+ZMEAS_REG_CTRL_0: REG_CTRL Register - Offset Address:0x20-0x23
 Bit 	Field Name 	Attribute 	Default 	Field Description 
 18:16 	reg_freq_val 	RW 	0 	user can select frequency for impedance measurRDnt, out of the available frequency  
 001: 500Hz 
@@ -2570,14 +2480,14 @@ control the amplitude of sin wave coming out of DAC.
 Bit1: zmeas enable 
 This enable is just for analog module only 
  
-12.1.4. MCLK_DIV_REG: Offset Address: 0x51 
+MCLK_DIV_REG: Offset Address: 0x4B 
 Bit 	Field Name 	Attribute 	Default 	Field Description 
-7:0 	Mclk_div 	WR 	8’h13 	This clock will be used as zmeas main clock for generate different SINWAVE of DAC 
+7:0 	Mclk_div 	WR 	8’h0	This clock will be used as zmeas main clock for generate different SINWAVE of DAC 
 0: same as fclk, 256K 
 N: 256k/(N+1) 
 Default is 256k/20=12.8K, if default SINWAVE is 500hz(256K main clock), then SINWAVE is 500/20=25hz 
 
-12.1.5. CHECK_CLK_DIV_HI  & CHECK_CLK_DIV_L0: Offset Address: 0x52-0x53 
+CHECK_CLK_DIV_HI  & CHECK_CLK_DIV_L0: Offset Address: 0x52-0x53 
 0x52 is high 8 bits, 0x53 is low 8 bits 
 Bit 	Field Name 	Attribute 	Default 	Field Description 
 15:0 	Check_clk_div 	WR 	16’h3e7 	This check interval will be used as checking the SINC result of ADC, base frequency is 1Khz 
@@ -2585,36 +2495,37 @@ Bit 	Field Name 	Attribute 	Default 	Field Description
 N: 1KHz/(N+1) 
 Default is 1Khz / (9999+1) = 1Hz 
  
-12.1.6.  BIOELECTRIC_REG_CTRL_0 (Control Register): Offset Address: 01h 
+ 
+BIOELECTRIC_REG_CTRL_0 (Control Register): Offset Address: 01h 
 Bit 	Field Name 	Attribute 	Default 	Field Description 
 2 	Bio_int_en 	RW 	0 	Bio electricity interrupt enable 
  
-12.1.7. BIOELECTRIC_INT: Offset Address: 04h 
+BIOELECTRIC_INT: Offset Address: 04h 
 Bit 	Field Name 	Attribute 	Default 	Field Description 
 5	Int_switch_sts	RW1C	0	Lead off switch interrupt
 4	Int_duration_sts	RW1C	0	Lead off duration interrupt
 3 	BIO_INT_STS 	RW1C 	0 	Bio electricity checking interrupt 
 Note: Here, RW1C means write bit0 of this register to write to clear
 
-12.1.8. BIOELECTRIC_EN: Offset Address: 17h 
+BIOELECTRIC_EN: Offset Address: 17h 
 Bit 	Field Name 	Attribute 	Default 	Field Description 
 31:1 	- 	RO 	0 	Reserved 
 0 	Bioelectric_en 	WR 	0 	BIOELECTRIC enable 
  
 BIOELECTRIC_CH0DATA_MAX_0 && BIOELECTRIC_CH0DATA_MAX_1
-12.1.9.  (Bioelectric channel0 max value Register): Offset Address: 18h-19h 
+ (Bioelectric channel0 max value Register): Offset Address: 18h-19h 
 Bit 	Field Name 	Attribute 	Default 	Field Description 
 15:0 	Bioelectric_max_value 	RO 	0H 	Bioelectric max value in checking period 
 19h is high 8 bits, 18h is low 8 bits
 
 BIOELECTRIC_CH0DATA_MIN_0 && BIOELECTRIC_CH0DATA_MIN_1
-12.1.10. (Bioelectric channel0 max value Register): Offset Address: 1Ah-1Bh 
+(Bioelectric channel0 max value Register): Offset Address: 1Ah-1Bh 
 Bit 	Field Name 	Attribute 	Default 	Field Description 
 15:0 	Bioelectric_min_value 	RO 	0H 	Bioelectric min value in checking period
 1Bh is high 8 bits, 1Ah is low 8 bits
 
 BIOELECTRIC_CH0DATA_DELTA_0 && BIOELECTRIC_CH0DATA_DELTA_1
-12.1.11. (Bioelectric channel0 delta value Register): Offset Address: 1Ch-1Dh 
+(Bioelectric channel0 delta value Register): Offset Address: 1Ch-1Dh 
 Bit 	Field Name 	Attribute 	Default 	Field Description 
 15:0 	Bioelectric_delta_value 	RO 	0H 	Bioelectric delta value in checking period,which means max value minus min value 
 1Dh is high 8 bits, 1Ch is low 8 bits
@@ -2622,28 +2533,28 @@ Bit 	Field Name 	Attribute 	Default 	Field Description
 The following is the sample simulation result
  
 
-12.1.12. DATA_TYPE_SEL: Offset Address: 0x76 
+DATA_TYPE_SEL: Offset Address: 0x76 
 Bit 	Field Name 	Attribute 	Default 	Field Description 
 1:0 	Data_type_sel	WR 	0	00: SINWAVE
 01: DC
 10: square wave
 11: ECG CAL SINWAVE
 
-12.1.13. DC_DATA_REG_0: Offset Address: 0x77 
+DC_DATA_REG_0: Offset Address: 0x77 
 Bit 	Field Name 	Attribute 	Default 	Field Description 
 7:0 	DC_DATA_REG_0	WR 	8’h0	DC value low 8 bits
 
 Square waveform high level value and low-level value is stored in flash, they will be reloaded from flash at the reset of the first beginning and at the same time, user can config these register by SPI.
-12.1.14. DC_DATA_REG_1: Offset Address: 0x78 
+DC_DATA_REG_1: Offset Address: 0x78 
 Bit 	Field Name 	Attribute 	Default 	Field Description 
 1:0 	DC_DATA_REG_1	WR 	2‘b1	DC value high 2 bits
 
 
-12.1.15. SQU_CLK_DIV_0: Offset Address: 0x79
+SQU_CLK_DIV_0: Offset Address: 0x79
 Bit 	Field Name 	Attribute 	Default 	Field Description 
 7:0 	SQU_CLK_DIV_0	WR 	8’hf	Square wave divider value low 8 bits
 
-12.1.16. SQU_DIV_CLK_1: Offset Address: 0x7A 
+SQU_DIV_CLK_1: Offset Address: 0x7A 
 Bit 	Field Name 	Attribute 	Default 	Field Description 
 7:0 	SQU_CLK_DIV_1	WR 	2’h0	Square wave divider value high 8 bits
 
@@ -2655,7 +2566,7 @@ FLASH address	SPI address	Type	Default	Signal Name	Flash signals
 0x0d	5Fh	RW	00h	Digital trim1[7:0] (VSEL_TRIM_L[7:0])	d2a_trim0_from_flash13
 0x0e	60h	RW	00h	Digital trim1[9:8] (VSEL_TRIM_L[9:8])	d2a_trim0_from_flash14
 
-13. Lead off detection: 
+Lead off detection: 
  
 There are 2 kinds of lead off detections: 1 is pulse detection, another one is duration detection, but these 2 can be happened at the same time. If pulse goes down from 1 to 0, then duration counter will be counted again from 0 and pulse goes to target value, or duration goes to target value will reset all the counter to 0.
 Doing these 2 detections at the same time.
@@ -2663,8 +2574,8 @@ Doing these 2 detections at the same time.
 The duration counter unit clock is 1Khz
 Leadoff detection will generate an interrupt when matching the leadoff condition.
 
-13.1. Registers
-13.1.1. LEADOFF_CTRL: Offset Address: 0x93 
+
+LEADOFF_CTRL: Offset Address: 0x93 
 Bit 	Field Name 	Attribute 	Default 	Field Description 
 6:0 	LEADOFF_CTRL	WR 	5’h0	Bit6: leadoff high/low active
 0: high active
@@ -2682,23 +2593,23 @@ Bit1:0: lead off type selector
 10: P active only
 11: N&P all active
 
- 13.1.2. LEADOFF_TGT_0: Offset Address: 0x94
+ LEADOFF_TGT_0: Offset Address: 0x94
 Bit 	Field Name 	Attribute 	Default 	Field Description 
 7:0 	LEADOFF_TGT_0	WR 	8’hff	Lead off duration counter target value low 8 bits
 
-13.1.3. LEADOFF_TGT_1: Offset Address: 0x95
+LEADOFF_TGT_1: Offset Address: 0x95
 Bit 	Field Name 	Attribute 	Default 	Field Description 
 7:0 	LEADOFF_TGT_1	WR 	8’h0	Lead off duration counter target value high 8 bits
 
 These two registers are used for the counter in duration mode. 
 This lead off target value is for duration detection, base clock is 1Khz
 
-13.1.4. LEADOFF_SWITCH_TGT: Offset Address: 0x96
+LEADOFF_SWITCH_TGT: Offset Address: 0x96
 Bit 	Field Name 	Attribute 	Default 	Field Description 
 7:0 	LEADOFF_SWITCH_TGT	WR 	8’h3F	Lead off switch counter target value 8 bits
 
 This register is used for the counter in pulse mode. 
-13.1.5. BIOELECTRIC_INT: Offset Address: 04h 
+BIOELECTRIC_INT: Offset Address: 04h 
 Bit 	Field Name 	Attribute 	Default 	Field Description 
 5	Int_switch_sts	RW1C	0	Lead off switch (Pulse mode) interrupt
 4	Int_duration_sts	RW1C	0	Lead off duration interrupt
@@ -2709,20 +2620,20 @@ Note:
 1) Here, RW1C means write bit 1 of this register to write to clear.
 2) Lead-off detection includes DC lead-off and AC lead-off, normally, these 2 lead-off detections cannot happen at the same time, so it is necessary to config these 2 lead-off enable separately.
 3)  Incase analog and digital control are not matched, the analog lead-off enable is different from digital lead-off enable.
-14. SPI CONTROLLER
-14.1. OVER_VIEW:
+SPI CONTROLLER
+1.29	OVER_VIEW:
        In BAF4 project, the off-chip SPI master can configure the BAF4 Registers and read the BAF4 FIFO through this SPI top block interfaces. Where this SPI top has the SPI register block which is used to store the configuration values of the Register as well as its system status values. The register in the register block can be read/write through SPI slave controller which provides the SPI protocol compatibility for the SPI register access. Apart from this register read/writes the SPI Controller will burst read the data from the FIFO and sends those data to the SPI Master. SPI controller can write/read data to/from the register block, but it can only read data from the FIFO block.
 2.BLOCK_DIAGRAM:
 
 Figure 1. SPI slave block diagram
  
-14.2. Functional Description:
+1.30	Functional Description:
   SPI controller will receive the SPI command formats from the SPI master and based on the command format it can write/read the data from the register block and sends to the spi_master.
         The command format to access the registers are write/write busrt, read, read_burst command’s where the slave controller will automatically incrRDnt the register access address in the burst mode. 
     The SPI slave controller can read the fifo data from the fifo in a burst mode using the FIFO read command. Whenever the SPI controller receives the fifo_rd_cmd, it will send the fifo_rd_req_n signal  to the FIFO, to request the data  from the FIFO,  after receiving the fifo data the spi_controller will send the data to the spi_master.The FIFO after pushing the data from FIFO will incrRDnt the fifo rd_ptr. 
  (note, the FIFO data can be read through the fifo_data_register(readonly), from the register block. But these registers are only for the debug purpose)
                    
-14.3. Interface
+1.31	Interface
 Table ‎1. SPI top Interface
 IO	Direction	Bit	Definition
 Off chip SPI interface			
@@ -2797,17 +2708,17 @@ hresetreq_wake_en	Output 	1	Hrequest wake enable
 hfosc_slpen	Output 	1	Hfosc sleep enable
 clk_stable_val	Output	32	Clk stable value
 flash_dpstb_en	Output 	1	flash_dpstb_enable
-14.4. SPI Slave Controller Specification:
+1.32	SPI Slave Controller Specification:
   SPI Slave Controller Features:
            *   8bit data length format
           *   Supports SPIMODE-2 (CPOL=0, CHPA=0)
           *  Supports write/write burst command
           *  Supports read/read burst command
            *  Supports fifo_rd_cmd/fifo read burst command 
-14.4.1. Communication:
+1.32.	Communication:
 The master transmits the data to the slave via the MOSI (Master Output, Slave Input line) and receives data from the slave via the MISO (Master Input, Slave Output line). SPI communication is always initiated by the master by making chip select low, and sending the SCLK(Clock) to the slave. For the successful data transmission, the master and slave should agree upon clock frequency, clock polarity (CPOL), and clock phase (CPHA). where this Clock Polarity and Clock Phase are two properties work together to define when the bits are output and when they are sampled.  The spi_slave controller ‘s Clock Polarity and Clock Phase are fixed. They are not configurable, so it’s Spi_Master responsibility to send the data’s based upon the agreed mode between the master and slave.
 This SPI slave controller works in SPI-MODE: 0. where the Clock polarity=0, and Clock_phase-0. Where the data transmission takes place on the rising edge of the clock.
-14.4.2. SPI Modes:
+1.32.	SPI Modes:
 •	Clock polarity: 
 o	0: SCK to 0 when idle
 o	1: SCK to 1 when idle        
@@ -2819,7 +2730,7 @@ o	1: The second clock transition is the first data capture edge
 Figure ‎52. SPI modes
 
 •	When the data frame transfer is complete (all the bits are shifted) the information between the master and slave is exchanged.
-14.4.3. Data communication format between Master and Slave
+1.32.	Data communication format between Master and Slave
 The SPI slave controller communicates with master by using the rd/wr cycle format.
 32 bits write cycle format
 WR_ADDR (7:0) +CMD (7:0) +WR_DATA (7:0) +PADDING_BITS (7:0)
@@ -2840,7 +2751,7 @@ Bit:5 - Burst en
 •	0=> not a Burst command
 Bit: 4:0       Reserved
 
-14.4.3.1. Write cycle:
+1.32.3.1.	Write cycle:
 Whenever Master wants to write into the registers of the spi_register block. Master initiates the Transmission by making chip select (cs_n) low and supply the sclk, then send’s the 4bytes of write cycle date on MOSI. 
 The write cycle data contains 8bit write address followed by 8bit wr_cmd,8-bit wr_data and padding bits of length 8.
  
@@ -2850,12 +2761,12 @@ Figure ‎43. Write Cycle
 The SPI slave controller will sample wr_cycle data and sends the wr_addr, wr_data, wr_en to the spi_register block.
 (During 1st sclk the cs and mosi will be latched to the internal latches (cs_n, mosi_d), on the 2nd sclk the mosi_d data will be latched to the rx_buffer), padding bits are added to provide the sclk, to output the data which is received from the master as it’s in the miso line during the full duplex mode).
 In full duplex mode, the MISO line will output don’t cares during the wr_address phase, and wr_address on cmd phase, and cmd in the  wr_data phase, and wr_data in the padding bit phase.
-14.4.3.2. Write burst:
+1.32.3.2.	Write burst:
  For register burst write access, additional groups of 8 SCLK cycles are applied after the initial 24 cycles.  Which will be followed by 8 padding bits. The register address is automatically incrRDnted after the 24th SCLK cycle and after each subsequent group of 8 SCLK cycles. The data bytes received after the first 24 SCLK cycles are sequentially written to their automatically calculated address. Therefore, if a transaction is (24 + (8 x N) ) SCLK cycles long, N + 1 adjacent registers are written starting at the address specified by the first byte.
  
 
   
-14.4.3.3. Read cycle
+1.32.3.3.	Read cycle
 Whenever Master wants to read from the registers in the SPI Register block. Master initiates the Transmission by making chip select (cs_n) low and supply the SCLK, then send’s the 3bytes of read cycle date on MOSI.
 Where The Read cycle data contains 8bit read address which will be followed by 8bit rd_cmd, and 1 bytes of padding bits.
 
@@ -2865,27 +2776,27 @@ Where The Read cycle data contains 8bit read address which will be followed by 8
 The SPI slave controller samples the read cycle data and sends the rd_addr and read enable to the spi_register block during the first 2 phase of the read cycle, during the last phase (padding bytes-1) outputs the data read from the spi_register block through the miso line.
 Single-byte register read transactions fetch the requested data before the 16th SCLK rising edge and present the MSB of the requested data on the following SCLK falling edge, allowing the microcontroller to latch the data MSB on the 17th SCLK rising edge. To conclude the transaction, CSB is de-asserted after the 24th SCLK rising edge.
 
-14.4.3.4. Read Burst:
+1.32.3.4.	Read Burst:
  For register burst read access, additional groups of 8 SCLK cycles are applied after the initial 24 cycles. The register address is automatically incrRDnted after the 24th SCLK cycle and after each subsequent group of 8 SCLK cycles. The content of those automatically calculated addresses is retrieved each time a new group of 8 SCLK cycles are applied. Therefore, if a transaction is (24 + (8 x N)) SCLK cycles long, N + 1 adjacent registers are read starting at the address specified by the first byte.
 
 
  
 
  
-14.4.3.5. FIFO_RD_CMD:
+1.32.3.5.	FIFO_RD_CMD:
 This fifo_rd_cmd are used to read the fifo datas as a burst through spi_controller.
 (Ffio dats  are read by two ways. 1. BY reading the fifo_data_register’s in the register block using read -cmd . 2. By fifo_rd_cmd ,where the fifo data’s can be read from the fifo as a burst data’s)
   FIFO_RD_CMD’s are 2 types
    1.  Fifo_rd_cmd  4 bytes-> to read the  fifo data(with out tag)
    2. Fifo_rd_cmd  5 bytes-> to read the  fifo_data(with tag)
-14.4.3.5.1.	FIFO_rd_cmd ->4 bytes:
+1.32.3.5.1	FIFO_rd_cmd ->4 bytes:
  The SPI read transactions for FIFO_DATA  access has a minimum of 4 bytes. The first byte is the address byte for FIFO_DATA; the second byte is the command byte; and the next two bytes are the data bytes, as the FIFO data is 16-bit wide. Burst transactions allow to access adjacent FIFO locations, as the FIFO Read Pointer is automatically incrRDnted after each group of two data bytes. The register address, however, is not incrRDnted with FIFO_DATA burst transactions.
 
 
  
 
 
-14.4.3.5.2.	FIFO_rd_cmd ->5 bytes:
+1.32.3.5.2	FIFO_rd_cmd ->5 bytes:
     This command read the fifo data along with the tag and send to the spi_master, The first byte is the address byte for FIFO_DATA; the second byte is the command byte; and the next two bytes are the data bytes, the last byte reperesents the tag . Burst transactions allow to access adjacent FIFO locations, as the FIFO Read Pointer is automatically incrRDnted after each group of two data bytes. The register address, however, is not incrRDnted with FIFO_DATA burst transactions.     
  
 
@@ -2903,7 +2814,7 @@ This fifo_rd_cmd are used to read the fifo datas as a burst through spi_controll
 
 
 
-14.4.4.  SPI-Timing Characteristics:
+1.32.	 SPI-Timing Characteristics:
 Parmeter	Symbol	Conditions	
  Min              	Typ	Max	Units
 SCLK Frequency	fSCLK		                           		1	Mhz
@@ -2921,8 +2832,8 @@ SCLK Fall to MISO Transition	tDOT				100	ns
 
 
 
-15. Typical Application Scenario
-15.1. BIOELECTRIC Configuration Sequence:
+Typical Application Scenario
+1.33	BIOELECTRIC Configuration Sequence:
 1. Select iclk (SDM clk) frequency using CLK_CTRL_REG register
 2. Enable BIOELECTRIC by writing into BIOELECTRIC_EN register
 3. Select input format using BIOELECTRIC_INPUT_FORMAT register
@@ -2934,7 +2845,7 @@ SCLK Fall to MISO Transition	tDOT				100	ns
 9. For Single channel mode, Read the conversion data of channel 0 using BIOELECTRIC_CH0DATA and then clear interrupt. For Group mode, Read the conversion data of 3 channels; channel 0 using BIOELECTRIC_CH0DATA, channel 1 using BIOELECTRIC_CH1DATA, channel 2 using BIOELECTRIC_CH2DATA and then clear interrupt
 10. If customer want to use fifo to read the bioelectric data, refer to the chapter 9.2 for details
 
-15.2. ZMEAS Configuration Sequence:
+1.34	ZMEAS Configuration Sequence:
 1. Enable ZMEAS by writing into ZMEAS_EN register
 2. Enable Calibration mode to estimate the calibrated impedance using “measure_calibrate = 1”
 3. Set No Operation mode by setting reg_mode as 0 using ZMEAS_REG_CTRL register
@@ -2948,7 +2859,7 @@ SCLK Fall to MISO Transition	tDOT				100	ns
 11. Wait for interrupt, read status using ZMEAS_REG_STATUS and read measured impedance data using ZMEAS_REG_DATAOUT and then clear interrupt
 12. Estimate final unknown impedance from these calibration & measurRDnt data
 
-16.  SAMPLE DEMO
+ SAMPLE DEMO
 1.	Enter bist mode by setting {TEST_MODE1, TEST_MODE0} = 2'b10
 2.	Program NVR0 address 0x0: 0x5A (valid tag)
 3.	Program NVR0 address 0x1 ~ 0x7 with the desired analog trim values.
