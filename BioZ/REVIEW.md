@@ -318,19 +318,115 @@ Follow-up question: *what's the drawback of letting firmware do the HPF and the 
 
 **Recommendation for this design:** a 1st-order IIR HPF is inexpensive in hardware (one MAC + one register per channel — negligible next to the CIC that already exists), and every commercial part surveyed keeps this on-chip rather than in firmware for exactly the power/duty-cycle reasons above. If continuous monitoring is confirmed in scope, implement the DHPF as a small hardware IIR (MAX30001-style) rather than deferring it to firmware. This is a different call from the sqrt/atan2 deferral in §9, where the low computational cost and low sample rate make firmware the right trade-off; a per-sample HPF running continuously does not have the same low-cost profile on an MCU.
 
-## 10. How to reproduce
+## 10. Full-loop integration test: DDS excitation + simple analog model + real iq_cic receive chain
+
+Follow-up task: connect the two BioZ digital halves that are NOT wired
+together anywhere in the real chip (§4) through a simple analog model and
+prove they actually work together as a system.
+
+### 10.1 What was built (`BioZ/tb/tb_bioz_iq_loop.sv`)
+
+```
+BioZ.sv (DDS)  --[simple behavioral analog model, all `real`]-->  iq_filter_wrapper.v (real RTL)
+  sin_unsigned/cos_unsigned         body impedance (frequency-flat R+jX,
+  i_square/q_square                 Ohm's law V=I*Z evaluated directly from
+                                     the DDS's own sin/cos references)
+                                     -> commutating chopper mixer (switched
+                                        by the DDS's own i_square/q_square)
+                                     -> single-pole baseband LPF (~200Hz,
+                                        rejects the 2x-fexc mixing image)
+                                     -> 1st-order sigma-delta ADC (one per
+                                        channel, real integrator+quantizer)
+                                                                          --> iq_adc_din_I/Q --> iq_reg/iq_cdc/iq_ctrl/iq_cic (unmodified RTL)
+```
+
+The analog model is intentionally simple -- a frequency-flat load and basic
+single-pole/1st-order building blocks -- it is not a claim about the real
+analog design. It exists only to drive the real, unmodified `iq_cic` RTL
+with a physically-motivated, self-consistent bitstream so the two halves can
+be exercised together end-to-end. Four scenarios were run: pure resistive
+load, pure reactive load, mixed R+X (comparable to a real body's R>>X
+ratio), and the same mixed R+X at a second excitation frequency.
+
+### 10.2 Verification methodology and results
+
+**Bit-exact**: `iq_cic_golden_model.py` is a cycle-accurate Python port of
+`iq_cic.v` (including its decimation counter, 3-stage integrator/comb,
+truncation/saturation, and the `cont_dely`-gated warm-up/announcement
+logic). It replays the exact ADC bitstream the testbench logged and its
+output is compared, sample-for-sample, against the real RTL's own
+`chdata_I`/`chdata_Q` sequence. Result: **95/95 I samples and 95/95 Q
+samples match exactly.**
+
+Getting to a bit-exact match required finding and fixing two real Verilog
+event-ordering subtleties (useful for anyone writing further mixed digital/
+analog-behavioral testbenches against this RTL):
+* `iq_cic`'s `resetn` port is actually `cic_rst_n`, produced by
+  `common_rst_sync` (asserts asynchronously, deasserts synchronously after 3
+  `adc_clk` edges) -- not the raw testbench reset.
+* On the exact clock edge where a same-domain signal (the reset
+  synchronizer's output, or this testbench's own sigma-delta bit) updates
+  via a nonblocking assignment, `iq_cic`'s own same-edge-triggered logic
+  still sees that signal's *previous* value (standard Verilog NBA
+  semantics), not the one just computed on that edge.
+
+**Engineering / system-level**: rather than assuming a hand-derived
+theoretical mixer gain/phase constant (risking a hard-to-spot error in the
+checker itself), `loop_check.py` *calibrates* the (R,X)-to-(I,Q) linear map
+directly from the two single-axis scenarios, then checks that this
+calibration correctly predicts the two independent multi-axis scenarios:
+
+```
+Calibration matrix M (measured from scenarios 0 & 1) such that [I;Q] = M . [R;X]:
+    M = [[   332306.46,    -25921.67],
+         [    25946.04,    332306.25]]
+diagonal-vs-cross-term dominance ratio: 12.81 (I tracks R, Q tracks X)
+
+scenario mixed_RX_100kHz: programmed R=0.500 X=0.150 -> recovered R=0.500 X=0.150 (0.00% error)
+scenario mixed_RX_50kHz : programmed R=0.500 X=0.150 -> recovered R=0.505 X=0.130 (3.97% error)
+```
+
+**Result: PASS.** The DDS excitation, the simple analog/mixer/ADC model, and
+the real `iq_cic` RTL reconstruct the programmed R on the I channel and X on
+the Q channel, consistently, across both a mixed-load scenario and a second
+excitation frequency, using a single calibration derived from the pure-R and
+pure-X scenarios alone.
+
+The small (~8%) I/Q cross-term and the ~4% frequency-dependent residual
+error are not testbench artifacts -- they were traced to genuine,
+small-magnitude effects of a real *digital* DDS (10-bit/128-step LUT
+quantization of the excitation waveform) rather than to any phase
+misalignment between `i_square`/`q_square` and `sin_unsigned`/`cos_unsigned`
+(these are provably generated from the identical `sin_phase`/`cos_phase`
+value on the same clock edge in `dds_sincos_10b_lut128_4m.sv`, so there is no
+relative pipeline-latency error between the excitation and its own mixer
+references). This is, in miniature, exactly the class of small gain/phase
+imperfection that `iq_mismatch_correction.sv` (§5) exists to correct --
+reinforcing that instantiating it downstream of `iq_cic` would be worthwhile
+once the receive path is wired to real hardware.
+
+Run with (requires `numpy` for `loop_check.py`, in addition to `iverilog`):
+
+```bash
+cd BioZ/tb
+./run_sim_loop.sh
+```
+
+## 11. How to reproduce
 
 ```bash
 # one-time setup (already done in this environment)
 sudo apt-get install -y iverilog
+pip install numpy   # only needed for run_sim_loop.sh's checker
 
 cd BioZ/tb
-./run_sim.sh                 # BioZ DDS/excitation core
-./run_sim_iq_mismatch.sh     # IQ gain/phase mismatch correction block
+./run_sim.sh                 # BioZ DDS/excitation core (standalone)
+./run_sim_iq_mismatch.sh     # IQ gain/phase mismatch correction block (standalone)
+./run_sim_loop.sh            # full loop: DDS + analog model + real iq_cic receive chain (§10)
 ```
 
-Each script compiles only the RTL required for that block (no stubs, no
+Each script compiles only the RTL required for that test (no stubs, no
 full chip-top needed), runs the simulation with Icarus Verilog, and pipes
-the resulting per-cycle CSV log through the matching Python golden-model
+the resulting per-cycle CSV log(s) through the matching Python golden-model
 checker for a bit-exact PASS/FAIL plus the engineering metrics summarized in
-§7 above.
+§7 and §10 above.
