@@ -302,6 +302,22 @@ Follow-up review question: *do we need a digital LPF/HPF in the receive path, an
 
 **Magnitude/phase (sqrt/atan2): the designer's proposed deferral is reasonable.** Since no `atan2`/`sqrt`/`cordic` exists anywhere in the RTL today (§8), and this is a pure downstream, low-rate computation that doesn't affect upstream architecture, doing it in firmware is a sound choice for either monitoring mode; only genuinely high continuous-streaming rates would make a case for a hardware CORDIC, and the physiological bandwidths involved here (≤ a few Hz) are far below that threshold.
 
+### 9.1 Follow-up: drawback of doing the DHPF/DLPF in firmware instead of hardware, vs. commercial practice
+
+Follow-up question: *what's the drawback of letting firmware do the HPF and the final FIR LPF, and what do commercial chips actually do?*
+
+**Drawback of pushing continuous per-sample filtering to firmware**, for a part explicitly targeted at wearable/continuous-monitoring use (docx: ICG, respiration, GSR/EDA):
+* **Power/battery life** — a hardware CIC/FIR/IIR tap costs a few gates; the same op on a general-purpose MCU core costs orders of magnitude more energy (fetch/decode/branch overhead), and this cost recurs every sample, continuously.
+* **Defeats MCU duty-cycling** — the entire reason for hardware decimation + a FIFO is so the host can sleep between FIFO reads; moving the final filter stage to firmware forces the MCU to stay awake/process in real time, eliminating that benefit right when it matters most (continuous monitoring).
+* **More interface traffic** — filtering/decimating late means more samples per second must cross SPI (and eventually any wireless radio), costing extra interface/radio energy downstream.
+* **Firmware code size / RAM** — a narrow sub-Hz-cutoff FIR needs many taps (coefficient + delay-line RAM), a nontrivial ask on a small low-power MCU, and it has to be re-validated per host MCU/toolchain.
+* **Determinism/phase accuracy** — a hardware filter runs lock-step with the sample clock with a known, characterized group delay; firmware filtering is subject to RTOS/interrupt jitter from the rest of the system (radio stack, other sensors).
+* **Certification consistency** — for an IEC-60601-class product, one silicon-verified filter response is far easier to certify than N different firmware re-implementations across customers/host MCUs.
+
+**What commercial chips actually do (verified against the MAX30001 datasheet):** both the digital LPF and digital HPF are implemented **entirely in hardware**, register-selected, with no host DSP involved at all — `BIOZ_DLPF[1:0]` selects a hardware linear-phase FIR at 4/8/16 Hz, and `BIOZ_DHPF[1:0]` selects a hardware phase-corrected 1st-order IIR at 0.05/0.5 Hz. The datasheet explicitly markets the power payoff of this architecture: *"32-Word ECG and 8-Word BioZ FIFOs Allows the MCU to Stay Powered Down for 256ms with Full Data Acquisition."* AD5940/AD5941 go further still, with a hardware SINC3 decimator feeding an on-chip DFT (real/imag, and CORDIC-based magnitude/phase on some variants) — the host never sees raw I/Q at all, only final per-measurement results at whatever cadence is configured.
+
+**Recommendation for this design:** a 1st-order IIR HPF is inexpensive in hardware (one MAC + one register per channel — negligible next to the CIC that already exists), and every commercial part surveyed keeps this on-chip rather than in firmware for exactly the power/duty-cycle reasons above. If continuous monitoring is confirmed in scope, implement the DHPF as a small hardware IIR (MAX30001-style) rather than deferring it to firmware. This is a different call from the sqrt/atan2 deferral in §9, where the low computational cost and low sample rate make firmware the right trade-off; a per-sample HPF running continuously does not have the same low-cost profile on an MCU.
+
 ## 10. How to reproduce
 
 ```bash
