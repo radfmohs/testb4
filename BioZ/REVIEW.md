@@ -288,7 +288,21 @@ priority:
    IEC 60601-2-47-class timing accuracy is a project goal (per the docx's
    own oscillator-drift analysis).
 
-## 9. How to reproduce
+## 9. Digital LPF / HPF and magnitude/phase (sqrt) — what's needed, and what depends on monitoring mode
+
+Follow-up review question: *do we need a digital LPF/HPF in the receive path, and is a hardware sqrt/magnitude block needed, given the designer's note that sqrt "maybe necessary [for] continuous monitor[ing], ... not necessary [for] big interval" monitoring?*
+
+**Digital LPF: required, and already present.** The docx (§"Programmable Digital LPF and HPF Specifications") calls for a digital LPF (DLPF) after the ADC, and this isn't optional in any monitoring mode — synchronous (zero-IF) demodulation always produces a wanted DC term plus an unwanted 2×fexc image, which must be filtered out before decimation or it aliases into the baseband I/Q. The 3-stage CIC decimator in `iq_cic/iq_cic.v` (`cic_rate` programmable 8x–2048x) already performs this job. Lower-priority refinement: the docx models the DLPF as an independently *programmable-cutoff* filter (Table 5), whereas today `cic_rate` is the only knob and there's no CIC-droop compensation FIR — worth a look if measured passband flatness ever becomes an issue at the narrow physiological bandwidths involved (<2 Hz for respiration), but not a functional blocker.
+
+**Digital HPF: currently absent from the RTL entirely** — grepped the whole tree for `hpf`/`high-pass`/`dc_remove`/`offset_track`/`baseline`: zero hits anywhere outside this doc. Whether it's needed depends on the same continuous-vs-interval logic the designer applied to sqrt, but with one important difference: it affects upstream datapath bit-width/architecture decisions, so it's worth deciding explicitly rather than deferring:
+- **Interval/spot-check measurements** (single BIA reading, bioimpedance-spectroscopy sweep): the DC value from the CIC *is* the desired result. No HPF needed.
+- **Continuous monitoring** — the docx names exactly three continuous-monitoring target applications (ICG, respiration/pneumography, GSR/EDA) — the AC ripple of interest (sub-Ω) rides on a static baseline impedance (hundreds of Ω–few kΩ) that also drifts slowly (electrode-gel drying, temperature, motion). Without a baseline-removal HPF (or an adaptive DC tracker), that large static term consumes fixed-point headroom and blocks applying digital gain to the small ripple without saturating. Unlike sqrt, this can't be cleanly deferred to firmware after the fact without revisiting datapath bit widths, so if continuous monitoring is a confirmed product requirement it should be architected now.
+
+**No-regrets action regardless of the above decision:** `iq_mismatch_correction.sv` already exposes `i_offset`/`q_offset` ports for a one-time, SPI-programmed static offset subtraction (calibration-time, not adaptive tracking). Wiring these up is useful in every monitoring mode and costs nothing extra — recommend doing it independent of the LPF/HPF/sqrt decisions.
+
+**Magnitude/phase (sqrt/atan2): the designer's proposed deferral is reasonable.** Since no `atan2`/`sqrt`/`cordic` exists anywhere in the RTL today (§8), and this is a pure downstream, low-rate computation that doesn't affect upstream architecture, doing it in firmware is a sound choice for either monitoring mode; only genuinely high continuous-streaming rates would make a case for a hardware CORDIC, and the physiological bandwidths involved here (≤ a few Hz) are far below that threshold.
+
+## 10. How to reproduce
 
 ```bash
 # one-time setup (already done in this environment)
