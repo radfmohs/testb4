@@ -1132,12 +1132,17 @@ wire [31:0]   phase_inc;
 wire [31:0]   phase_offset;
 wire [31:0]   phase_offset_c;
 
+wire	 	   DITHER_EN;
+wire [15:0]  	   DITHER_SEED;  
+
  BioZ #(
     .PHASE_W(32)
 ) BioZ(
    .clk(Bioz_mclk),                          // CLK
    .resetn(Bioz_resetn),                       // Reset
    .enable(Bioz_en_sync),
+   .DITHER_EN(DITHER_EN),
+   .DITHER_SEED(DITHER_SEED),  
    //.phase_inc(32'h0666_6666),
    //.phase_offset(0),  //if don't start from 0
    .phase_inc(phase_inc),
@@ -1146,10 +1151,10 @@ wire [31:0]   phase_offset_c;
   .data_type_sel(data_type_sel),    //00 is sinwave, 01: DC, others: sinwave
   .dc_data(dc_data),    
   .dc_data_c(dc_data_c),    
-   .sin_unsigned(),
-   .cos_unsigned(),
-   .i_square(),
-   .q_square(),
+   .sin_unsigned(), //connect to D2A_BIOZ_TX_IDAC_DIN<9:0>
+   .cos_unsigned(), // dont need to connect
+   .i_square(), //Connect to D2A_BIOZ_RX_MIXER_SQR0
+   .q_square(), //Connect to D2A_BIOZ_RX_MIXER_SQR90
    .phase_acc()    //incase want to use fout freq
 );
 
@@ -1285,6 +1290,8 @@ spi_top #(
    .phase_inc(phase_inc),
    .phase_offset(phase_offset),  //if don't start from 0
    .phase_offset_c(phase_offset_c),  //if don't start from 0
+   .DITHER_EN(DITHER_EN),
+   .DITHER_SEED(DITHER_SEED),  
 .Bioz_reset_reg(Bioz_reset_reg),
    .Bioz_en(Bioz_en),
   .data_type_sel(data_type_sel),    //00 is sinwave, 01: DC, 10: square wave, 11: sinwave

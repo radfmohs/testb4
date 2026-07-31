@@ -38,6 +38,8 @@ parameter NO_TRIM_REGS = 21
 	output wire [9:0]   dc_data,    
 	output wire [9:0]   dc_data_c,    
 
+output  wire	 	   DITHER_EN,
+output  wire [15:0]  	   DITHER_SEED,  
 output  wire [31:0]   phase_inc,
 output  wire [31:0]   phase_offset,
 output  wire [31:0]   phase_offset_c,
@@ -329,6 +331,8 @@ spi_reg_u (
         .i_burst_cmd   (burst_cmd),
         .i_pre_addr    (pre_addr),
 
+.DITHER_EN	(DITHER_EN),
+.DITHER_SEED	(DITHER_SEED),  
 .phase_inc    (phase_inc),
 .phase_offset (phase_offset),
 .phase_offset_c (phase_offset_c),

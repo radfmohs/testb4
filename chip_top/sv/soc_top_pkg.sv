@@ -17,6 +17,7 @@ package soc_top_pkg;
  import nnc_uvm_pkg::*;
  import nnc_spi_pkg::*;
  import nnc_sysc_pkg::*;
+ import nnc_bioZ_pkg::*;
  import nnc_imeas_filter_pkg::*;
 `ifdef FLASH_BLOCK_ENABLE
  import nnc_flash_pkg::*;

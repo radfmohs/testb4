@@ -317,6 +317,8 @@
 `define INT_CTRL                  8'hF3
 
 	                
+`define DITHER_SEED_L             8'hF4
+`define DITHER_SEED_H             8'hF5
 
 `timescale 1ns/1ps
 
@@ -343,6 +345,8 @@ module spi_reg #(
 	//--outputs---
 	output [DATA_WIDTH-1:0] o_rd_data, 
 
+output  wire	 	   DITHER_EN,
+output  wire [15:0]  	   DITHER_SEED,  
 output  wire [31:0]   phase_inc,
 output  wire [31:0]   phase_offset,
 output  wire [31:0]   phase_offset_c,
@@ -579,6 +583,8 @@ reg         meas_sync_en;
  reg [7:0]   dc_data_reg_c_0;    
  reg [1:0]   dc_data_reg_c_1;    
 
+ reg [7:0]  	   DITHER_SEED_L;  
+ reg [7:0]  	   DITHER_SEED_H;  
  reg [7:0]   phase_inc_0;    
  reg [7:0]   phase_inc_1;    
  reg [7:0]   phase_inc_2;    
@@ -611,11 +617,13 @@ reg         meas_sync_en;
  assign  dc_data_c = {dc_data_reg_c_1,dc_data_reg_c_0};    
 
 
+assign DITHER_SEED = {DITHER_SEED_H,DITHER_SEED_L};
 assign phase_inc = {phase_inc_3,phase_inc_2,phase_inc_1,phase_inc_0};    
 assign phase_offset = {phase_offset_3,phase_offset_2,phase_offset_1,phase_offset_0};    
 assign phase_offset_c = {phase_offset_c_3,phase_offset_c_2,phase_offset_c_1,phase_offset_c_0};    
 assign Bioz_en = bioz_ctrl[0];
 assign Bioz_reset_reg = bioz_ctrl[1];
+assign DITHER_EN =  bioz_ctrl[2];
 assign iq_reg_ctrl = {bioz_filter_ctrl_1,bioz_filter_ctrl_0};
 assign iq_iclk_div = bioz_filter_ctrl_2[3:0];
 assign iq_adc_clk_inv = bioz_filter_ctrl_2[4];
@@ -837,6 +845,8 @@ always@(posedge i_clk or negedge i_rst_n) begin
     dc_data_reg_c_0 <= 8'h0;    
     dc_data_reg_c_1 <= 2'h1;    
 
+ DITHER_SEED_L <= 8'h00;  
+ DITHER_SEED_H <= 8'h00;  
  phase_inc_0 <= 8'h66;    
  phase_inc_1 <= 8'h66;    
  phase_inc_2 <= 8'h66;    
@@ -948,6 +958,8 @@ always@(posedge i_clk or negedge i_rst_n) begin
     	    `DC_DATA_REG_C_0      : dc_data_reg_c_0 	    <= i_wr ? i_wr_data[7:0]   : dc_data_reg_c_0;    
     	    `DC_DATA_REG_C_1      : dc_data_reg_c_1 	    <= i_wr ? i_wr_data[1:0]   : dc_data_reg_c_1;    
 
+ `DITHER_SEED_L    : DITHER_SEED_L <= i_wr ? i_wr_data[7:0]   : DITHER_SEED_L;  
+ `DITHER_SEED_H    : DITHER_SEED_H <= i_wr ? i_wr_data[7:0]   : DITHER_SEED_H;  
  `PHASE_INC_0      : phase_inc_0 <= i_wr ? i_wr_data[7:0]   : phase_inc_0;    
  `PHASE_INC_1      : phase_inc_1 <= i_wr ? i_wr_data[7:0]   : phase_inc_1;    
  `PHASE_INC_2      : phase_inc_2 <= i_wr ? i_wr_data[7:0]   : phase_inc_2;    
@@ -1643,6 +1655,8 @@ always @ (posedge i_clk or negedge i_rst_n) begin
     	       `DC_DATA_REG_1      		:  reg_rd_data <= {6'b0,dc_data_reg_1} ;        
     	       `DC_DATA_REG_C_0      		:  reg_rd_data <= dc_data_reg_c_0 ;	    
     	       `DC_DATA_REG_C_1      		:  reg_rd_data <= {6'b0,dc_data_reg_c_1} ;        
+ `DITHER_SEED_L    :  reg_rd_data <= DITHER_SEED_L;   
+ `DITHER_SEED_H    :  reg_rd_data <= DITHER_SEED_H;   
  `PHASE_INC_0      :  reg_rd_data <= phase_inc_0;    
  `PHASE_INC_1      :  reg_rd_data <= phase_inc_1;    
  `PHASE_INC_2      :  reg_rd_data <= phase_inc_2;    
