@@ -80,8 +80,8 @@ wire signed [IN_W:0] q_in_in_ext = {q_in_in[IN_W-1], q_in_in};
 
     wire signed [IN_W:0]       i_in_bak;
     wire signed [IN_W:0]       q_in_bak;
-assign i_in_bak = i_in_in_ext + signed({1'b0,1'b1,{(IN_W-1){1'b0}}});
-assign q_in_bak = q_in_in_ext + signed({1'b0,1'b1,{(IN_W-1){1'b0}}});
+assign i_in_bak = i_in_in_ext + $signed({1'b0,1'b1,{(IN_W-1){1'b0}}});
+assign q_in_bak = q_in_in_ext + $signed({1'b0,1'b1,{(IN_W-1){1'b0}}});
 assign i_in = unsigned_data_input ? i_in_bak[IN_W-1:0] : i_in_in;
 assign q_in = unsigned_data_input ? q_in_bak[IN_W-1:0] : q_in_in;
 
@@ -149,8 +149,8 @@ wire signed [IN_W:0] q_out_out_ext = {q_out_out[IN_W-1], q_out_out};
 
     wire signed [IN_W:0]       i_out_bak;
     wire signed [IN_W:0]       q_out_bak;
-assign i_out_bak = i_out_out_ext + signed({1'b0,1'b1,{(IN_W-1){1'b0}}});
-assign q_out_bak = q_out_out_ext + signed({1'b0,1'b1,{(IN_W-1){1'b0}}});
+assign i_out_bak = i_out_out_ext + $signed({1'b0,1'b1,{(IN_W-1){1'b0}}});
+assign q_out_bak = q_out_out_ext + $signed({1'b0,1'b1,{(IN_W-1){1'b0}}});
 assign i_out = unsigned_data_input ? i_out_bak[IN_W-1:0] : i_out_out;
 assign q_out = unsigned_data_input ? q_out_bak[IN_W-1:0] : q_out_out;
 
