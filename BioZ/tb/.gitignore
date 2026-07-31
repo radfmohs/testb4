@@ -1,0 +1,5 @@
+__pycache__/
+*.vvp
+*.vcd
+bioz_samples.csv
+iq_mismatch_samples.csv
