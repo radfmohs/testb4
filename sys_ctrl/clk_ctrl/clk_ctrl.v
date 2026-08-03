@@ -50,6 +50,7 @@ input  wire [3:0]  iq_iclk_div,
 input  wire        iq_adc_clk_inv,
 
 input  wire  [1:0]  pclk_div,               // pclk divider
+input  wire  [2:0]  fclk_div,               // pclk divider
 input  wire  [2:0]  iclk_div,               // imeas adc clock divider
 input  wire  [7:0]  mclk_div,               // Bioz mclk clock divider
 input  wire  [15:0]  checking_clk_div,               // checking clk clock divider
@@ -82,6 +83,73 @@ output wire         SDM_CLK_GPIO,          //
 output wire         imeas_adc_clk          // imeas adc clock for analog
 );
 
+
+//fclk_div
+reg  [6:0]  fclk_div_cnt;
+reg  [6:0]  fclk_div_num;
+wire        fclk_sub;
+
+always @ (*) begin
+  case (fclk_div)
+    3'b000: fclk_div_num = 7'd0;
+    3'b001: fclk_div_num = 7'd1;
+    3'b010: fclk_div_num = 7'd3;
+    3'b011: fclk_div_num = 7'd7;
+    3'b100: fclk_div_num = 7'd15;
+    3'b101: fclk_div_num = 7'd31;
+    3'b110: fclk_div_num = 7'd63;
+    3'b111: fclk_div_num = 7'd127;
+    default: fclk_div_num = 7'd0;
+  endcase
+end
+
+always @ (posedge fclk or negedge poresetn) begin
+  if (~poresetn) 
+    fclk_div_cnt <= 7'b0;
+  else if (fclk_div_cnt == fclk_div_num)
+    fclk_div_cnt <= 7'b0;
+  else
+    fclk_div_cnt <= fclk_div_cnt + 7'b1;
+end
+
+reg fclk_div_filp_flag;
+reg fclk_div_filp_lock;
+
+always @ (*) begin
+    if (fclk_div_cnt == fclk_div_num)
+        fclk_div_filp_flag = ~fclk_div_filp_lock;
+    else
+        fclk_div_filp_flag = fclk_div_filp_lock;
+end
+
+always @ (posedge fclk or negedge poresetn) begin
+    if (~poresetn)
+        fclk_div_filp_lock <= 1'b0;
+    else
+        fclk_div_filp_lock <= fclk_div_filp_flag;
+end 
+
+`ifdef FPGA
+reg fclk_div_reg;
+wire fclk_div_q;
+assign fclk_div_q = fclk_div_reg;
+always @(posedge fclk or negedge poresetn) begin
+if(~poresetn)
+	fclk_div_reg <= 1'b0;
+else	
+	fclk_div_reg <= fclk_div_filp_flag;
+end
+assign iclk = fclk_div_q;
+`else
+// creat_generate_clk here
+DFFRQX4M DFF_DIV_FCLK_SUB (.Q(fclk_div_q), .CK(fclk), .D(fclk_div_filp_flag), .RN(poresetn));
+
+CLKMX2X4M DNT_DIV_FCLK_SUB_ATPG (.A(fclk_div_q), .B(scan_clk), .S0(atpg_en), .Y(fclk_sub));
+`endif
+
+//end
+
+
 reg  [2:0]  pclk_div_cnt;
 reg         i_pclken;
 wire		    fclk_en;
@@ -94,6 +162,7 @@ reg  [6:0]  iclk_div_cnt;
 reg  [6:0]  iclk_div_num;
 reg  [10:0]  iq_iclk_div_cnt;
 reg  [10:0]  iq_iclk_div_num;
+
 wire        iclk;
 wire        iq_iclk;
 
@@ -139,7 +208,7 @@ u_cmsdk_clock_gate_ppg_ctrl_hclk (
 
 
 
-always @ (posedge fclk or negedge poresetn) begin
+always @ (posedge fclk_sub or negedge poresetn) begin
   if (~poresetn) 
     pclk_div_cnt <= 3'b0;
   else
@@ -158,7 +227,7 @@ end
 
 common_clock_gate 
 u_cmsdk_clock_gate_pclk (
-.clk        (fclk),
+.clk        (fclk_sub),
 .enable     (i_pclken),
 .bypass     (scan_en),  //Tri change
 .gated_clk  (pclk));
@@ -235,41 +304,41 @@ end
 
 assign Bioz_en_sync = Bioz_en_sync_bak | Bioz_en_sync_bak_d1 | Bioz_en_sync_bak_d2;
 
-reg  [7:0] mclk_div_cnt; 
-always @ (posedge fclk or negedge poresetn) begin
-  if (~poresetn)
-    mclk_div_cnt <= 8'b0;
-  else if (~Bioz_en_sync)
-    mclk_div_cnt <= 8'b0;
-  else if (mclk_div_cnt == mclk_div)
-    mclk_div_cnt <= 8'b0;
-  else
-    mclk_div_cnt <= mclk_div_cnt + 8'b1;
-end
-wire  [7:0] mclk_div_divby2; 
-assign mclk_div_divby2 = mclk_div>>1; 
-reg mclk_reg;
-always @ (posedge fclk or negedge poresetn) begin
-  if (~poresetn)
-    mclk_reg <= 1'b0;
-  else if (~Bioz_en_sync)
-    mclk_reg <= 1'b0;
-  else if ((mclk_div_cnt == mclk_div_divby2) | (mclk_div_cnt == mclk_div))
-    mclk_reg <= ~mclk_reg;
-  else
-    mclk_reg <= mclk_reg;
-end
-
-wire mclk_reg_final;
-wire mclk_reg_final_atpg;
-wire mclk_div_sel;
-assign mclk_div_sel = mclk_div==8'b0;
-CLKMX2X4M DNT_DIV_MCLK_SEL  (.A(mclk_reg), .B(fclk), .S0(mclk_div_sel), .Y(mclk_reg_final));
-CLKMX2X4M DNT_DIV_MCLK_ATPG (.A(mclk_reg_final), .B(scan_clk), .S0(atpg_en), .Y(mclk_reg_final_atpg));
+//reg  [7:0] mclk_div_cnt; 
+//always @ (posedge fclk or negedge poresetn) begin
+//  if (~poresetn)
+//    mclk_div_cnt <= 8'b0;
+//  else if (~Bioz_en_sync)
+//    mclk_div_cnt <= 8'b0;
+//  else if (mclk_div_cnt == mclk_div)
+//    mclk_div_cnt <= 8'b0;
+//  else
+//    mclk_div_cnt <= mclk_div_cnt + 8'b1;
+//end
+//wire  [7:0] mclk_div_divby2; 
+//assign mclk_div_divby2 = mclk_div>>1; 
+//reg mclk_reg;
+//always @ (posedge fclk or negedge poresetn) begin
+//  if (~poresetn)
+//    mclk_reg <= 1'b0;
+//  else if (~Bioz_en_sync)
+//    mclk_reg <= 1'b0;
+//  else if ((mclk_div_cnt == mclk_div_divby2) | (mclk_div_cnt == mclk_div))
+//    mclk_reg <= ~mclk_reg;
+//  else
+//    mclk_reg <= mclk_reg;
+//end
+//
+//wire mclk_reg_final;
+//wire mclk_reg_final_atpg;
+//wire mclk_div_sel;
+//assign mclk_div_sel = mclk_div==8'b0;
+//CLKMX2X4M DNT_DIV_MCLK_SEL  (.A(mclk_reg), .B(fclk), .S0(mclk_div_sel), .Y(mclk_reg_final));
+//CLKMX2X4M DNT_DIV_MCLK_ATPG (.A(mclk_reg_final), .B(scan_clk), .S0(atpg_en), .Y(mclk_reg_final_atpg));
 
 //1K generator
 reg [6:0] m1k_cnt;
-always @ (posedge fclk or negedge poresetn) begin
+always @ (posedge fclk_sub or negedge poresetn) begin
   if (~poresetn)
     m1k_cnt <= 7'b0;
   else if (~bio_enable)
@@ -280,7 +349,7 @@ always @ (posedge fclk or negedge poresetn) begin
     m1k_cnt <= m1k_cnt + 7'b1;
 end
 reg m1k_reg;
-always @ (posedge fclk or negedge poresetn) begin
+always @ (posedge fclk_sub or negedge poresetn) begin
   if (~poresetn)
     m1k_reg <= 1'b0;
   else if (~bio_enable)
@@ -394,7 +463,7 @@ u_cmsdk_clock_gate_Bioz_clk (
 //flash clock gating
 common_clock_gate 
 u_cmsdk_clock_gate_flash_fclk (
-.clk        (fclk),
+.clk        (fclk_sub),
 .enable     (!dpstb_en),
 .bypass     (scan_en),  //Tri change
 .gated_clk  (flash_fclk));
@@ -414,7 +483,7 @@ always @ (*) begin
   endcase
 end
 
-always @ (posedge fclk or negedge poresetn) begin
+always @ (posedge fclk_sub or negedge poresetn) begin
   if (~poresetn) 
     iclk_div_cnt <= 7'b0;
   else if (iclk_div_cnt == iclk_div_num)
@@ -430,7 +499,7 @@ always @ (*) begin
         div_fclk_d = div_fclk_d_1t;
 end
 
-always @ (posedge fclk or negedge poresetn) begin
+always @ (posedge fclk_sub or negedge poresetn) begin
     if (~poresetn)
         div_fclk_d_1t <= 1'b0;
     else
@@ -440,7 +509,7 @@ end
 `ifdef FPGA
 reg div_fclk_q_reg;
 assign div_fclk_q = div_fclk_q_reg;
-always @(posedge fclk or negedge poresetn) begin
+always @(posedge fclk_sub or negedge poresetn) begin
 if(~poresetn)
 	div_fclk_q_reg <= 1'b0;
 else	
@@ -449,7 +518,7 @@ end
 assign iclk = div_fclk_q;
 `else
 // creat_generate_clk here
-DFFRQX4M DFF_DIV_FCLK (.Q(div_fclk_q), .CK(fclk), .D(div_fclk_d), .RN(poresetn));
+DFFRQX4M DFF_DIV_FCLK (.Q(div_fclk_q), .CK(fclk_sub), .D(div_fclk_d), .RN(poresetn));
 
 CLKMX2X4M DNT_DIV_FCLK_ATPG (.A(div_fclk_q), .B(scan_clk), .S0(atpg_en), .Y(iclk));
 `endif
@@ -489,7 +558,7 @@ always @ (*) begin
   endcase
 end
 
-always @ (posedge fclk or negedge poresetn) begin
+always @ (posedge fclk_sub or negedge poresetn) begin
   if (~poresetn) 
     iq_iclk_div_cnt <= 11'b0;
   else if (iq_iclk_div_cnt == iq_iclk_div_num)
@@ -505,7 +574,7 @@ always @ (*) begin
         iq_div_fclk_d = iq_div_fclk_d_1t;
 end
 
-always @ (posedge fclk or negedge poresetn) begin
+always @ (posedge fclk_sub or negedge poresetn) begin
     if (~poresetn)
         iq_div_fclk_d_1t <= 1'b0;
     else
@@ -513,7 +582,7 @@ always @ (posedge fclk or negedge poresetn) begin
 end
 
 // creat_generate_clk here
-DFFRQX4M DFF_IQ_DIV_FCLK (.Q(iq_div_fclk_q), .CK(fclk), .D(iq_div_fclk_d), .RN(poresetn));
+DFFRQX4M DFF_IQ_DIV_FCLK (.Q(iq_div_fclk_q), .CK(fclk_sub), .D(iq_div_fclk_d), .RN(poresetn));
 
 CLKMX2X4M DNT_IQ_DIV_FCLK_ATPG (.A(iq_div_fclk_q), .B(scan_clk), .S0(atpg_en), .Y(iq_iclk));
 
@@ -545,7 +614,7 @@ always @ (*) begin
   endcase
 end
 reg[2:0] leadclk_div_cnt;
-always @ (posedge fclk or negedge poresetn) begin
+always @ (posedge fclk_sub or negedge poresetn) begin
   if (~poresetn) 
     leadclk_div_cnt <= 3'b0;
   else if (leadclk_div_cnt == leadclk_div_num)
@@ -555,7 +624,7 @@ always @ (posedge fclk or negedge poresetn) begin
 end
 
  reg acleadoff_clk_reg; 
-always @ (posedge fclk or negedge poresetn) begin
+always @ (posedge fclk_sub or negedge poresetn) begin
   if (~poresetn) 
      acleadoff_clk_reg <= 1'b0;
   else if(leadclk_div_cnt == leadclk_div_num)
@@ -577,7 +646,7 @@ always @ (*) begin
   endcase
 end
 reg[3:0] rldclk_div_cnt;
-always @ (posedge fclk or negedge poresetn) begin
+always @ (posedge fclk_sub or negedge poresetn) begin
   if (~poresetn)
     rldclk_div_cnt <= 4'b0;
   else if (rldclk_div_cnt == rldclk_div_num)
@@ -587,7 +656,7 @@ always @ (posedge fclk or negedge poresetn) begin
 end
 
  reg acrldoff_clk_reg;
-always @ (posedge fclk or negedge poresetn) begin
+always @ (posedge fclk_sub or negedge poresetn) begin
   if (~poresetn)
      acrldoff_clk_reg <= 1'b0;
   else if(rldclk_div_cnt == rldclk_div_num)

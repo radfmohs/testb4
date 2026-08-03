@@ -16,7 +16,7 @@
 
 module flash_trim_value#(
 parameter   NO_I2C_REGS = 21,
-parameter   COEFFI_DATA = 28
+parameter   COEFFI_DATA = 56
 
 )(
   //input
@@ -61,6 +61,7 @@ parameter   COEFFI_DATA = 28
  output  wire       analog_test_mode_sync,
 
  output wire [15:0] nf_coeff[23:0],
+ output wire [15:0] lpf_coeff[27:0],
  output wire [7:0]  default_value_coeff[COEFFI_DATA-1:0],
  output wire [7:0]  default_value_trim [NO_I2C_REGS-1:0],
   //output
@@ -74,6 +75,38 @@ parameter   COEFFI_DATA = 28
 );
 
 assign default_value_coeff = {
+//lpf
+
+8'b01000011,
+8'b10001111,
+8'b00110011,
+8'b00001100,
+8'b00011001,
+8'b11100111,
+8'b00000011,
+8'b00010000,
+8'b11110110,
+8'b01010100,
+8'b11110100,
+8'b11011111,
+8'b11111010,
+8'b01001000,
+8'b00000000,
+8'b10010001,
+8'b00000011,
+8'b11101000,
+8'b00000011,
+8'b11100000,
+8'b00000010,
+8'b00101011,
+8'b00000000,
+8'b10011001,
+8'b11111111,
+8'b11100110,
+8'b11111111,
+8'b11011000,
+
+//nf
 8'b00111110, 
 8'b01000010,
 8'b10000111, 
@@ -133,6 +166,17 @@ assign default_value_coeff = {
  assign nf_coeff[21] = 16'b0100_0000_0000_0000; 
  assign nf_coeff[22] = {trim_regs[NO_I2C_REGS+25],trim_regs[NO_I2C_REGS+24]}; 
  assign nf_coeff[23] = {trim_regs[NO_I2C_REGS+27],trim_regs[NO_I2C_REGS+26]}; 
+
+genvar lpf_cnt;
+
+generate 
+ for(lpf_cnt=0;lpf_cnt<14;lpf_cnt++)begin
+
+    assign lpf_coeff[lpf_cnt]    = {trim_regs[NO_I2C_REGS+29+2*lpf_cnt],trim_regs[NO_I2C_REGS+28+2*lpf_cnt]};
+    assign lpf_coeff[27-lpf_cnt] = {trim_regs[NO_I2C_REGS+29+2*lpf_cnt],trim_regs[NO_I2C_REGS+28+2*lpf_cnt]};
+
+ end
+endgenerate
 
 
 

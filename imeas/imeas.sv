@@ -17,12 +17,15 @@ spi2imeas.slave         spi2imeas,
 input wire        pclk,             // pclk
 input wire        adc_clk,          // adc working clock, divider of 256khz
 input wire        nf_pclk,             // pclk
+input wire        lpf_pclk,             // pclk
 input wire        presetn,          // reset
 input wire        atpg_en,          // atpg enable
 input wire        scan_en,          // Tri add
 //input/ouput wires from/to SPI
 output wire   [2:0]    cic_rate,
 output reg       notch_filter_enable,
+output reg       lpf_filter_enable,
+
 //xin add 24 May 2024 for co-work with led_status
 input  wire 	  LED_STATUS,   //1 is led2, 0 is led1 ,from ppg_controller
 input  wire 	  D2A_PPG_SH_CK,   //from ppg_controller
@@ -62,10 +65,11 @@ wire imeas_int_temp;
 wire         notch_filter_en;
 wire [1:0]   gain_mul;
 wire [15:0]  nf_unstale_tar; 
+wire         lpf_filter_en;
 assign notch_filter_en = spi2imeas.notch_filter_en;
 assign gain_mul        = spi2imeas.gain_mul;
 assign nf_unstale_tar  = spi2imeas.nf_unstable_time;
-
+assign lpf_filter_en   = spi2imeas.lpf_filter_en;
 
 
 wire         leadoff_det_en;
@@ -180,6 +184,8 @@ wire      chdata_en_n_tmp;
 wire   [17:0]   chdata_tmp;
 wire   [17:0]   chdata_tmp_notch_in;
 wire   [15:0]   chdata_filter;
+wire   [15:0]   nf_chdata_filter;
+
 
 wire filter_data_en;
 assign filter_data_en = ~chdata_en_n_tmp;
@@ -196,7 +202,7 @@ always @ (posedge pclk or negedge filter_resetn)begin
     if (!filter_resetn) begin
         notch_filter_enable <= 1'b0;
     end
-    else if (filter_data_en == 1'b1) begin        
+    else if (filter_data_en & notch_filter_en) begin        
         notch_filter_enable <= 1'b1;   
     end
     else if (notch_filter_enable) begin 
@@ -221,7 +227,7 @@ always @ (posedge pclk or negedge filter_resetn)begin
     if (!filter_resetn) begin
       nf_unstale_timeout_cnt <= 16'h0000;
     end
-    else if(notch_filter_en) begin
+    else if(notch_filter_en | lpf_filter_en) begin
            if((nf_unstale_timeout_cnt != nf_unstale_tar) & filter_data_en)begin
             nf_unstale_timeout_cnt <= nf_unstale_timeout_cnt + 1'b1;
            end   
@@ -275,23 +281,77 @@ filter   u_filter
                 .o_cnt(notch_filter_enable_cnt),		
                 .nf_data_valid(nf_data_valid),	              
                 .filter_in(chdata_tmp_notch_in[15:0]),
+                .filter_out(nf_chdata_filter[15:0])
+
+                );
+
+
+
+
+reg lpf_data_valid;
+wire [4:0] lpf_filter_enable_cnt;
+
+always @ (posedge pclk or negedge filter_resetn)begin
+    if (!filter_resetn) begin
+        lpf_filter_enable <= 1'b0;
+        lpf_data_valid    <= 1'b0;
+    end
+    else if ((notch_filter_en? nf_data_valid : (filter_data_en == 1'b1)) & lpf_filter_en) begin        
+        lpf_filter_enable <= 1'b1;   
+        lpf_data_valid    <= 1'b0;
+    end
+    else if (lpf_filter_enable) begin 
+	    if (lpf_filter_enable_cnt == 5'd27) begin 
+              lpf_filter_enable <= 1'b0; 
+              lpf_data_valid    <= 1'b1;
+  
+            end
+            else begin
+              lpf_filter_enable <= 1'b1;  
+              lpf_data_valid    <= 1'b0; 
+	    end	    
+    end   
+    else begin
+        lpf_filter_enable <= 1'b0;
+        lpf_data_valid    <= 1'b0;
+    end 
+end
+
+
+
+
+filter_lpf   u_filter_lpf
+               (
+                .clk(lpf_pclk),
+                .clk_enable(1'b1),
+                .reset(filter_resetn),
+                .sign_en(~reg_ch[2]),
+                .bypass(~lpf_filter_en),
+                .coeffs(flash2imeas.lpf_coeff),
+                
+                .o_cnt(lpf_filter_enable_cnt),		
+//                .lpf_data_valid(lpf_data_valid_temp),	              
+                .filter_in(nf_chdata_filter[15:0]),
                 .filter_out(chdata_filter[15:0])
 
                 );
+
+
+
 
 
 reg[15:0] chdata_filter_reg;
 always @ (posedge pclk or negedge presetn) begin
 	if (~presetn) 
 	  	chdata_filter_reg <= 16'b0;
-	else if(nf_data_valid)
+	else if(chdata_en_n)
 	  	chdata_filter_reg <= chdata_filter[15:0];
 end
 
 
-assign chdata_en_n = notch_filter_en ? nf_data_valid & unstable_timeout : chdata_en_n_tmp; 
+assign chdata_en_n = lpf_filter_en ? lpf_data_valid & unstable_timeout : notch_filter_en ? nf_data_valid & unstable_timeout : chdata_en_n_tmp; 
 //assign chdata = notch_filter_en ? {2'b0, chdata_filter[15:0]} : chdata_tmp;
-assign chdata = notch_filter_en ? {2'b0, chdata_filter_reg[15:0]} : chdata_tmp;
+assign chdata = (notch_filter_en | lpf_filter_en) ? {2'b0, chdata_filter_reg[15:0]} : chdata_tmp;
 
 //xin add led_status co-work logic
 
@@ -331,7 +391,7 @@ assign chdata_tmp = ppg_mode ? ((ch0data_en_n == 1'b0) ? {2'b00,ch0data} :
 		 (ch1data_en_n == 1'b0) ? {2'b01,ch1data} :
 		 (ch2data_en_n == 1'b0) ? {2'b10,ch2data} :
 				          {2'b11,ch0data} );
-assign   chdata_tmp_notch_in = notch_filter_en ? chdata_tmp : 18'b0;
+assign   chdata_tmp_notch_in = (notch_filter_en | lpf_filter_en) ? chdata_tmp : 18'b0;
 
 
 wire imeas_int_pre;
@@ -367,7 +427,7 @@ assign imeas_int_alarm = (imeas_int_alarm_temp & !int_length_slct) | (imeas_int_
 
 
 
-assign ch0data_temp = notch_filter_en? ppg_mode? ch0data : (~grp_mod)? chdata_filter_reg: ch0data : ch0data; 
+assign ch0data_temp = (notch_filter_en | lpf_filter_en)? ppg_mode? ch0data : (~grp_mod)? chdata_filter_reg: ch0data : ch0data; 
 
 //bioelectrical test
 reg 	  check_pulse_pclk_d1;
@@ -831,8 +891,8 @@ imeas_ctrl u_imeas_ctrl(
 .format_sel(format_sel),
 .threshold_hi(threshold_hi),
 .threshold_lo(threshold_lo),
-.nf_int(nf_data_valid & unstable_timeout),
-.nf_en(notch_filter_en),
+.nf_int(chdata_en_n),
+.nf_en(notch_filter_en | lpf_filter_en),
 .int_set(int_set),
 .int_set0(int_set0),
 .int_set1(int_set1),

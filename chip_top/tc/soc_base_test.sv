@@ -130,7 +130,7 @@ class `TESTCFG extends nnc_object;
     logic [7:0]          clk_data[];
 
     rand  bit	         ext_clk_en;            // 1: using external clock and 0: using Internal clock
-    rand  bit [1:0]      ext_clk_sel;           // 0: 256Khz, 1: 1Mhz; 2: 512Khz; 3: 768Khz
+    rand  bit [2:0]      ext_clk_sel;           // 0: 8192Khz, 1: 8000Khz; 2: ...Khz; 3: 1Mhz
 
     rand  logic  [6:0]   hfosc_jitter;
     rand  logic  [6:0]   hfosc_variation;
@@ -191,7 +191,12 @@ class `TESTCFG extends nnc_object;
     rand logic [14:0]    imeas_sin_offset;
     rand logic [19:0]    imeas_sampling_rate;
     rand logic [19:0]    imeas_sin_freq;
+
     rand logic [2:0]     imeas_cic_rate;
+    rand logic [31:0]    imeas_adc_freq;
+    rand logic [15:0]    imeas_osr;
+    rand logic [31:0]    imeas_samp_rate;
+
     rand logic [1:0]     imeas_input_format;
     rand bit             imeas_rtl_bypass_en;
     rand bit             disable_step_check;
@@ -235,10 +240,21 @@ class `TESTCFG extends nnc_object;
                                           (filter_gain_mult == 1) -> imeas_sin_offset < (16'h7FFF - imeas_sin_amp*2)/2;
                                           (filter_gain_mult == 2) -> imeas_sin_offset < (16'h7FFF - imeas_sin_amp*4)/4;
 }
+
+    constraint c_imeas_cic_rate         { soft imeas_cic_rate == 3'b001; }
+
+    constraint c_imeas_osr              { solve imeas_cic_rate before imeas_osr ; imeas_osr == (8 * (2**imeas_cic_rate)); }
+
+    constraint c_imeas_adc_freq         { solve iclk_sel before imeas_adc_freq; 
+                                          imeas_adc_freq == (8000/(2**(iclk_sel))); }
+
+    constraint c_imeas_samp_rate        { solve imeas_adc_freq before imeas_samp_rate; 
+                                          solve imeas_osr before imeas_samp_rate; 
+                                          imeas_samp_rate == ((imeas_adc_freq * 1000) / imeas_osr); } // Khz
+
     constraint c_imeas_sampling_rate    { solve imeas_sin_expected_freq before imeas_sampling_rate; imeas_sampling_rate == (1000000/imeas_sin_expected_freq); }
     //constraint c_imeas_sin_freq       { solve imeas_sampling_rate before imeas_sin_freq; imeas_sin_freq < imeas_sampling_rate / 2; }
     constraint c_imeas_sin_freq         { imeas_sin_freq == 1; }
-    constraint c_imeas_cic_rate         { soft imeas_cic_rate == 3'b001; }
     constraint c_imeas_input_format     { soft imeas_input_format == 2'b10; }
 
     constraint c_flash_check_conf_first_disable { soft flash_check_conf_first_disable == 1'b0; }
@@ -735,6 +751,12 @@ task `TESTNAME::pre_reset_phase(nnc_phase phase);
     `DUT_IF.imeas_sin_freq = top_test_cfg.imeas_sin_freq;
 
     `DUT_IF.imeas_cic_rate = top_test_cfg.imeas_cic_rate;
+
+    `DUT_IF.imeas_adc_freq = top_test_cfg.imeas_adc_freq;
+
+    `DUT_IF.imeas_osr = top_test_cfg.imeas_osr;
+
+    `DUT_IF.imeas_samp_rate = top_test_cfg.imeas_samp_rate;
 
     `DUT_IF.imeas_input_format = top_test_cfg.imeas_input_format;
 

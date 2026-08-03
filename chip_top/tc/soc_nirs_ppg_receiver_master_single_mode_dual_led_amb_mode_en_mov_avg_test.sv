@@ -2,21 +2,21 @@
 // Copyright 2021 Nanochap Electronics, Inc.
 // All Rights Reserved Worldwide
 //--------------------------------------------------------------------------------------
-// File Name	: soc_spi_nvr_flash_timing_error_test.sv                                                   
+// File Name	: soc_nirs_ppg_receiver_master_single_mode_dual_led_amb_mode_en_mov_avg_test.sv                                                   
 // Project	: Nanochap ENS3                                  		        
-// Description	: Testcase soc_spi_nvr_flash_timing_error_test                                             
-// Designer	: pfwang@nanochap.com                                                                 
-// Date		: 25-07-2024                                                                     
+// Description	: Testcase soc_nirs_ppg_receiver_master_single_mode_dual_led_amb_mode_en_mov_avg_test                                             
+// Designer	: vtnguyen@nanochap.com                                                                 
+// Date		: 31-07-2026                                                                     
 // Revision	: 0.1 Initial version created by script                                 
 // ====================================================================================*/
 
 // =================================================
 // Testcase name is defined
 // -------------------------------------------------
-`define TESTNAME soc_spi_nvr_flash_timing_error_test
-`define TESTCFG soc_spi_nvr_flash_timing_error_test_cfg
+`define TESTNAME soc_nirs_ppg_receiver_master_single_mode_dual_led_amb_mode_en_mov_avg_test
+`define TESTCFG soc_nirs_ppg_receiver_master_single_mode_dual_led_amb_mode_en_mov_avg_test_cfg
 
-class `TESTCFG extends soc_base_test_cfg;
+class `TESTCFG extends soc_nirs_ppg_receiver_master_single_mode_dual_led_test_cfg;
 
   `nnc_object_utils(`TESTCFG)
 
@@ -31,17 +31,12 @@ class `TESTCFG extends soc_base_test_cfg;
   rand logic [7:0] mask;
   rand logic [7:0] expected_data;
   logic [7:0]      rd_data[];
-  logic [7:0]      flash_rdata[256];
-  rand logic [7:0] flash_wdata[256];
 
-  rand logic [7:0] wr_trim[20:0]; 
-  logic [7:0] rd_trim[19:0] = '{default: 8'hff};
-  logic [7:0] rd_trim_debug[9:0] = '{default: 8'hff};
   // -----------------------------------------------
   // End of decalration of new variables 
   // ===============================================
 
-  function new (string name = "soc_spi_nvr_flash_timing_error_test_cfg");
+  function new (string name = "soc_nirs_ppg_receiver_master_single_mode_dual_led_amb_mode_en_mov_avg_test_cfg");
     super.new(name);
     
   endfunction: new
@@ -74,7 +69,7 @@ endclass : `TESTCFG
 // ===============================================
 // Main Testcase is defined
 // -----------------------------------------------
-class `TESTNAME extends soc_base_test;
+class `TESTNAME extends soc_nirs_ppg_receiver_master_single_mode_dual_led_test;
    
   `nnc_component_utils(`TESTNAME)
 
@@ -92,7 +87,7 @@ class `TESTNAME extends soc_base_test;
   // -----------------------------------------
   virtual function void build_phase(nnc_phase phase);
     super.build_phase(phase);
-    uvm_top.set_timeout(3s);
+    uvm_top.set_timeout(2s);
     top_test_cfg = `TESTCFG::type_id::create("top_test_cfg", this);
   endfunction
 
@@ -103,17 +98,12 @@ class `TESTNAME extends soc_base_test;
     phase.raise_objection(this);
 
     super.pre_reset_phase(phase);
-    assert(top_test_cfg.randomize() with {disable_init_flash == 1'b1; wake_up_en == 1'b1; hfosc_variation == 100;});
+
+    assert(top_test_cfg.randomize());
 
     `DUT_IF.testmode_sel = top_test_cfg.testmode_sel;
 
     `DUT_IF.spimode_sel = top_test_cfg.spimode_sel;
-     
-    `DUT_IF.disable_init_flash = top_test_cfg.disable_init_flash;
-
-    `DUT_IF.wake_up_en = top_test_cfg.wake_up_en;
-
-    `DUT_IF.hfosc_variation = top_test_cfg.hfosc_variation;
 
     // -------------------
     // Scoreboard enables
@@ -133,7 +123,7 @@ class `TESTNAME extends soc_base_test;
   virtual task main_phase(uvm_phase phase);
     phase.raise_objection(this);
 
-    `nnc_info("SOC_TEST", "soc_spi_nvr_flash_timing_error_test start", UVM_LOW)
+    `nnc_info("SOC_TEST", "soc_nirs_ppg_receiver_master_single_mode_dual_led_amb_mode_en_mov_avg_test start", UVM_LOW)
 
     // ==================================================================================
     // Please add your code of your test here
@@ -142,74 +132,23 @@ class `TESTNAME extends soc_base_test;
     // --------------------------------------------------------
     // This is an example RD_RESET_CHK_REG 
     // --------------------------------------------------------
-     #2ms;
-     assert(top_test_cfg.randomize() with {no_of_bytes == 21; wr_trim[0] == 8'h5a;}); 
-     `WR_BURST_NORMAL_REG(`SOC_FLASH_TRIMDATA0, top_test_cfg.no_of_bytes, top_test_cfg.pads,top_test_cfg.wr_trim);
-     top_test_cfg.wr_trim.rand_mode(0);
+   `nnc_info("SOC_TEST - PART I", "STARTING TO CHECK THE RESET VALUE OF NORMAL REGISTERS", UVM_LOW)
 
-     // Changing to use external clock
-     assert(top_test_cfg.randomize() with {ext_clk_en==1;ext_clk_sel==3;});
-     `DUT_IF.ext_clk_en =top_test_cfg.ext_clk_en;
-     `DUT_IF.ext_clk_sel = top_test_cfg.ext_clk_sel; //1MHz
-     `DUT_IF.hfosc_fixed_gnd_en = top_test_cfg.hfosc_fixed_gnd_en;
-     `DUT_IF.ext_hfosc_fixed_gnd_en = top_test_cfg.ext_hfosc_fixed_gnd_en;
-     #10us;
+    assert(top_test_cfg.randomize() with {reg_addr == `SOC_FLASH_TRIMDATA14; expected_data == `SOC_FLASH_TRIMDATA14_INIT;});
+    `RD_RESET_CHK_NORMAL_REG(top_test_cfg.reg_addr, top_test_cfg.expected_data, top_test_cfg.pads);
 
-
-     `WR_RD_CHK_NORMAL_REG(`SOC_FLASH_UNLOCK,8'h00,top_test_cfg.pads,top_test_cfg.mask);
-     assert(top_test_cfg.randomize());
-     top_test_cfg.flash_wdata.rand_mode(0);
-
-     for(int i=0; i<10; i++) begin
-        `WR_NORMAL_REG(`SOC_FLASH_ADDR, i, top_test_cfg.pads);
-        `WR_NORMAL_REG(`SOC_FLASH_DATA, top_test_cfg.flash_wdata[i], top_test_cfg.pads);
-        `WR_NORMAL_REG(`SOC_FLASH_UNLOCK,{5'b01010, 3'b001},top_test_cfg.pads);
-        do begin
-        `RD_NORMAL_REG(`SOC_FLASH_UNLOCK,top_test_cfg.pads,top_test_cfg.rd_data[0]);
-        end while (top_test_cfg.rd_data[0] === 1);
-     end
-
-        `WR_NORMAL_REG(`SOC_FLASH_ADDR, 10, top_test_cfg.pads);
-        `WR_NORMAL_REG(`SOC_FLASH_DATA, top_test_cfg.flash_wdata[10], top_test_cfg.pads);
-        fork
-        `WR_NORMAL_REG(`SOC_FLASH_UNLOCK,{5'b01010, 3'b001},top_test_cfg.pads);
-        join_none
-        force `FLASH_TOP.u_flash_regs.unlock = 0;
-        //@(posedge `FLASH_TOP.u_flash_regs.key_word_flash);
-        
-        @(posedge `FLASH_TOP.clk);
-        #20ns;
-        release `FLASH_TOP.u_flash_regs.unlock;
-
-        //fork
-        //begin
-        //#1000us;
-        //`nnc_fatal("SOC_TEST", "Waiting for clearing unlock timeout !!!");  
-        //end
-        //join_none     
-           
-        #1000us;
-        do begin
-        `RD_NORMAL_REG(`SOC_FLASH_UNLOCK,top_test_cfg.pads,top_test_cfg.rd_data[0]);
-        end while (top_test_cfg.rd_data[0] === 1);
-
-     `WR_NORMAL_REG(`SOC_FLASH_UNLOCK,8'h00,top_test_cfg.pads);
-     for(int i=0; i<10; i++) begin
-        `WR_NORMAL_REG(`SOC_FLASH_ADDR, i, top_test_cfg.pads);
-        `WR_NORMAL_REG(`SOC_FLASH_UNLOCK,{5'b01010, 3'b100},top_test_cfg.pads);
-        #1us;
-        `WR_NORMAL_REG(`SOC_FLASH_UNLOCK,8'h00,top_test_cfg.pads);
-        `RD_NORMAL_REG(`SOC_FLASH_EME_DATA,top_test_cfg.pads,top_test_cfg.flash_rdata[i]);
-        if(top_test_cfg.flash_rdata[i] !== top_test_cfg.flash_wdata[i]) `nnc_error("SOC_TEST", $sformatf("flash_rdata 8'h%8h  !==   flash_wdata 8'h%8h,  addr 9'h%9h", top_test_cfg.flash_rdata[i], top_test_cfg.flash_wdata[i], i+8'hff));
-     end
-
-     #10us;   
+    // --------------------------------------------------------
+    // Part III: Checking the W/R values of all of normal registers by using WR_RD_CHK_NORMAL_REG
+    // --------------------------------------------------------
+    `nnc_info("SOC_TEST - PART II", "STARTING TO CHECK THE R/W OF NORMAL REGISTERS", UVM_LOW)
+    assert(top_test_cfg.randomize() with {reg_addr == `SOC_FIFO_CONFIG_3_REG; mask == 8'hff;});
+    `WR_RD_CHK_NORMAL_REG(top_test_cfg.reg_addr, top_test_cfg.data[0], top_test_cfg.pads, top_test_cfg.mask);
 
     // --------------------------------------------------------
     // End of test and add any needed delay time 
     // --------------------------------------------------------
     #10000ns;
-    `nnc_info("SOC_TEST", "soc_spi_nvr_flash_timing_error_test end now", UVM_LOW)
+    `nnc_info("SOC_TEST", "soc_nirs_ppg_receiver_master_single_mode_dual_led_amb_mode_en_mov_avg_test end now", UVM_LOW)
 
     // ----------------------------------------------------------------------------------
     // End of adding test 

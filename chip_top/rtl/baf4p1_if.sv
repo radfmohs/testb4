@@ -16,6 +16,7 @@
 interface spi2imeas();
 //o
 wire         notch_filter_en;
+wire         lpf_filter_en;
 wire [1:0]   gain_mul;
 wire [15:0]  nf_unstable_time;
 wire         leadoff_int_en;
@@ -63,6 +64,7 @@ wire         i_imeas_int_alarm_sts;
 
 modport master(
 output notch_filter_en,
+output lpf_filter_en,
 output gain_mul,
 output nf_unstable_time,
 output leadoff_int_en,
@@ -111,6 +113,7 @@ input i_imeas_int_alarm_sts
 );
 modport slave (
 input notch_filter_en,
+input lpf_filter_en,
 input gain_mul,
 input nf_unstable_time,
 input leadoff_int_en,
@@ -278,14 +281,17 @@ endinterface
 
 interface flash2imeas();
 
-wire [15:0] nf_coeff [23:0];
+wire [15:0] nf_coeff  [23:0];
+wire [15:0] lpf_coeff [27:0];
 
 modport master(
-  output nf_coeff
+  output nf_coeff,
+  output lpf_coeff
 );
 
 modport slave (
-  input  nf_coeff
+  input  nf_coeff,
+  input  lpf_coeff
 );
 
 endinterface

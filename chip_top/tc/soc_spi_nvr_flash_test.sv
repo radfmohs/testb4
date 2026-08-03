@@ -170,7 +170,7 @@ class `TESTNAME extends soc_base_test;
 
     `WR_NORMAL_REG(`SOC_FLASH_TRIMDATA0, 'h5A, top_test_cfg.pads);
 
-     assert(top_test_cfg.randomize() with {ext_clk_en==1;ext_clk_sel==2'b01; hfosc_variation == 100;});
+     assert(top_test_cfg.randomize() with {ext_clk_en==1;ext_clk_sel==3; hfosc_variation == 100;});
      `DUT_IF.ext_clk_en =top_test_cfg.ext_clk_en;
      `DUT_IF.ext_clk_sel = top_test_cfg.ext_clk_sel; //1MHz
      `DUT_IF.hfosc_fixed_gnd_en = top_test_cfg.hfosc_fixed_gnd_en;
@@ -228,7 +228,7 @@ class `TESTNAME extends soc_base_test;
       `RD_NORMAL_REG(`SOC_FLASH_DEBUG2,top_test_cfg.pads,top_test_cfg.flash_debug_status);
     end
 
-     assert(top_test_cfg.randomize() with {ext_clk_en==1;ext_clk_sel==2'b01; hfosc_variation == 100;});
+     assert(top_test_cfg.randomize() with {ext_clk_en==1;ext_clk_sel==3; hfosc_variation == 100;});
      `DUT_IF.ext_clk_en =top_test_cfg.ext_clk_en;
      `DUT_IF.ext_clk_sel = top_test_cfg.ext_clk_sel; //1MHz
      `DUT_IF.hfosc_fixed_gnd_en = top_test_cfg.hfosc_fixed_gnd_en;

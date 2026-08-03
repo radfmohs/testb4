@@ -274,31 +274,31 @@ always @(dut_vif.ext_clk_en or dut_vif.ext_clk_sel or dut_vif.spimode_sel or dut
       if(dut_vif.ext_clk_en === 1'b1) begin
         $display("== SOC EXT_CLK_EN: %d CONFIGURED to RUN ON EXTERNAL SYSTEM CLOCK", dut_vif.ext_clk_en);
         case (dut_vif.ext_clk_sel) 
-          0: $display("== External Clock is running: 256Khz");
-          1: $display("== External Clock is running: 1Mhz");
+          0: $display("== External Clock is running: 8192Khz");
+          1: $display("== External Clock is running: 8Mhz");
           2: $display("== External Clock is running: 512Khz");
-          3: $display("== External Clock is running: 768Khz");
+          3: $display("== External Clock is running: 1000Khz");
           default: `nnc_error("Clock Monitor", $sformatf("Configuration from TESTCASE for EXT_CLK_SEL=%h", dut_vif.ext_clk_sel))
         endcase
       end else
         $display("== EXT_CLK_EN: %d CONFIGURED to run on INTERNAL SYSTEM CLOCK with HFOSC=256Khz", dut_vif.ext_clk_en);
 
       if (dut_vif.pclk_sel === 3'h0) 
-         $display("== PCLK Clock Configuration: 256Khz - Jitter: %d percent", dut_vif.spi_clk_jitter);
+         $display("== PCLK Clock Configuration: 8192Khz - Jitter: %d percent", dut_vif.spi_clk_jitter);
       else if (dut_vif.pclk_sel === 3'h1)
-         $display("== PCLK Clock Configuration: 128Khz - Jitter: %d percent", dut_vif.spi_clk_jitter);
+         $display("== PCLK Clock Configuration: 4096Khz - Jitter: %d percent", dut_vif.spi_clk_jitter);
       else if (dut_vif.pclk_sel === 3'h2)
-         $display("== PCLK Clock Configuration: 64Khz - Jitter: %d percent", dut_vif.spi_clk_jitter);
+         $display("== PCLK Clock Configuration: 2048Khz - Jitter: %d percent", dut_vif.spi_clk_jitter);
       else if (dut_vif.pclk_sel === 3'h3)
-         $display("== PCLK Clock Configuration: 32Khz - Jitter: %d percent", dut_vif.spi_clk_jitter);
+         $display("== PCLK Clock Configuration: 1024Khz - Jitter: %d percent", dut_vif.spi_clk_jitter);
       else if (dut_vif.pclk_sel === 3'h4)
-         $display("== PCLK Clock Configuration: 16Khz - Jitter: %d percent", dut_vif.spi_clk_jitter);
+         $display("== PCLK Clock Configuration: 512Khz - Jitter: %d percent", dut_vif.spi_clk_jitter);
       else if (dut_vif.pclk_sel === 3'h5)
-         $display("== PCLK Clock Configuration: 8Khz - Jitter: %d percent", dut_vif.spi_clk_jitter);
+         $display("== PCLK Clock Configuration: 256Khz - Jitter: %d percent", dut_vif.spi_clk_jitter);
       else if (dut_vif.pclk_sel === 3'h6)
-         $display("== PCLK Clock Configuration: 4Khz - Jitter: %d percent", dut_vif.spi_clk_jitter);
+         $display("== PCLK Clock Configuration: 128Khz - Jitter: %d percent", dut_vif.spi_clk_jitter);
       else if (dut_vif.pclk_sel === 3'h7)
-         $display("== PCLK Clock Configuration: 2Khz - Jitter: %d percent", dut_vif.spi_clk_jitter);
+         $display("== PCLK Clock Configuration: 64Khz - Jitter: %d percent", dut_vif.spi_clk_jitter);
       else
         `nnc_error("PCLK Monitor", $sformatf("Configuration from TESTCASE for PCLK=%h", dut_vif.pclk_sel))
 

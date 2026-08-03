@@ -64,7 +64,7 @@ interface dut_interface();
   bit	       fault_stuck0_clk_en;   // 1: internal 32KHZ and 300KHZ will be LOW (can used when we set ext_clk_en)	
 
   bit 	       ext_clk_en;	      // 1: external driven to ENS3 from external clock
-  logic [1:0]  ext_clk_sel;   
+  logic [2:0]  ext_clk_sel;   
 
   logic [6:0]  hfosc_jitter;
   logic [6:0]  hfosc_variation;
@@ -93,6 +93,7 @@ interface dut_interface();
 
   bit          disable_init_flash;
   bit          flash_recall_done;
+
 
   bit [15:0]   ch0_data;//imeas
   bit [15:0]   ch1_data;//imeas
@@ -211,13 +212,32 @@ interface dut_interface();
  logic [19:0] imeas_sampling_rate;
  logic [19:0] imeas_sin_freq;
  logic        imeas_sin_gen_en;
+ logic [31:0] no_of_samples; 
+ logic [31:0] sine_num_of_period;
+ logic        imeas_noise_gen_en;
+ logic [31:0] imeas_sin_freq_unit;
+ logic [31:0] imeas_sin_expected_freq;
+ logic [31:0] imeas_sin_no_clk_per_period;
+ logic [31:0] imeas_sample_num_per_period;
+
  logic [2:0]  imeas_cic_rate;
+ logic [31:0] imeas_adc_freq;
+ logic [15:0] imeas_osr;
+ logic [31:0] imeas_samp_rate;
  logic [1:0]  imeas_input_format;
+ logic [1:0]  output_format;
+ logic [1:0]  ch_mode;
+ logic [3:0]  ch_num;
+
  logic [14:0] imeas_out_diff_amp;
  logic [14:0] filter_gain;
- logic [14:0] imeas_sin_expected_freq; // Create wavegen with expected freqency
  logic        imeas_rtl_bypass_en;
  logic        disable_step_check;
+
+ logic [31:0] notch_coeff_index_select;
+ logic [15:0] notch_unstable_time ;
+
+ logic        filter_python_check_en;
 
  logic [31:0] counter;
  logic [1:0]  filter_gain_mult;

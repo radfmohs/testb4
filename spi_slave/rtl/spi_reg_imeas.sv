@@ -31,13 +31,15 @@ module spi_reg_imeas#(
 
 //O
 wire         notch_filter_en;
+wire         lpf_filter_en;
 wire [1:0]   gain_mul;
 reg  [7:0]   nf_unstable_time_reg0;
 reg  [7:0]   nf_unstable_time_reg1;
 
 assign spi2imeas.notch_filter_en      = notch_filter_en;
-assign spi2imeas.gain_mul             = gain_mul;
+assign spi2imeas.gain_mul             = 2'b00;
 assign spi2imeas.nf_unstable_time     = {nf_unstable_time_reg1,nf_unstable_time_reg0};
+assign spi2imeas.lpf_filter_en      = lpf_filter_en;
 
 
 wire         leadoff_int_en;
@@ -191,7 +193,7 @@ assign      leadoff_det_en = leadoff_ctrl[2];
 assign      leadoff_type_sel_reg = leadoff_ctrl[1:0];    
 
 assign  notch_filter_en = notch_filter_en_reg[0];    //1 is enable
-assign  gain_mul        = notch_filter_en_reg[2:1];
+assign  lpf_filter_en   = notch_filter_en_reg[1];
 
 wire imeas_int_clr_reg;
 wire imeas_int_alarm_clr_reg;

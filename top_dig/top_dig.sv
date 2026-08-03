@@ -520,6 +520,7 @@ wire         zmeas_phase_dither_en;
 wire         fclk_dynen;
 
 wire   [1:0] pclk_div;
+wire   [2:0] fclk_div;
 wire   [2:0] iclk_div;
 wire   [7:0] mclk_div;
 wire   [15:0] checking_clk_div;
@@ -1058,6 +1059,7 @@ clk_ctrl clk_ctrl_inst
 .iq_adc_clk_inv(iq_adc_clk_inv),
 
   .pclk_div(pclk_div), //from SPI //input  wire  [1:0]  pclk_div
+  .fclk_div(fclk_div), //from SPI //input  wire  [1:0]  pclk_div
   .iclk_div(iclk_div), //from SPI //input  wire  [2:0]  iclk_div
   .mclk_div(mclk_div), //from SPI //input  wire  [2:0]  mclk_div
   //.mclk_div(0), //from SPI //input  wire  [2:0]  mclk_div
@@ -1131,7 +1133,7 @@ pmu u_pmu (
 wire [31:0]   phase_inc;
 wire [31:0]   phase_offset;
 wire [31:0]   phase_offset_c;
-
+wire 		   unsigned_data_input;
 wire	 	   DITHER_EN;
 wire [15:0]  	   DITHER_SEED;  
 
@@ -1290,6 +1292,7 @@ spi_top #(
    .phase_inc(phase_inc),
    .phase_offset(phase_offset),  //if don't start from 0
    .phase_offset_c(phase_offset_c),  //if don't start from 0
+   .unsigned_data_input(unsigned_data_input),
    .DITHER_EN(DITHER_EN),
    .DITHER_SEED(DITHER_SEED),  
 .Bioz_reset_reg(Bioz_reset_reg),
@@ -1333,6 +1336,7 @@ spi_top #(
 .rld_clk_reg(rld_clk_reg),
   .fclk_dynen(fclk_dynen),
   .pclk_div(pclk_div),
+  .fclk_div(fclk_div),
   .iclk_div(iclk_div),
   .mclk_div(mclk_div), 
   .checking_clk_div(checking_clk_div), //from SPI //input  wire  [9:0]  checking_clk_div

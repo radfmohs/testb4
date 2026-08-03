@@ -35,7 +35,7 @@ module iq_mismatch_correction #(
 ) (
     input  wire                         clk,
     input  wire                         rst,
-    input  wire                         in_valid,
+    input  wire                         in_valid_n,
 
     input  wire 			unsigned_data_input,
 
@@ -51,7 +51,7 @@ module iq_mismatch_correction #(
 
     output wire  signed [OUT_W-1:0]      i_out,
     output wire  signed [OUT_W-1:0]      q_out,
-    output reg                          out_valid,
+    output reg                          out_valid_n,
     output reg                          overflow
 );
 
@@ -130,12 +130,12 @@ assign q_in = unsigned_data_input ? q_in_bak[IN_W-1:0] : q_in_in;
         if (rst) begin
             i_out_out <= {OUT_W{1'b0}};
             q_out_out <= {OUT_W{1'b0}};
-            out_valid <= 1'b0;
+            out_valid_n <= 1'b1;
             overflow  <= 1'b0;
         end else begin
-            out_valid <= in_valid;
+            out_valid_n <= in_valid_n;
 
-            if (in_valid) begin
+            if (!in_valid_n) begin
                 i_out_out <= i_saturated;
                 q_out_out <= q_saturated;
                 overflow  <= i_overflow || q_overflow;

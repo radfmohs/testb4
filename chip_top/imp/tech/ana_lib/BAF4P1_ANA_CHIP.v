@@ -245,7 +245,6 @@ end
 
 `else
 
-
 wire A2D_external_en_I_internal;
 assign  A2D_external_en_I = A2D_external_en_I_internal;
 
@@ -446,6 +445,39 @@ zmeas_analog #(
   );
 `endif
  // --------------------------------------------------------------------------------
+ // NIRS_PPG
+ // --------------------------------------------------------------------------------
+ ppg_nirs_model u_ppg_nirs_model
+ (
+  .DVDD(),
+  .AVDD(),
+  .DVSS(),
+  .AVSS(), 
+  .PDIN(),
+  .D2A_NIRS_RESET_SW(), 
+  .D2A_NIRS_IPD_SW(), // SW1
+  .D2A_NIRS_IIN_SW(), 
+  .D2A_NIRS_IIN_MIRROR(),
+  .D2A_NIRS_IREFC_TRIM(),
+  .D2A_NIRS_CFRATE_TRIM(),
+  .D2A_NIRS_IDAC(), 
+  .D2A_NIRS_TEST_EN(),
+  .D2A_NIRS_EN(),
+  .D2A_NIRS_IDAC_EN(),  
+  .IBIAS_1U(),
+  .IBIAS_65N(),
+  .IBIAS_N_1U(),
+  .VREF_1P2(),
+  .CLK_NIRS_1P8(),
+  .CLKCHOP_1P8(),
+  .D2A_NIRS_CHOPPER_EN(),  
+  .A2D_NIRS_IREFCOARSE(), 
+  .A2D_NIRS_IREFFINE(),
+  .IREFCOARSE_TEST(),
+  .IREFFINE_TEST(),
+  .IDAC_TEST()
+);
+ // --------------------------------------------------------------------------------
  // External HF_CLK
  // --------------------------------------------------------------------------------
 `ifdef FPGA
@@ -457,5 +489,4 @@ zmeas_analog #(
 `endif
 `endif
 `endif
-
 endmodule

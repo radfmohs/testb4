@@ -395,7 +395,7 @@ class `TESTNAME extends soc_base_test;
     `nnc_info(get_full_name(), $sformatf(" ****** Writing to filter coeff with external clock*******"),UVM_LOW);
     coeff_flash_wdata = '{coeff11[15:8], coeff11[7:0], coeff10[15:8], coeff10[7:0], coeff9[15:8], coeff9[7:0], coeff8[15:8], coeff8[7:0], coeff7[15:8], coeff7[7:0], coeff6[15:8], coeff6[7:0], coeff5[15:8], coeff5[7:0], coeff4[15:8], coeff4[7:0], coeff3[15:8], coeff3[7:0], coeff2[15:8], coeff2[7:0], coeff1[15:8], coeff1[7:0], coeff0[15:8], coeff0[7:0]}; 
 
-     assert(top_test_cfg.randomize() with {ext_clk_en==1;ext_clk_sel==2'b01; hfosc_variation == 100;});
+     assert(top_test_cfg.randomize() with {ext_clk_en==1;ext_clk_sel==3; hfosc_variation == 100;});
      `DUT_IF.ext_clk_en =top_test_cfg.ext_clk_en;
      `DUT_IF.ext_clk_sel = top_test_cfg.ext_clk_sel; //1MHz
      `DUT_IF.hfosc_fixed_gnd_en = top_test_cfg.hfosc_fixed_gnd_en;

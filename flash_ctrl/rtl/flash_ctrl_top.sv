@@ -18,7 +18,7 @@ module flash_ctrl_top	#(
  // Parameter Declarations
  // --------------------------------------------------------------------------
 parameter NO_I2C_REGS = 21,
-parameter COEFFI_DATA = 28,
+parameter COEFFI_DATA = 56,
 parameter ATM_MDOE    = 10,
 parameter ATM_DATA    = 8
 )(
@@ -385,6 +385,7 @@ flash_trim_value #(
 .trim_read(trim_read),
 .trim_regs(trim_regs),
 .nf_coeff(flash2imeas.nf_coeff),
+.lpf_coeff(flash2imeas.lpf_coeff),
 .atm_unlock_sync   (atm_unlock_sync),
 .analog_test_mode_sync  (analog_test_mode_sync),
 .analog_test_mode  (analog_test_mode),
@@ -399,6 +400,7 @@ flash_trim_value #(
 //---------------------------------------------------		
 flash_regs#(
 .NO_I2C_REGS(NO_I2C_REGS),
+.COEFFI_DATA(COEFFI_DATA),
 .ATM_MDOE(ATM_MDOE),
 .ATM_DATA(ATM_DATA)
 ) u_flash_regs (

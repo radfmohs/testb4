@@ -12,313 +12,311 @@
 // Initial Rev
 //------------------------------------------------------------------------------
 
-//I-MEAS registers
 
-`define  IMEAS_REG_CTRL_0 	8'h01
-`define  IMEAS_REG_CTRL_1 	8'h02 //this is used in ECG CAL inside zmeas
-`define  IMEAS_CH_MODE 		8'h03
-`define  IMEAS_INT 		8'h04
-`define  IMEAS_REG_SEQ 		8'h05
-`define  IMEAS_REG_RSTVAL 	8'h06
-`define  IMEAS_CH0DATA_0 	8'h07
-`define  IMEAS_CH0DATA_1 	8'h08
-`define  IMEAS_CH1DATA_0 	8'h09
-`define  IMEAS_CH1DATA_1 	8'h0A
-`define  IMEAS_CH2DATA_0 	8'h0B
-`define  IMEAS_CH2DATA_1 	8'h0C
-`define  IMEAS_GRP_CTL 	        8'h0D
-`define  IMEAS_CHA_NUM_LO       8'h0E
-`define  IMEAS_CHA_NUM_HI       8'h0F
-`define  IMEAS_ALARM_INT 		8'h10
-`define  IMEAS_ALARM_INT_EN 		8'h11
-`define  IMEAS_THRESHOLD_HI_0 		8'h12
-`define  IMEAS_THRESHOLD_HI_1 		8'h13
-`define  IMEAS_THRESHOLD_LO_0 		8'h14
-`define  IMEAS_THRESHOLD_LO_1 		8'h15
-`define  IMEAS_INPUT_FORMAT 		8'h16
-`define  IMEAS_EN 	                8'h17
-`define  IMEAS_CH0DATA_MAX_0            8'h18
-`define  IMEAS_CH0DATA_MAX_1            8'h19
-`define  IMEAS_CH0DATA_MIN_0            8'h1A
-`define  IMEAS_CH0DATA_MIN_1            8'h1B
-`define  IMEAS_CH0DATA_DELTA_0          8'h1C
-`define  IMEAS_CH0DATA_DELTA_1          8'h1D
+//Configure CLK/RST Controller
+`define  CLKRST_BASE_ADDR         8'h01
+`define  RLD_CLK_REG                  `CLKRST_BASE_ADDR+8'h00//01
+`define  MCLK_DIV                     `CLKRST_BASE_ADDR+8'h01//02
+`define  CHECK_CLK_DIV_HI             `CLKRST_BASE_ADDR+8'h02//03
+`define  CHECK_CLK_DIV_LO             `CLKRST_BASE_ADDR+8'h03//04
+`define  CLK_CTRL_REG                 `CLKRST_BASE_ADDR+8'h04//05
+`define  CLK_CTRL_REG00               `CLKRST_BASE_ADDR+8'h05//06
 
-`define  NOTCH_FILTER_EN 	        8'h1E
+//Configure PMU
+`define  PMU_BASE_ADDR            8'h07
+`define  PMU_REG0                     `PMU_BASE_ADDR+8'h00//07
 
-`define  LEADOFF_INT 		        8'h1F
+//Configure ANA Controller
+`define  ANA_BASE_ADDR            8'h08
+`define  ANA_TSC_1                    `ANA_BASE_ADDR+8'h00//08
+`define  ANA_BUFFER                   `ANA_BASE_ADDR+8'h01//09
+`define  ANA_TSC                      `ANA_BASE_ADDR+8'h02//0A
+`define  ANA_SDM_REG                  `ANA_BASE_ADDR+8'h03//0B
+`define  A2D_SPARE_REG0               `ANA_BASE_ADDR+8'h04//0C
 
-//z-meas registers
+//Configure GPIO
+`define  GPIO_BASE_ADDR           8'h0D
+`define  GPIO_PU_CTRL                 `GPIO_BASE_ADDR+8'h00//0D
+`define  GPIO_PU_RESETn               `GPIO_BASE_ADDR+8'h01//0E
+`define  GPIO_PD_TESTMODE             `GPIO_BASE_ADDR+8'h02//0F
 
-`define  ZMEAS_REG_CTRL_0 	8'h20
-`define  ZMEAS_REG_CTRL_1 	8'h21
-`define  ZMEAS_REG_CTRL_2 	8'h22
-`define  ZMEAS_REG_CTRL_3 	8'h23
-`define  ZMEAS_REG_STATUS_0 	8'h24
-`define  ZMEAS_REG_STATUS_1 	8'h25
-`define  ZMEAS_REG_DATAOUT_0 	8'h26
-`define  ZMEAS_REG_DATAOUT_1 	8'h27
-`define  ZMEAS_REG_DATAOUT_2 	8'h28
-`define  ZMEAS_REG_DATAOUT_3 	8'h29
+//General Interrupt Configuration
+`define  INT_CFG_BASE_ADDR        8'h10
+`define  DEVICE_INT_STATUS_0          `INT_CFG_BASE_ADDR+8'h00//10
+`define  DEVICE_INT_STATUS_1          `INT_CFG_BASE_ADDR+8'h01//11
+`define  INT_CTRL                     `INT_CFG_BASE_ADDR+8'h02//12
 
-`define  ZMEAS_ADC_ROM_REG_0 	8'h2A //24
-`define  ZMEAS_ADC_ROM_REG_1 	8'h2B
-`define  ZMEAS_ADC_ROM_REG_2 	8'h2C
-`define  ZMEAS_ADC_ROM_REG_3 	8'h2D
-`define  ZMEAS_SUMMATION_OFFSET_FORREAL_0 	8'h2E
-`define  ZMEAS_SUMMATION_OFFSET_FORREAL_1 	8'h2F
-`define  ZMEAS_SUMMATION_OFFSET_FORREAL_2 	8'h30
-`define  ZMEAS_SUMMATION_OFFSET_FORREAL_3 	8'h31
-`define  ZMEAS_SUMMATION_REAL_0 	8'h32
-`define  ZMEAS_SUMMATION_REAL_1 	8'h33
-`define  ZMEAS_SUMMATION_REAL_2 	8'h34
-`define  ZMEAS_SUMMATION_REAL_3 	8'h35
-`define  ZMEAS_SUMMATION_IMAG_0 	8'h36
-`define  ZMEAS_SUMMATION_IMAG_1 	8'h37
-`define  ZMEAS_SUMMATION_IMAG_2 	8'h38
-`define  ZMEAS_SUMMATION_IMAG_3 	8'h39
-`define  ZMEAS_SUMMATION_SHIFT_0 	8'h3A
-`define  ZMEAS_SUMMATION_SHIFT_1 	8'h3B
-`define  ZMEAS_SUMMATION_SHIFT_2 	8'h3C
-`define  ZMEAS_SUMMATION_SHIFT_3 	8'h3D
-`define  ZMEAS_INT 			8'h3E
-`define  ZMEAS_ADC_INT 			8'h3F
-`define  ZMEAS_EN 	        	8'h40
-`define  ZMEAS_SYNC_EN 	                8'h41
+//SPI
+`define  SPI_BASE_ADDR            8'h13
+//(reserved, no registers assigned yet)
 
-`define ANA_Z_ADC_DAC_EN               8'h42
-`define ANA_Z_ADC_DAC_EN_SEL           8'h43
+//ECG + Filters
+`define  ECG_BASE_ADDR            8'h13
+`define  IMEAS_REG_CTRL_0             `ECG_BASE_ADDR+8'h00//13
+`define  IMEAS_REG_CTRL_1             `ECG_BASE_ADDR+8'h01//14  //this is used in ECG CAL inside zmeas
+`define  IMEAS_CH_MODE                `ECG_BASE_ADDR+8'h02//15
+`define  IMEAS_INT                    `ECG_BASE_ADDR+8'h03//16
+`define  IMEAS_REG_SEQ                `ECG_BASE_ADDR+8'h04//17
+`define  IMEAS_REG_RSTVAL             `ECG_BASE_ADDR+8'h05//18
+`define  IMEAS_CH0DATA_0              `ECG_BASE_ADDR+8'h06//19
+`define  IMEAS_CH0DATA_1              `ECG_BASE_ADDR+8'h07//1A
+`define  IMEAS_CH1DATA_0              `ECG_BASE_ADDR+8'h08//1B
+`define  IMEAS_CH1DATA_1              `ECG_BASE_ADDR+8'h09//1C
+`define  IMEAS_CH2DATA_0              `ECG_BASE_ADDR+8'h0A//1D
+`define  IMEAS_CH2DATA_1              `ECG_BASE_ADDR+8'h0B//1E
+`define  IMEAS_GRP_CTL                `ECG_BASE_ADDR+8'h0C//1F
+`define  IMEAS_CHA_NUM_LO             `ECG_BASE_ADDR+8'h0D//20
+`define  IMEAS_CHA_NUM_HI             `ECG_BASE_ADDR+8'h0E//21
+`define  IMEAS_ALARM_INT              `ECG_BASE_ADDR+8'h0F//22
+`define  IMEAS_ALARM_INT_EN           `ECG_BASE_ADDR+8'h10//23
+`define  IMEAS_THRESHOLD_HI_0         `ECG_BASE_ADDR+8'h11//24
+`define  IMEAS_THRESHOLD_HI_1         `ECG_BASE_ADDR+8'h12//25
+`define  IMEAS_THRESHOLD_LO_0         `ECG_BASE_ADDR+8'h13//26
+`define  IMEAS_THRESHOLD_LO_1         `ECG_BASE_ADDR+8'h14//27
+`define  IMEAS_INPUT_FORMAT           `ECG_BASE_ADDR+8'h15//28
+`define  IMEAS_EN                     `ECG_BASE_ADDR+8'h16//29
+`define  IMEAS_CH0DATA_MAX_0          `ECG_BASE_ADDR+8'h17//2A
+`define  IMEAS_CH0DATA_MAX_1          `ECG_BASE_ADDR+8'h18//2B
+`define  IMEAS_CH0DATA_MIN_0          `ECG_BASE_ADDR+8'h19//2C
+`define  IMEAS_CH0DATA_MIN_1          `ECG_BASE_ADDR+8'h1A//2D
+`define  IMEAS_CH0DATA_DELTA_0        `ECG_BASE_ADDR+8'h1B//2E
+`define  IMEAS_CH0DATA_DELTA_1        `ECG_BASE_ADDR+8'h1C//2F
+`define  NOTCH_FILTER_EN              `ECG_BASE_ADDR+8'h1D//30
+`define  FIFO_WR_PTR_REG              `ECG_BASE_ADDR+8'h1E//31
+`define  FIFO_RD_PTR_REG              `ECG_BASE_ADDR+8'h1F//32
+`define  FIFO_COUNTER_1_REG           `ECG_BASE_ADDR+8'h20//33
+`define  FIFO_COUNTER_2_REG           `ECG_BASE_ADDR+8'h21//34
+`define  FIFO_CONFIG_1_REG            `ECG_BASE_ADDR+8'h22//35
+`define  FIFO_CONFIG_2_REG            `ECG_BASE_ADDR+8'h23//36
+`define  FIFO_CONFIG_3_REG            `ECG_BASE_ADDR+8'h24//37
+`define  FIFO_STATUS_REG              `ECG_BASE_ADDR+8'h25//38
+`define  FIFO_DATA_REG1               `ECG_BASE_ADDR+8'h26//39
+`define  FIFO_DATA_REG2               `ECG_BASE_ADDR+8'h27//3A
+`define  ANA_ECG_CTRL_1               `ECG_BASE_ADDR+8'h28//3B
+`define  ANA_ECG_CTRL_2               `ECG_BASE_ADDR+8'h29//3C
 
+//Lead Off (ECG)
+`define  LEADOFF_ECG_BASE_ADDR    8'h3D
+`define  LEADOFF_INT                  `LEADOFF_ECG_BASE_ADDR+8'h00//3D
+`define  LEADOFF_CLK_REG              `LEADOFF_ECG_BASE_ADDR+8'h01//3E
+`define  LEADOFF_CTRL                 `LEADOFF_ECG_BASE_ADDR+8'h02//3F
+`define  LEADOFF_TGT_0                `LEADOFF_ECG_BASE_ADDR+8'h03//40
+`define  LEADOFF_TGT_1                `LEADOFF_ECG_BASE_ADDR+8'h04//41
+`define  LEADOFF_SWITCH_TGT           `LEADOFF_ECG_BASE_ADDR+8'h05//42
+`define  NF_UNSTABLE_TIME_0           `LEADOFF_ECG_BASE_ADDR+8'h06//43
+`define  NF_UNSTABLE_TIME_1           `LEADOFF_ECG_BASE_ADDR+8'h07//44
+`define  A2D_LOFF_STATP               `LEADOFF_ECG_BASE_ADDR+8'h08//45
+`define  A2D_ACLEADOFF_STATN          `LEADOFF_ECG_BASE_ADDR+8'h09//46
+`define  A2D_ACLEADOFF_STATP          `LEADOFF_ECG_BASE_ADDR+8'h0A//47
+`define  ANA_DC_LEAD_OFF_CTRL         `LEADOFF_ECG_BASE_ADDR+8'h0B//48
+`define  ANA_LEAD_OFF_EN              `LEADOFF_ECG_BASE_ADDR+8'h0C//49
+`define  A2D_LOFF_STATN               `LEADOFF_ECG_BASE_ADDR+8'h0D//4A
 
+//NIRS
+`define  NIRS_BASE_ADDR           8'h4B
+//`define  NIRS_CTRL_LED                `NIRS_BASE_ADDR+8'h00//4B  //bit1=select LED1, bit0=select LED0
+//`define  NIRS_CTRL_0                  `NIRS_BASE_ADDR+8'h01//4C  //PERIOD_CTRL[3:0], OTS_CTRL[3:0]
+//`define  NIRS_CTRL_1                  `NIRS_BASE_ADDR+8'h02//4D  //LED_OFF_CTRL[1:0], RESET_CTRL[2:0], LED_STABLE_CTRL[2:0]
+//`define  NIRS_CTRL_2                  `NIRS_BASE_ADDR+8'h03//4E  //AVG_SEL[1:0], IDAC_MANUAL[8:3]
+//`define  NIRS_CTRL_3                  `NIRS_BASE_ADDR+8'h04//4F  //IDAC_MANUAL[2:0], IDAC_MANUAL_EN, IDAC_EN, THRESHOLD_H[18:16]
+//`define  NIRS_CTRL_4                  `NIRS_BASE_ADDR+8'h05//50  //THRESHOLD_H[15:8]
+//`define  NIRS_CTRL_5                  `NIRS_BASE_ADDR+8'h06//51  //THRESHOLD_H[7:0]
+//`define  NIRS_CTRL_6                  `NIRS_BASE_ADDR+8'h07//52  //THRESHOLD_L[7:0]
+//`define  NIRS_CTRL_7                  `NIRS_BASE_ADDR+8'h08//53  //IPDMIRROR_ADJ[1:0], IREFC_ADJ[1:0], RATIO_CTRL[2:0]
+//`define  NIRS_CTRL_8                  `NIRS_BASE_ADDR+8'h09//54  //RATIO_MANUAL[7:0]
+//`define  NIRS_CTRL_MODE               `NIRS_BASE_ADDR+8'h0A//55  //AMBIENT_EN[7], LED_MODE_SEL[6:4], WORKING_MODE[3:0]
+//`define  NIRS_CTRL_INT                `NIRS_BASE_ADDR+8'h0B//56  //INT_PIN_EN, DATA_READY_EN, IREF coarse/fine EN bits, IDAC_MAX_EN, IDAC_MIN_EN
+//`define  NIRS_CTRL_ADJ_0              `NIRS_BASE_ADDR+8'h0C//57  //POWER_EN, PDBIAS_EN, PDBIAS_ADJ[1:0], FCHOP_ADJ[1:0], CHOPPER_EN, TEST_EN
+//`define  NIRS_CTRL_CLK                `NIRS_BASE_ADDR+8'h0D//58  //ppg_clk_gate_bypass, ppg_rst_reg, ppg_clk50duty, ppg_clk_div[1:0], ana_ppgclk_inv, ppg_dis
+//`define  NIRS_CTRL_CMD                `NIRS_BASE_ADDR+8'h0E//59  //CMD[1:0] (START/STOP/MEAS/HOLD), int_length_slct[2]
+//`define  NIRS_DEBUG_0                 `NIRS_BASE_ADDR+8'h0F//5A  //DOUTF[12:5]
+//`define  NIRS_DEBUG_1                 `NIRS_BASE_ADDR+8'h10//5B  //DOUTF[4:0], reserved[2:0]
+//`define  NIRS_DEBUG_2                 `NIRS_BASE_ADDR+8'h11//5C  //DOUTC[12:5]
+//`define  NIRS_DEBUG_3                 `NIRS_BASE_ADDR+8'h12//5D  //DOUTC[4:0], reserved[2:0]
+//`define  NIRS_DEBUG_4                 `NIRS_BASE_ADDR+8'h13//5E  //IDAC_MAX, IDAC_MIN, IREF coarse/fine warning flags
+//`define  NIRS_STATUS                  `NIRS_BASE_ADDR+8'h14//5F  //bit7:4=LED0/AMB0/LED1/AMB1 data-ready (RW1C), bit3=IDAC_MAX, bit2=IDAC_MIN, bit1:0=IREF coarse/fine warn
+//`define  NIRS_DOUT_LED0_0             `NIRS_BASE_ADDR+8'h15//60  //DOUT_LED0[21:14]
+//`define  NIRS_DOUT_LED0_1             `NIRS_BASE_ADDR+8'h16//61  //DOUT_LED0[13:6]
+//`define  NIRS_DOUT_LED0_2             `NIRS_BASE_ADDR+8'h17//62  //DOUT_LED0[5:0], IDAC_LED0[8:7]
+//`define  NIRS_DOUT_LED0_3             `NIRS_BASE_ADDR+8'h18//63  //IDAC_LED0[6:0], reserved[0]
+//`define  NIRS_DOUT_AMB0_0             `NIRS_BASE_ADDR+8'h19//64  //DOUT_AMB0[21:14]
+//`define  NIRS_DOUT_AMB0_1             `NIRS_BASE_ADDR+8'h1A//65  //DOUT_AMB0[13:6]
+//`define  NIRS_DOUT_AMB0_2             `NIRS_BASE_ADDR+8'h1B//66  //DOUT_AMB0[5:0], IDAC_AMB0[8:7]
+//`define  NIRS_DOUT_AMB0_3             `NIRS_BASE_ADDR+8'h1C//67  //IDAC_AMB0[6:0], reserved[0]
+//`define  NIRS_DOUT_LED1_0             `NIRS_BASE_ADDR+8'h1D//68  //DOUT_LED1[21:14]
+//`define  NIRS_DOUT_LED1_1             `NIRS_BASE_ADDR+8'h1E//69  //DOUT_LED1[13:6]
+//`define  NIRS_DOUT_LED1_2             `NIRS_BASE_ADDR+8'h1F//6A  //DOUT_LED1[5:0], IDAC_LED1[8:7]
+//`define  NIRS_DOUT_LED1_3             `NIRS_BASE_ADDR+8'h20//6B  //IDAC_LED1[6:0], reserved[0]
+//`define  NIRS_DOUT_AMB1_0             `NIRS_BASE_ADDR+8'h21//6C  //DOUT_AMB1[21:14]
+//`define  NIRS_DOUT_AMB1_1             `NIRS_BASE_ADDR+8'h22//6D  //DOUT_AMB1[13:6]
+//`define  NIRS_DOUT_AMB1_2             `NIRS_BASE_ADDR+8'h23//6E  //DOUT_AMB1[5:0], IDAC_AMB1[8:7]
+//`define  NIRS_DOUT_AMB1_3             `NIRS_BASE_ADDR+8'h24//6F  //IDAC_AMB1[6:0], reserved[0]
 
-//system control registers
-`define  RLD_CLK_REG 	       		8'h49
-`define  LEADOFF_CLK_REG 	       	8'h4A
-`define  MCLK_DIV 	        	8'h4B
-`define  CHECK_CLK_DIV_HI 	       	8'h4C
-`define  CHECK_CLK_DIV_LO 	       	8'h4D
-`define  CLK_CTRL_REG                   8'h4E
-`define  PMU_REG0		        8'h4F 
+//BioZ
+`define  BIOZ_BASE_ADDR           8'h70
+//`define  MCLK_DIV_BIOZ                `BIOZ_BASE_ADDR+8'h00//70
+//`define  RCAL_Q_0                     `BIOZ_BASE_ADDR+8'h01//71
+//`define  RCAL_Q_1                     `BIOZ_BASE_ADDR+8'h02//72
+//`define  RCAL_Q_2                     `BIOZ_BASE_ADDR+8'h03//73
+//`define  RCAL_Q_3                     `BIOZ_BASE_ADDR+8'h04//74
+`define  BIOZ_CTRL                    `BIOZ_BASE_ADDR+8'h05//75
+//`define  BIOZ_STATUS                  `BIOZ_BASE_ADDR+8'h06//76
+//`define  BIOZ_INT_MASK                `BIOZ_BASE_ADDR+8'h07//77
+`define  ANA_Z_ADC_DAC_EN             `BIOZ_BASE_ADDR+8'h08//78
+`define  ANA_Z_ADC_DAC_EN_SEL         `BIOZ_BASE_ADDR+8'h09//79
+`define  PHASE_INC_0                  `BIOZ_BASE_ADDR+8'h0A//7A
+`define  PHASE_INC_1                  `BIOZ_BASE_ADDR+8'h0B//7B
+`define  PHASE_INC_2                  `BIOZ_BASE_ADDR+8'h0C//7C
+`define  PHASE_INC_3                  `BIOZ_BASE_ADDR+8'h0D//7D
+`define  PHASE_OFFSET_0               `BIOZ_BASE_ADDR+8'h0E//7E
+`define  PHASE_OFFSET_1               `BIOZ_BASE_ADDR+8'h0F//7F
+`define  PHASE_OFFSET_2               `BIOZ_BASE_ADDR+8'h10//80
+`define  PHASE_OFFSET_3               `BIOZ_BASE_ADDR+8'h11//81
+`define  BIOZ_FILTER_CTRL_0           `BIOZ_BASE_ADDR+8'h12//82
+`define  BIOZ_FILTER_CTRL_1           `BIOZ_BASE_ADDR+8'h13//83
+`define  BIOZ_FILTER_CTRL_2           `BIOZ_BASE_ADDR+8'h14//84
+//`define  I_RAW_0                      `BIOZ_BASE_ADDR+8'h15//85
+//`define  I_RAW_1                      `BIOZ_BASE_ADDR+8'h16//86
+//`define  I_RAW_2                      `BIOZ_BASE_ADDR+8'h17//87
+//`define  I_RAW_3                      `BIOZ_BASE_ADDR+8'h18//88
+`define  DITHER_SEED_L                `BIOZ_BASE_ADDR+8'h19//89
+`define  DITHER_SEED_H                `BIOZ_BASE_ADDR+8'h1A//8A
+//`define  Q_RAW_0                      `BIOZ_BASE_ADDR+8'h1B//8B
+//`define  Q_RAW_1                      `BIOZ_BASE_ADDR+8'h1C//8C
+//`define  Q_RAW_2                      `BIOZ_BASE_ADDR+8'h1D//8D
+//`define  Q_RAW_3                      `BIOZ_BASE_ADDR+8'h1E//8E
+//`define  RCAL_I_0                     `BIOZ_BASE_ADDR+8'h1F//8F
+//`define  RCAL_I_1                     `BIOZ_BASE_ADDR+8'h20//90
+//`define  RCAL_I_2                     `BIOZ_BASE_ADDR+8'h21//91
+//`define  RCAL_I_3                     `BIOZ_BASE_ADDR+8'h22//92
+//`define  LPF_CONFIG                   `BIOZ_BASE_ADDR+8'h23//93
 
+//Lead Off (BioZ)
+`define  LEADOFF_BIOZ_BASE_ADDR   8'h94
+//(reserved, no registers assigned yet)
 
+//Flash Controller
+`define  FLASH_BASE_ADDR          8'h94
+`define  FLASH_DEBUG1                 `FLASH_BASE_ADDR+8'h00//94
+`define  FLASH_DEBUG2                 `FLASH_BASE_ADDR+8'h01//95
+`define  FLASH_TRIMDATA0              `FLASH_BASE_ADDR+8'h02//96
+`define  FLASH_TRIMDATA1              `FLASH_BASE_ADDR+8'h03//97
+`define  FLASH_TRIMDATA2              `FLASH_BASE_ADDR+8'h04//98
+`define  FLASH_TRIMDATA3              `FLASH_BASE_ADDR+8'h05//99
+`define  FLASH_TRIMDATA4              `FLASH_BASE_ADDR+8'h06//9A  //1 extra trim
+`define  FLASH_TRIMDATA5              `FLASH_BASE_ADDR+8'h07//9B
+`define  FLASH_TRIMDATA6              `FLASH_BASE_ADDR+8'h08//9C
+`define  FLASH_TRIMDATA7              `FLASH_BASE_ADDR+8'h09//9D
+`define  FLASH_TRIMDATA8              `FLASH_BASE_ADDR+8'h0A//9E
+`define  FLASH_TRIMDATA9              `FLASH_BASE_ADDR+8'h0B//9F
+`define  FLASH_TRIMDATA10             `FLASH_BASE_ADDR+8'h0C//A0
+`define  FLASH_TRIMDATA11             `FLASH_BASE_ADDR+8'h0D//A1
+`define  FLASH_TRIMDATA12             `FLASH_BASE_ADDR+8'h0E//A2
+`define  FLASH_TRIMDATA13             `FLASH_BASE_ADDR+8'h0F//A3
+`define  FLASH_TRIMDATA14             `FLASH_BASE_ADDR+8'h10//A4
+`define  FLASH_TRIMDATA15             `FLASH_BASE_ADDR+8'h11//A5  //AO_spare0
+`define  FLASH_TRIMDATA16             `FLASH_BASE_ADDR+8'h12//A6  //AO_SPARE1
+`define  FLASH_TRIMDATA17             `FLASH_BASE_ADDR+8'h13//A7  //AO_SPARE2
+`define  FLASH_TRIMDATA18             `FLASH_BASE_ADDR+8'h14//A8  //AO_SPARE3
+`define  FLASH_TRIMDATA19             `FLASH_BASE_ADDR+8'h15//A9  //SW_SPARE1
+`define  FLASH_TRIMDATA20             `FLASH_BASE_ADDR+8'h16//AA  //SW_SPARE1
+`define  FLASH_UNLOCK                 `FLASH_BASE_ADDR+8'h17//AB
+`define  FLASH_CTRL                   `FLASH_BASE_ADDR+8'h18//AC
+`define  FLASH_DATA00                 `FLASH_BASE_ADDR+8'h19//AD
+`define  FLASH_ADDR00                 `FLASH_BASE_ADDR+8'h1A//AE
+`define  FLASH_ADDR01                 `FLASH_BASE_ADDR+8'h1B//AF
+`define  FLASH_EME_DATA00             `FLASH_BASE_ADDR+8'h1C//B0
+`define  FLASH_RDN_ADDR               `FLASH_BASE_ADDR+8'h1D//B1
+`define  FLASH_NVR_PRO_BYTE00         `FLASH_BASE_ADDR+8'h1E//B2
+`define  FLASH_NVR_PRO_BYTE01         `FLASH_BASE_ADDR+8'h1F//B3
+`define  FLASH_UNLOCK_PRO             `FLASH_BASE_ADDR+8'h20//B4
 
-//FLASH registers
-`define  FLASH_DEBUG1                    8'h50
-`define  FLASH_DEBUG2                    8'h51
+//BIST Controller
+`define  BIST_BASE_ADDR           8'hB5
+`define  ANA_BIST                     `BIST_BASE_ADDR+8'h00//B5
 
-`define  FLASH_TRIMDATA0                 8'h52 
-`define  FLASH_TRIMDATA1                 8'h53
-`define  FLASH_TRIMDATA2                 8'h54
-`define  FLASH_TRIMDATA3                 8'h55 
-`define  FLASH_TRIMDATA4                 8'h56     //1 extra trim 
+//ATM
+`define  ATM_BASE_ADDR            8'hB6
+//`define  AO_TRIM_1_10                 `ATM_BASE_ADDR+8'h00//B6
+`define  DEBUG_MODE_TYPE              `ATM_BASE_ADDR+8'h01//B7
 
-//FLASH spare Registers
-`define FLASH_TRIMDATA5                 8'h57
-`define FLASH_TRIMDATA6                 8'h58
-`define FLASH_TRIMDATA7                 8'h59
-`define FLASH_TRIMDATA8                 8'h5A
-`define FLASH_TRIMDATA9                 8'h5B
+//Legacy (Deprecated)
+`define  ZMEAS_LEGACY_BASE_ADDR   8'hB8
+`define  ZMEAS_REG_CTRL_0         `ZMEAS_LEGACY_BASE_ADDR+8'h00//B8
+`define  ZMEAS_REG_CTRL_1         `ZMEAS_LEGACY_BASE_ADDR+8'h01//B9
+`define  ZMEAS_REG_CTRL_2         `ZMEAS_LEGACY_BASE_ADDR+8'h02//BA
+`define  ZMEAS_REG_CTRL_3         `ZMEAS_LEGACY_BASE_ADDR+8'h03//BB
+`define  ZMEAS_REG_STATUS_0       `ZMEAS_LEGACY_BASE_ADDR+8'h04//BC
+`define  ZMEAS_REG_STATUS_1       `ZMEAS_LEGACY_BASE_ADDR+8'h05//BD
+`define  ZMEAS_REG_DATAOUT_0      `ZMEAS_LEGACY_BASE_ADDR+8'h06//BE
+`define  ZMEAS_REG_DATAOUT_1      `ZMEAS_LEGACY_BASE_ADDR+8'h07//BF
+`define  ZMEAS_REG_DATAOUT_2      `ZMEAS_LEGACY_BASE_ADDR+8'h08//C0
+`define  ZMEAS_REG_DATAOUT_3      `ZMEAS_LEGACY_BASE_ADDR+8'h09//C1
+`define  ZMEAS_ADC_ROM_REG_0      `ZMEAS_LEGACY_BASE_ADDR+8'h0A//C2
+`define  ZMEAS_ADC_ROM_REG_1      `ZMEAS_LEGACY_BASE_ADDR+8'h0B//C3
+`define  ZMEAS_ADC_ROM_REG_2      `ZMEAS_LEGACY_BASE_ADDR+8'h0C//C4
+`define  ZMEAS_ADC_ROM_REG_3      `ZMEAS_LEGACY_BASE_ADDR+8'h0D//C5
+`define  ZMEAS_SUMMATION_OFFSET_FORREAL_0 `ZMEAS_LEGACY_BASE_ADDR+8'h0E//C6
+`define  ZMEAS_SUMMATION_OFFSET_FORREAL_1 `ZMEAS_LEGACY_BASE_ADDR+8'h0F//C7
+`define  ZMEAS_SUMMATION_OFFSET_FORREAL_2 `ZMEAS_LEGACY_BASE_ADDR+8'h10//C8
+`define  ZMEAS_SUMMATION_OFFSET_FORREAL_3 `ZMEAS_LEGACY_BASE_ADDR+8'h11//C9
+`define  ZMEAS_SUMMATION_REAL_0   `ZMEAS_LEGACY_BASE_ADDR+8'h12//CA
+`define  ZMEAS_SUMMATION_REAL_1   `ZMEAS_LEGACY_BASE_ADDR+8'h13//CB
+`define  ZMEAS_SUMMATION_REAL_2   `ZMEAS_LEGACY_BASE_ADDR+8'h14//CC
+`define  ZMEAS_SUMMATION_REAL_3   `ZMEAS_LEGACY_BASE_ADDR+8'h15//CD
+`define  ZMEAS_SUMMATION_IMAG_0   `ZMEAS_LEGACY_BASE_ADDR+8'h16//CE
+`define  ZMEAS_SUMMATION_IMAG_1   `ZMEAS_LEGACY_BASE_ADDR+8'h17//CF
+`define  ZMEAS_SUMMATION_IMAG_2   `ZMEAS_LEGACY_BASE_ADDR+8'h18//D0
+`define  ZMEAS_SUMMATION_IMAG_3   `ZMEAS_LEGACY_BASE_ADDR+8'h19//D1
+`define  ZMEAS_SUMMATION_SHIFT_0  `ZMEAS_LEGACY_BASE_ADDR+8'h1A//D2
+`define  ZMEAS_SUMMATION_SHIFT_1  `ZMEAS_LEGACY_BASE_ADDR+8'h1B//D3
+`define  ZMEAS_SUMMATION_SHIFT_2  `ZMEAS_LEGACY_BASE_ADDR+8'h1C//D4
+`define  ZMEAS_SUMMATION_SHIFT_3  `ZMEAS_LEGACY_BASE_ADDR+8'h1D//D5
+`define  ZMEAS_INT                `ZMEAS_LEGACY_BASE_ADDR+8'h1E//D6
+`define  ZMEAS_ADC_INT            `ZMEAS_LEGACY_BASE_ADDR+8'h1F//D7
+`define  ZMEAS_EN                 `ZMEAS_LEGACY_BASE_ADDR+8'h20//D8
+`define  ZMEAS_SYNC_EN            `ZMEAS_LEGACY_BASE_ADDR+8'h21//D9
+`define  PHASE_OFFSET_C_0         `ZMEAS_LEGACY_BASE_ADDR+8'h22//DA
+`define  PHASE_OFFSET_C_1         `ZMEAS_LEGACY_BASE_ADDR+8'h23//DB
+`define  PHASE_OFFSET_C_2         `ZMEAS_LEGACY_BASE_ADDR+8'h24//DC
+`define  PHASE_OFFSET_C_3         `ZMEAS_LEGACY_BASE_ADDR+8'h25//DD
 
-`define  FLASH_TRIMDATA10                8'h5C 
-`define  FLASH_TRIMDATA11                8'h5D 
-`define  FLASH_TRIMDATA12                8'h5E  
-`define  FLASH_TRIMDATA13                8'h5F  
-`define  FLASH_TRIMDATA14                8'h60 
+`define  PPG_LEGACY_BASE_ADDR     8'hDE
+`define  PPG_REG_CTRL_1           `PPG_LEGACY_BASE_ADDR+8'h00//DE
+`define  PPG_LED_TIME_SEL         `PPG_LEGACY_BASE_ADDR+8'h01//DF
+`define  PPG_LED_FREQ_SEL         `PPG_LEGACY_BASE_ADDR+8'h02//E0
+`define  PPG_LED_STATUS           `PPG_LEGACY_BASE_ADDR+8'h03//E1
+`define  DATA_TYPE_SEL            `PPG_LEGACY_BASE_ADDR+8'h04//E2
+`define  DC_DATA_REG_0            `PPG_LEGACY_BASE_ADDR+8'h05//E3
+`define  DC_DATA_REG_1            `PPG_LEGACY_BASE_ADDR+8'h06//E4
+`define  DC_DATA_REG_C_0          `PPG_LEGACY_BASE_ADDR+8'h07//E5
+`define  DC_DATA_REG_C_1          `PPG_LEGACY_BASE_ADDR+8'h08//E6
+`define  LED_ON_L                 `PPG_LEGACY_BASE_ADDR+8'h09//E7
+`define  LED_ON_H                 `PPG_LEGACY_BASE_ADDR+8'h0A//E8
+`define  LED_FREQ_L               `PPG_LEGACY_BASE_ADDR+8'h0B//E9
+`define  LED_FREQ_H               `PPG_LEGACY_BASE_ADDR+8'h0C//EA
+`define  ANA_PPG_LED_SEL          `PPG_LEGACY_BASE_ADDR+8'h0D//EB
+`define  ANA_PPG_DAC0_CTRL_REG0   `PPG_LEGACY_BASE_ADDR+8'h0E//EC
+`define  ANA_PPG_DAC0_CTRL_REG1   `PPG_LEGACY_BASE_ADDR+8'h0F//ED
+`define  ANA_PPG_DAC1_CTRL_REG0   `PPG_LEGACY_BASE_ADDR+8'h10//EE
+`define  ANA_PPG_DAC1_CTRL_REG1   `PPG_LEGACY_BASE_ADDR+8'h11//EF
+`define  ANA_PPG_TIA_IDAC         `PPG_LEGACY_BASE_ADDR+8'h12//F0
+`define  ANA_PPG_TIA_GAIN         `PPG_LEGACY_BASE_ADDR+8'h13//F1
+`define  ANA_PPG_TEST_REG         `PPG_LEGACY_BASE_ADDR+8'h14//F2
+`define  ANA_PPG_LED_EN_REG       `PPG_LEGACY_BASE_ADDR+8'h15//F3
+`define  ANA_PPG_CTRL_REG         `PPG_LEGACY_BASE_ADDR+8'h16//F4
 
-`define  FLASH_TRIMDATA15                8'h61   //AO_spare0
-`define  FLASH_TRIMDATA16                8'h62   //AO_SPARE1
-`define  FLASH_TRIMDATA17                8'h63   //AO_SPARE2
-`define  FLASH_TRIMDATA18                8'h64   //AO_SPARE3
-`define  FLASH_TRIMDATA19                8'h65   //SW_SPARE1
-`define  FLASH_TRIMDATA20                8'h66   //SW_SPARE1
-
-
-
-//FLASH UNLOCK
- `define FLASH_UNLOCK                    8'h67
- `define FLASH_CTRL                      8'h68
- `define FLASH_DATA00                    8'h69
- `define FLASH_ADDR00                    8'h6A
- `define FLASH_ADDR01                    8'h6B
- `define FLASH_EME_DATA00                8'h6C  
- `define FLASH_RDN_ADDR                  8'h6D            
- `define FLASH_NVR_PRO_BYTE00            8'h6E
- `define FLASH_NVR_PRO_BYTE01            8'h6F
- `define FLASH_UNLOCK_PRO                8'h70
-
-
-//ppg registers
- `define  PPG_REG_CTRL_1               8'h72
- `define  PPG_LED_TIME_SEL             8'H73
- `define  PPG_LED_FREQ_SEL             8'H74
- `define  PPG_LED_STATUS               8'H75
-
-//bio electric 
-`define	DATA_TYPE_SEL      	      8'h76	
-`define DC_DATA_REG_0      	      8'h77	
-`define DC_DATA_REG_1                 8'h78		   
-`define DC_DATA_REG_C_0      	      8'h79	
-`define DC_DATA_REG_C_1               8'h7A		   
-
-/*
-`define SQU_DATA_L_0       	      8'h79	   
-`define SQU_DATA_L_1       	      8'h7A  
-`define SQU_DATA_H_0                  8'h7B 		   
-`define SQU_DATA_H_1                  8'h7C
-*/
-//`define SQU_CLK_DIV_0                 8'h79		
-//`define SQU_CLK_DIV_1                 8'h7A	
-
-//new added by Xin 26Mar2026 for programmable LEDon/freq
-`define LED_ON_L                 8'h7B	
-`define LED_ON_H                 8'h7C	
-`define LED_FREQ_L                 8'h7D	
-`define LED_FREQ_H                 8'h7E	
-
-
-
-//FIFO Registers
-`define  FIFO_WR_PTR_REG              8'h80
-`define  FIFO_RD_PTR_REG              8'h81
-`define  FIFO_COUNTER_1_REG           8'h82
-`define  FIFO_COUNTER_2_REG           8'h83
-`define  FIFO_CONFIG_1_REG            8'h84
-`define  FIFO_CONFIG_2_REG            8'h85
-`define  FIFO_CONFIG_3_REG            8'h86
-`define  FIFO_STATUS_REG              8'h87
-`define  FIFO_DATA_REG1               8'h88
-`define  FIFO_DATA_REG2		      8'h89
-
-//GPIO
-`define  GPIO_PU_CTRL                 8'h90
-`define  GPIO_PU_RESETn               8'h91
-`define  GPIO_PD_TESTMODE             8'h92
-
-//Lead off
-`define LEADOFF_CTRL       		      8'h93	
-`define LEADOFF_TGT_0      		      8'h94
-`define LEADOFF_TGT_1      		      8'h95
-`define LEADOFF_SWITCH_TGT 		      8'h96
-
-`define NF_UNSTABLE_TIME_0             8'h97
-`define NF_UNSTABLE_TIME_1             8'h98
-
-
-
-
-
-
-
-		    
-
- 
-// `define  PPG_REG_CTRL_0            8'H85
-// `define  PPG_TIA_GAIN              8'H86
- 
-	
-
- 
-
- 
-
-//note :- to do for BAF4P1
-//add analog_BUFFER registers
-//no need of analog z-meas & sdm few Registers (has a statemachine in analog)
-//add Aanlog ECG Registers
-//add Analog lead_off
-//add Analog TSC
-//add Analog PPG/LED registers
-//add analog BIST registers
-
-
-
-//ANALOG REGISTERS
-
-//BUFFER Registers
- `define ANA_TSC_1   	               8'h9f
- `define ANA_BUFFER                  8'hA0
-//ECG Registers
- `define ANA_ECG_CTRL_1              8'hA1
- `define ANA_ECG_CTRL_2              8'hA2
-//LEAD_OFF Rgisters
-`define ANA_DC_LEAD_OFF_CTRL         8'hA3  //
-//TSC Registres
-`define ANA_TSC 	                   8'hA4
-//PPG/LED Registers
- `define ANA_PPG_LED_SEL             8'hA5
- `define ANA_PPG_DAC0_CTRL_REG0      8'hA6
- `define ANA_PPG_DAC0_CTRL_REG1      8'hA7
- `define ANA_PPG_DAC1_CTRL_REG0      8'hA8
- `define ANA_PPG_DAC1_CTRL_REG1      8'hA9
- `define ANA_PPG_TIA_IDAC            8'hAA
- `define ANA_PPG_TIA_GAIN            8'hAB
- `define ANA_PPG_TEST_REG            8'hAC
- `define ANA_PPG_LED_EN_REG          8'hAD
- `define ANA_PPG_CTRL_REG            8'hAE
-
- //SDM
-  `define ANA_SDM_REG               8'hAF
-
- //BIST
- `define ANA_BIST                   8'hB0  
- 
- `define ANA_LEAD_OFF_EN            8'hB1 
-
-//A2D_SPARE REGISTERS
- `define A2D_SPARE_REG0             8'hB2
- `define A2D_LOFF_STATN             8'hB3         
- `define A2D_LOFF_STATP             8'HB4         
- `define A2D_ACLEADOFF_STATN        8'HB5         
- `define A2D_ACLEADOFF_STATP        8'HB6 
-
-
-
-
-
-//ALWAYS_ON_DEBUG REGISTRES
-  //TRIM Values between  from Analog
-
-`define ALWAYS_ON_ANA_TRIM1           8'hC0   //bgh_vtrim
-`define ALWAYS_ON_ANA_TRIM2           8'hC1   //bgh_ctrim
-`define ALWAYS_ON_ANA_TRIM3           8'hC2   //ldol15
-`define ALWAYS_ON_ANA_TRIM4           8'hC3   
-`define ALWAYS_ON_ANA_TRIM5           8'hC4   
-`define ALWAYS_ON_ANA_TRIM6           8'hC5   
-`define ALWAYS_ON_ANA_TRIM7           8'hC6   
-`define ALWAYS_ON_ANA_TRIM8           8'hC7   
-`define ALWAYS_ON_ANA_TRIM9           8'hC8   
-`define ALWAYS_ON_ANA_TRIM10          8'hC9   
-
-//device status 
-`define DEVICE_INT_STATUS_0            8'hd0
-`define DEVICE_INT_STATUS_1	       8'hd1
-
- 
-`define PHASE_INC_0            8'hE0
-`define PHASE_INC_1            8'hE1
-`define PHASE_INC_2            8'hE2
-`define PHASE_INC_3            8'hE3
-`define PHASE_OFFSET_0            8'hE4
-`define PHASE_OFFSET_1            8'hE5
-`define PHASE_OFFSET_2            8'hE6
-`define PHASE_OFFSET_3            8'hE7
-`define PHASE_OFFSET_C_0            8'hE8
-`define PHASE_OFFSET_C_1            8'hE9
-`define PHASE_OFFSET_C_2            8'hEA
-`define PHASE_OFFSET_C_3            8'hEB
-`define BIOZ_CTRL                 8'hEC
-
-`define BIOZ_FILTER_CTRL_0          8'hED
-`define BIOZ_FILTER_CTRL_1          8'hEE
-`define BIOZ_FILTER_CTRL_2          8'hEF
-
-`define DEBUG_MODE_TYPE                 8'hF0
-
-`define INT_CTRL                  8'hF3
-
-	                
-`define DITHER_SEED_L             8'hF4
-`define DITHER_SEED_H             8'hF5
+`define  AO_LEGACY_BASE_ADDR      8'hF5
+`define  ALWAYS_ON_ANA_TRIM1      `AO_LEGACY_BASE_ADDR+8'h00//F5
+`define  ALWAYS_ON_ANA_TRIM2      `AO_LEGACY_BASE_ADDR+8'h01//F6
+`define  ALWAYS_ON_ANA_TRIM3      `AO_LEGACY_BASE_ADDR+8'h02//F7
+`define  ALWAYS_ON_ANA_TRIM4      `AO_LEGACY_BASE_ADDR+8'h03//F8
+`define  ALWAYS_ON_ANA_TRIM5      `AO_LEGACY_BASE_ADDR+8'h04//F9
+`define  ALWAYS_ON_ANA_TRIM6      `AO_LEGACY_BASE_ADDR+8'h05//FA
+`define  ALWAYS_ON_ANA_TRIM7      `AO_LEGACY_BASE_ADDR+8'h06//FB
+`define  ALWAYS_ON_ANA_TRIM8      `AO_LEGACY_BASE_ADDR+8'h07//FC
+`define  ALWAYS_ON_ANA_TRIM9      `AO_LEGACY_BASE_ADDR+8'h08//FD
+`define  ALWAYS_ON_ANA_TRIM10     `AO_LEGACY_BASE_ADDR+8'h09//FE
 
 `timescale 1ns/1ps
 
@@ -345,6 +343,7 @@ module spi_reg #(
 	//--outputs---
 	output [DATA_WIDTH-1:0] o_rd_data, 
 
+output  wire 		   unsigned_data_input,
 output  wire	 	   DITHER_EN,
 output  wire [15:0]  	   DITHER_SEED,  
 output  wire [31:0]   phase_inc,
@@ -400,6 +399,7 @@ output wire [9:0]   square_data_h,
 	output  reg   [1:0]  rld_clk_reg,
 	output  wire         o_fclk_dynen,
 	output  wire  [1:0]  o_pclk_div,
+	output  wire  [2:0]  o_fclk_div,
 	output  wire  [2:0]  o_iclk_div,
 	output  wire  [7:0]  o_mclk_div,
 	output  wire  [15:0]  o_checking_clk_div,
@@ -624,6 +624,7 @@ assign phase_offset_c = {phase_offset_c_3,phase_offset_c_2,phase_offset_c_1,phas
 assign Bioz_en = bioz_ctrl[0];
 assign Bioz_reset_reg = bioz_ctrl[1];
 assign DITHER_EN =  bioz_ctrl[2];
+assign unsigned_data_input =  bioz_ctrl[3];
 assign iq_reg_ctrl = {bioz_filter_ctrl_1,bioz_filter_ctrl_0};
 assign iq_iclk_div = bioz_filter_ctrl_2[3:0];
 assign iq_adc_clk_inv = bioz_filter_ctrl_2[4];
@@ -653,6 +654,7 @@ assign       o_Z_ADC_EN_SPI        = ana_z_adc_dac_en;
  
 //clk_ctr_reg
 reg [7:0]  clk_ctrl_reg;
+reg [7:0]  clk_ctrl_reg00;
 reg [2:0]  leadoff_clk_reg;
 assign acleadoff_clk_sel = leadoff_clk_reg[1:0];
 assign 	     SDM_CLK_GPIO_pha_sel = leadoff_clk_reg[2];
@@ -887,7 +889,8 @@ always@(posedge i_clk or negedge i_rst_n) begin
 
   //clk_ctrl
      //clk_ctrl_reg         <= 8'h00; 
-     clk_ctrl_reg         <= 8'h10; 
+     clk_ctrl_reg         <= 8'h08; 
+     clk_ctrl_reg00       <= 8'h05;
      //leadoff_clk_reg     <= 3'b001; 
      leadoff_clk_reg     <= 3'b010; 
      rld_clk_reg         <= 2'b00; 
@@ -1001,6 +1004,7 @@ always@(posedge i_clk or negedge i_rst_n) begin
 //	    `FLASH_CONFIG      :flash_config                <= i_wr ?  i_wr_data[7:0] : flash_config;
     //clk_ctrl  
             `CLK_CTRL_REG      : clk_ctrl_reg               <=  i_wr ?  i_wr_data[7:0] :clk_ctrl_reg;
+            `CLK_CTRL_REG00    : clk_ctrl_reg00               <=  i_wr ?  i_wr_data[7:0] :clk_ctrl_reg00;
             `LEADOFF_CLK_REG   : leadoff_clk_reg            <=  i_wr ?  i_wr_data[2:0] :leadoff_clk_reg;
             `RLD_CLK_REG       : rld_clk_reg            <=  i_wr ?  i_wr_data[1:0] : rld_clk_reg;
             `MCLK_DIV          : mclk_div_reg               <=  i_wr ?  i_wr_data[7:0] :mclk_div_reg;
@@ -1083,6 +1087,9 @@ assign  o_pclk_div            = clk_ctrl_reg[2:1];
 assign  o_iclk_div            = clk_ctrl_reg[5:3];
 assign  o_imeas_adc_inv       = clk_ctrl_reg[6];
 assign  o_always_on_spi_write = clk_ctrl_reg[7];
+
+assign  o_fclk_div            = clk_ctrl_reg00[2:0];
+
 
 
 //active channel num output
@@ -1721,6 +1728,7 @@ always @ (posedge i_clk or negedge i_rst_n) begin
 		`ZMEAS_ADC_INT 		          :   reg_rd_data <=   {7'b0,reg_reg_zmeas_adc_int};  
              //clk_ctrl
 		`CLK_CTRL_REG                     :   reg_rd_data <= clk_ctrl_reg;   //{2'b00,flash_to_clk_ctrl}; 
+		`CLK_CTRL_REG00                   :   reg_rd_data <= clk_ctrl_reg00;   //{2'b00,flash_to_clk_ctrl}; 
                 `LEADOFF_CLK_REG   		  :   reg_rd_data <= {5'b0,leadoff_clk_reg}; 
                 `RLD_CLK_REG       		  :   reg_rd_data <= {6'b0,rld_clk_reg};
 		`MCLK_DIV                         :   reg_rd_data <= {mclk_div_reg};   

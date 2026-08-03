@@ -145,7 +145,7 @@ class `TESTNAME extends soc_base_test;
      top_test_cfg.wr_trim.rand_mode(0);
 
      // Changing to use external clock
-     assert(top_test_cfg.randomize() with {ext_clk_en==1;ext_clk_sel==2'b01;});
+     assert(top_test_cfg.randomize() with {ext_clk_en==1;ext_clk_sel==3;});
      `DUT_IF.ext_clk_en =top_test_cfg.ext_clk_en;
      `DUT_IF.ext_clk_sel = top_test_cfg.ext_clk_sel; //1MHz
      `DUT_IF.hfosc_fixed_gnd_en = top_test_cfg.hfosc_fixed_gnd_en;

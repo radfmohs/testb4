@@ -54,7 +54,7 @@ import nnc_uvm_pkg::*;
 `endif
 
 `ifdef PPG_BLOCK_ENABLE
-`include "blocks/tb_chip_top_uvm_ppg.sv"
+`include "blocks/tb_chip_top_uvm_ppg.sv" //temporarily commented
 `endif
 
 `ifdef BIOZ_BLOCK_ENABLE
