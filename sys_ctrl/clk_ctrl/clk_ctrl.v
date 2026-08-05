@@ -304,37 +304,37 @@ end
 
 assign Bioz_en_sync = Bioz_en_sync_bak | Bioz_en_sync_bak_d1 | Bioz_en_sync_bak_d2;
 
-//reg  [7:0] mclk_div_cnt; 
-//always @ (posedge fclk or negedge poresetn) begin
-//  if (~poresetn)
-//    mclk_div_cnt <= 8'b0;
-//  else if (~Bioz_en_sync)
-//    mclk_div_cnt <= 8'b0;
-//  else if (mclk_div_cnt == mclk_div)
-//    mclk_div_cnt <= 8'b0;
-//  else
-//    mclk_div_cnt <= mclk_div_cnt + 8'b1;
-//end
-//wire  [7:0] mclk_div_divby2; 
-//assign mclk_div_divby2 = mclk_div>>1; 
-//reg mclk_reg;
-//always @ (posedge fclk or negedge poresetn) begin
-//  if (~poresetn)
-//    mclk_reg <= 1'b0;
-//  else if (~Bioz_en_sync)
-//    mclk_reg <= 1'b0;
-//  else if ((mclk_div_cnt == mclk_div_divby2) | (mclk_div_cnt == mclk_div))
-//    mclk_reg <= ~mclk_reg;
-//  else
-//    mclk_reg <= mclk_reg;
-//end
-//
-//wire mclk_reg_final;
-//wire mclk_reg_final_atpg;
-//wire mclk_div_sel;
-//assign mclk_div_sel = mclk_div==8'b0;
-//CLKMX2X4M DNT_DIV_MCLK_SEL  (.A(mclk_reg), .B(fclk), .S0(mclk_div_sel), .Y(mclk_reg_final));
-//CLKMX2X4M DNT_DIV_MCLK_ATPG (.A(mclk_reg_final), .B(scan_clk), .S0(atpg_en), .Y(mclk_reg_final_atpg));
+reg  [7:0] mclk_div_cnt; 
+always @ (posedge fclk or negedge poresetn) begin
+  if (~poresetn)
+    mclk_div_cnt <= 8'b0;
+  else if (~Bioz_en_sync)
+    mclk_div_cnt <= 8'b0;
+  else if (mclk_div_cnt == mclk_div)
+    mclk_div_cnt <= 8'b0;
+  else
+    mclk_div_cnt <= mclk_div_cnt + 8'b1;
+end
+wire  [7:0] mclk_div_divby2; 
+assign mclk_div_divby2 = mclk_div>>1; 
+reg mclk_reg;
+always @ (posedge fclk or negedge poresetn) begin
+  if (~poresetn)
+    mclk_reg <= 1'b0;
+  else if (~Bioz_en_sync)
+    mclk_reg <= 1'b0;
+  else if ((mclk_div_cnt == mclk_div_divby2) | (mclk_div_cnt == mclk_div))
+    mclk_reg <= ~mclk_reg;
+  else
+    mclk_reg <= mclk_reg;
+end
+
+wire mclk_reg_final;
+wire mclk_reg_final_atpg;
+wire mclk_div_sel;
+assign mclk_div_sel = mclk_div==8'b0;
+CLKMX2X4M DNT_DIV_MCLK_SEL  (.A(mclk_reg), .B(fclk), .S0(mclk_div_sel), .Y(mclk_reg_final));
+CLKMX2X4M DNT_DIV_MCLK_ATPG (.A(mclk_reg_final), .B(scan_clk), .S0(atpg_en), .Y(mclk_reg_final_atpg));
 
 //1K generator
 reg [6:0] m1k_cnt;
@@ -454,8 +454,7 @@ assign  square_data = square_data_temp_reg;
 //Bioz adc clock gating
 common_clock_gate 
 u_cmsdk_clock_gate_Bioz_clk (
-.clk        (fclk),
-//.clk        (mclk_reg_final_atpg),
+.clk        (mclk_reg_final_atpg),
 .enable     (Bioz_en_sync),
 .bypass     (scan_en),  //Tri change
 .gated_clk  (Bioz_mclk));
