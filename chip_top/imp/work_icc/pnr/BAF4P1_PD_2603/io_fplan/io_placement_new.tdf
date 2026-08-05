@@ -1,0 +1,40 @@
+set i   0
+set cnt 0
+
+set_pad_physical_constraints  -pad_name  u_iopad_plvssh_0     -side  1  -offset  [expr  691   -  0]
+set_pad_physical_constraints  -pad_name  u_iopad_plvddhi      -side  1  -offset  [expr  791   -  $i*[incr cnt]]
+set_pad_physical_constraints  -pad_name  u_iopad_plvdd        -side  1  -offset  [expr  891   -  $i*[incr cnt]]
+set_pad_physical_constraints  -pad_name  u_iopad_plar         -side  1  -offset  [expr  991   -  $i*[incr cnt]]
+set_pad_physical_constraints  -pad_name  u_iopad_plvss        -side  1  -offset  [expr  1091  -  $i*[incr cnt]]
+set_pad_physical_constraints  -pad_name  u_iopad_plvddi1      -side  1  -offset  [expr  1191  -  $i*[incr cnt]]
+#                                         u_iopad_plvddi1                              
+set_pad_physical_constraints  -pad_name  u_iopad_plvddi0      -side  1  -offset  [expr  1391  -  $i*[incr cnt]]
+#                                         u_iopad_plvddi0                                
+set_pad_physical_constraints  -pad_name  u_iopad_plvpp        -side  1  -offset  [expr  1591  -  $i*[incr cnt]]
+set_pad_physical_constraints  -pad_name  u_iopad_gpio_10_     -side  1  -offset  [expr  1691  -  $i*[incr cnt]]
+set_pad_physical_constraints  -pad_name  u_iopad_gpio_9_      -side  1  -offset  [expr  1791  -  $i*[incr cnt]]
+set_pad_physical_constraints  -pad_name  u_iopad_gpio_18_     -side  1  -offset  [expr  1891  -  $i*[incr cnt]]
+set_pad_physical_constraints  -pad_name  u_iopad_gpio_17_     -side  1  -offset  [expr  1991  -  $i*[incr cnt]]
+set_pad_physical_constraints  -pad_name  u_iopad_gpio_16_     -side  1  -offset  [expr  2091  -  $i*[incr cnt]]
+set_pad_physical_constraints  -pad_name  u_iopad_gpio_15_     -side  1  -offset  [expr  2191  -  $i*[incr cnt]]
+                                                                                                                
+#set i   0
+#set cnt 0
+set_pad_physical_constraints  -pad_name  u_iopad_gpio_14_     -side  2  -offset  [expr  184   -  0]
+set_pad_physical_constraints  -pad_name  u_iopad_plvddh       -side  2  -offset  [expr  284   -  0]
+set_pad_physical_constraints  -pad_name  u_iopad_gpio_13_     -side  2  -offset  [expr  384   -  0]
+set_pad_physical_constraints  -pad_name  u_iopad_gpio_12_     -side  2  -offset  [expr  484   -  0]
+set_pad_physical_constraints  -pad_name  u_iopad_gpio_11_     -side  2  -offset  [expr  584   -  0]
+set_pad_physical_constraints  -pad_name  u_iopad_gpio_4_      -side  2  -offset  [expr  684   -  0]
+set_pad_physical_constraints  -pad_name  u_iopad_gpio_3_      -side  2  -offset  [expr  784   -  0]
+set_pad_physical_constraints  -pad_name  u_iopad_gpio_1_      -side  2  -offset  [expr  884   -  0]
+set_pad_physical_constraints  -pad_name  u_iopad_gpio_2_      -side  2  -offset  [expr  984   -  0]
+set_pad_physical_constraints  -pad_name  u_iopad_gpio_0_      -side  2  -offset  [expr  1084  -  0]
+set_pad_physical_constraints  -pad_name  u_iopad_testmode1    -side  2  -offset  [expr  1184  -  0]
+set_pad_physical_constraints  -pad_name  u_iopad_exresetn     -side  2  -offset  [expr  1284  -  0]
+set_pad_physical_constraints  -pad_name  u_iopad_testmode0    -side  2  -offset  [expr  1384  -  0]
+set_pad_physical_constraints  -pad_name  u_iopad_gpio_8_      -side  2  -offset  [expr  1484  -  0]
+set_pad_physical_constraints  -pad_name  u_iopad_gpio_7_      -side  2  -offset  [expr  1584  -  0]
+set_pad_physical_constraints  -pad_name  u_iopad_gpio_6_      -side  2  -offset  [expr  1684  -  0]
+set_pad_physical_constraints  -pad_name  u_iopad_gpio_5_      -side  2  -offset  [expr  1784  -  0]
+set_pad_physical_constraints  -pad_name  u_iopad_plvssh_1     -side  2  -offset  [expr  1884  -  0]

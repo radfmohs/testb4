@@ -1,0 +1,1 @@
+/home/projects/digitech/HHG130nm_eFlash_ARM/arm/grace/l013/arm_tech/r1p0/milkyway/S7G0_5M/antenna_rules.tcl
