@@ -8,7 +8,7 @@ undo_config -disable
 remove_die_area 
 
 create_die_area  \
-	-poly {	{0.000 0.000} {2500.000 0.000} {2500.000 2450.000} {0.000 2450.000} {0.000 0.000}} 
+	-poly {	{0.000 0.000} {2650.000 0.000} {2650.000 2550.000} {0.000 2550.000} {0.000 0.000}} 
 set oldSnapState [set_object_snap_type -enabled false]
 
 #*************
@@ -20,7 +20,7 @@ set oldSnapState [set_object_snap_type -enabled false]
 
 set obj [get_cells {"u_iopad_plvssh_1"} -all]
 set_attribute -quiet $obj orientation FS
-set_attribute -quiet $obj origin {1884.000 2450.000}
+set_attribute -quiet $obj origin {2034.000 2550.000}
 set_attribute -quiet $obj is_placed true
 set_attribute -quiet $obj is_fixed true
 set_attribute -quiet $obj is_soft_fixed false
@@ -28,7 +28,7 @@ set_attribute -quiet $obj eco_status eco_reset
 
 set obj [get_cells {"u_iopad_gpio_5_"} -all]
 set_attribute -quiet $obj orientation FS
-set_attribute -quiet $obj origin {1784.000 2450.000}
+set_attribute -quiet $obj origin {1934.000 2550.000}
 set_attribute -quiet $obj is_placed true
 set_attribute -quiet $obj is_fixed true
 set_attribute -quiet $obj is_soft_fixed false
@@ -36,7 +36,7 @@ set_attribute -quiet $obj eco_status eco_reset
 
 set obj [get_cells {"u_iopad_gpio_6_"} -all]
 set_attribute -quiet $obj orientation FS
-set_attribute -quiet $obj origin {1684.000 2450.000}
+set_attribute -quiet $obj origin {1834.000 2550.000}
 set_attribute -quiet $obj is_placed true
 set_attribute -quiet $obj is_fixed true
 set_attribute -quiet $obj is_soft_fixed false
@@ -44,7 +44,7 @@ set_attribute -quiet $obj eco_status eco_reset
 
 set obj [get_cells {"u_iopad_gpio_7_"} -all]
 set_attribute -quiet $obj orientation FS
-set_attribute -quiet $obj origin {1584.000 2450.000}
+set_attribute -quiet $obj origin {1734.000 2550.000}
 set_attribute -quiet $obj is_placed true
 set_attribute -quiet $obj is_fixed true
 set_attribute -quiet $obj is_soft_fixed false
@@ -52,7 +52,7 @@ set_attribute -quiet $obj eco_status eco_reset
 
 set obj [get_cells {"u_iopad_gpio_8_"} -all]
 set_attribute -quiet $obj orientation FS
-set_attribute -quiet $obj origin {1484.000 2450.000}
+set_attribute -quiet $obj origin {1634.000 2550.000}
 set_attribute -quiet $obj is_placed true
 set_attribute -quiet $obj is_fixed true
 set_attribute -quiet $obj is_soft_fixed false
@@ -60,7 +60,7 @@ set_attribute -quiet $obj eco_status eco_reset
 
 set obj [get_cells {"u_iopad_testmode0"} -all]
 set_attribute -quiet $obj orientation FS
-set_attribute -quiet $obj origin {1384.000 2450.000}
+set_attribute -quiet $obj origin {1534.000 2550.000}
 set_attribute -quiet $obj is_placed true
 set_attribute -quiet $obj is_fixed true
 set_attribute -quiet $obj is_soft_fixed false
@@ -68,7 +68,7 @@ set_attribute -quiet $obj eco_status eco_reset
 
 set obj [get_cells {"u_iopad_exresetn"} -all]
 set_attribute -quiet $obj orientation FS
-set_attribute -quiet $obj origin {1284.000 2450.000}
+set_attribute -quiet $obj origin {1434.000 2550.000}
 set_attribute -quiet $obj is_placed true
 set_attribute -quiet $obj is_fixed true
 set_attribute -quiet $obj is_soft_fixed false
@@ -76,7 +76,7 @@ set_attribute -quiet $obj eco_status eco_reset
 
 set obj [get_cells {"u_iopad_testmode1"} -all]
 set_attribute -quiet $obj orientation FS
-set_attribute -quiet $obj origin {1184.000 2450.000}
+set_attribute -quiet $obj origin {1334.000 2550.000}
 set_attribute -quiet $obj is_placed true
 set_attribute -quiet $obj is_fixed true
 set_attribute -quiet $obj is_soft_fixed false
@@ -84,7 +84,7 @@ set_attribute -quiet $obj eco_status eco_reset
 
 set obj [get_cells {"u_iopad_gpio_0_"} -all]
 set_attribute -quiet $obj orientation FS
-set_attribute -quiet $obj origin {1084.000 2450.000}
+set_attribute -quiet $obj origin {1234.000 2550.000}
 set_attribute -quiet $obj is_placed true
 set_attribute -quiet $obj is_fixed true
 set_attribute -quiet $obj is_soft_fixed false
@@ -92,7 +92,7 @@ set_attribute -quiet $obj eco_status eco_reset
 
 set obj [get_cells {"u_iopad_gpio_2_"} -all]
 set_attribute -quiet $obj orientation FS
-set_attribute -quiet $obj origin {984.000 2450.000}
+set_attribute -quiet $obj origin {1134.000 2550.000}
 set_attribute -quiet $obj is_placed true
 set_attribute -quiet $obj is_fixed true
 set_attribute -quiet $obj is_soft_fixed false
@@ -100,7 +100,7 @@ set_attribute -quiet $obj eco_status eco_reset
 
 set obj [get_cells {"u_iopad_gpio_1_"} -all]
 set_attribute -quiet $obj orientation FS
-set_attribute -quiet $obj origin {884.000 2450.000}
+set_attribute -quiet $obj origin {1034.000 2550.000}
 set_attribute -quiet $obj is_placed true
 set_attribute -quiet $obj is_fixed true
 set_attribute -quiet $obj is_soft_fixed false
@@ -108,7 +108,7 @@ set_attribute -quiet $obj eco_status eco_reset
 
 set obj [get_cells {"u_iopad_gpio_3_"} -all]
 set_attribute -quiet $obj orientation FS
-set_attribute -quiet $obj origin {784.000 2450.000}
+set_attribute -quiet $obj origin {934.000 2550.000}
 set_attribute -quiet $obj is_placed true
 set_attribute -quiet $obj is_fixed true
 set_attribute -quiet $obj is_soft_fixed false
@@ -116,7 +116,7 @@ set_attribute -quiet $obj eco_status eco_reset
 
 set obj [get_cells {"u_iopad_gpio_4_"} -all]
 set_attribute -quiet $obj orientation FS
-set_attribute -quiet $obj origin {684.000 2450.000}
+set_attribute -quiet $obj origin {834.000 2550.000}
 set_attribute -quiet $obj is_placed true
 set_attribute -quiet $obj is_fixed true
 set_attribute -quiet $obj is_soft_fixed false
@@ -124,7 +124,7 @@ set_attribute -quiet $obj eco_status eco_reset
 
 set obj [get_cells {"u_iopad_gpio_11_"} -all]
 set_attribute -quiet $obj orientation FS
-set_attribute -quiet $obj origin {584.000 2450.000}
+set_attribute -quiet $obj origin {734.000 2550.000}
 set_attribute -quiet $obj is_placed true
 set_attribute -quiet $obj is_fixed true
 set_attribute -quiet $obj is_soft_fixed false
@@ -132,7 +132,7 @@ set_attribute -quiet $obj eco_status eco_reset
 
 set obj [get_cells {"u_iopad_gpio_12_"} -all]
 set_attribute -quiet $obj orientation FS
-set_attribute -quiet $obj origin {484.000 2450.000}
+set_attribute -quiet $obj origin {634.000 2550.000}
 set_attribute -quiet $obj is_placed true
 set_attribute -quiet $obj is_fixed true
 set_attribute -quiet $obj is_soft_fixed false
@@ -140,7 +140,7 @@ set_attribute -quiet $obj eco_status eco_reset
 
 set obj [get_cells {"u_iopad_gpio_13_"} -all]
 set_attribute -quiet $obj orientation FS
-set_attribute -quiet $obj origin {384.000 2450.000}
+set_attribute -quiet $obj origin {534.000 2550.000}
 set_attribute -quiet $obj is_placed true
 set_attribute -quiet $obj is_fixed true
 set_attribute -quiet $obj is_soft_fixed false
@@ -148,7 +148,7 @@ set_attribute -quiet $obj eco_status eco_reset
 
 set obj [get_cells {"u_iopad_plvddh"} -all]
 set_attribute -quiet $obj orientation FS
-set_attribute -quiet $obj origin {284.000 2450.000}
+set_attribute -quiet $obj origin {434.000 2550.000}
 set_attribute -quiet $obj is_placed true
 set_attribute -quiet $obj is_fixed true
 set_attribute -quiet $obj is_soft_fixed false
@@ -156,7 +156,7 @@ set_attribute -quiet $obj eco_status eco_reset
 
 set obj [get_cells {"u_iopad_gpio_14_"} -all]
 set_attribute -quiet $obj orientation FS
-set_attribute -quiet $obj origin {184.000 2450.000}
+set_attribute -quiet $obj origin {334.000 2550.000}
 set_attribute -quiet $obj is_placed true
 set_attribute -quiet $obj is_fixed true
 set_attribute -quiet $obj is_soft_fixed false
@@ -164,7 +164,7 @@ set_attribute -quiet $obj eco_status eco_reset
 
 set obj [get_cells {"u_iopad_gpio_15_"} -all]
 set_attribute -quiet $obj orientation FW
-set_attribute -quiet $obj origin {0.000 2191.000}
+set_attribute -quiet $obj origin {150.000 2191.000}
 set_attribute -quiet $obj is_placed true
 set_attribute -quiet $obj is_fixed true
 set_attribute -quiet $obj is_soft_fixed false
@@ -172,7 +172,7 @@ set_attribute -quiet $obj eco_status eco_reset
 
 set obj [get_cells {"u_iopad_gpio_16_"} -all]
 set_attribute -quiet $obj orientation FW
-set_attribute -quiet $obj origin {0.000 2091.000}
+set_attribute -quiet $obj origin {150.000 2091.000}
 set_attribute -quiet $obj is_placed true
 set_attribute -quiet $obj is_fixed true
 set_attribute -quiet $obj is_soft_fixed false
@@ -180,7 +180,7 @@ set_attribute -quiet $obj eco_status eco_reset
 
 set obj [get_cells {"u_iopad_gpio_17_"} -all]
 set_attribute -quiet $obj orientation FW
-set_attribute -quiet $obj origin {0.000 1991.000}
+set_attribute -quiet $obj origin {150.000 1991.000}
 set_attribute -quiet $obj is_placed true
 set_attribute -quiet $obj is_fixed true
 set_attribute -quiet $obj is_soft_fixed false
@@ -188,7 +188,7 @@ set_attribute -quiet $obj eco_status eco_reset
 
 set obj [get_cells {"u_iopad_gpio_18_"} -all]
 set_attribute -quiet $obj orientation FW
-set_attribute -quiet $obj origin {0.000 1891.000}
+set_attribute -quiet $obj origin {150.000 1891.000}
 set_attribute -quiet $obj is_placed true
 set_attribute -quiet $obj is_fixed true
 set_attribute -quiet $obj is_soft_fixed false
@@ -196,7 +196,7 @@ set_attribute -quiet $obj eco_status eco_reset
 
 set obj [get_cells {"u_iopad_gpio_9_"} -all]
 set_attribute -quiet $obj orientation FW
-set_attribute -quiet $obj origin {0.000 1791.000}
+set_attribute -quiet $obj origin {150.000 1791.000}
 set_attribute -quiet $obj is_placed true
 set_attribute -quiet $obj is_fixed true
 set_attribute -quiet $obj is_soft_fixed false
@@ -204,7 +204,7 @@ set_attribute -quiet $obj eco_status eco_reset
 
 set obj [get_cells {"u_iopad_gpio_10_"} -all]
 set_attribute -quiet $obj orientation FW
-set_attribute -quiet $obj origin {0.000 1691.000}
+set_attribute -quiet $obj origin {150.000 1691.000}
 set_attribute -quiet $obj is_placed true
 set_attribute -quiet $obj is_fixed true
 set_attribute -quiet $obj is_soft_fixed false
@@ -212,7 +212,7 @@ set_attribute -quiet $obj eco_status eco_reset
 
 set obj [get_cells {"u_iopad_plvpp"} -all]
 set_attribute -quiet $obj orientation FW
-set_attribute -quiet $obj origin {0.000 1591.000}
+set_attribute -quiet $obj origin {150.000 1591.000}
 set_attribute -quiet $obj is_placed true
 set_attribute -quiet $obj is_fixed true
 set_attribute -quiet $obj is_soft_fixed false
@@ -220,7 +220,7 @@ set_attribute -quiet $obj eco_status eco_reset
 
 set obj [get_cells {"u_iopad_plvddi0"} -all]
 set_attribute -quiet $obj orientation FW
-set_attribute -quiet $obj origin {0.000 1391.000}
+set_attribute -quiet $obj origin {150.000 1391.000}
 set_attribute -quiet $obj is_placed true
 set_attribute -quiet $obj is_fixed true
 set_attribute -quiet $obj is_soft_fixed false
@@ -228,7 +228,7 @@ set_attribute -quiet $obj eco_status eco_reset
 
 set obj [get_cells {"u_iopad_plvddi1"} -all]
 set_attribute -quiet $obj orientation FW
-set_attribute -quiet $obj origin {0.000 1191.000}
+set_attribute -quiet $obj origin {150.000 1191.000}
 set_attribute -quiet $obj is_placed true
 set_attribute -quiet $obj is_fixed true
 set_attribute -quiet $obj is_soft_fixed false
@@ -236,7 +236,7 @@ set_attribute -quiet $obj eco_status eco_reset
 
 set obj [get_cells {"u_iopad_plvss"} -all]
 set_attribute -quiet $obj orientation FW
-set_attribute -quiet $obj origin {0.000 1091.000}
+set_attribute -quiet $obj origin {150.000 1091.000}
 set_attribute -quiet $obj is_placed true
 set_attribute -quiet $obj is_fixed true
 set_attribute -quiet $obj is_soft_fixed false
@@ -244,7 +244,7 @@ set_attribute -quiet $obj eco_status eco_reset
 
 set obj [get_cells {"u_iopad_plar"} -all]
 set_attribute -quiet $obj orientation FW
-set_attribute -quiet $obj origin {0.000 991.000}
+set_attribute -quiet $obj origin {150.000 991.000}
 set_attribute -quiet $obj is_placed true
 set_attribute -quiet $obj is_fixed true
 set_attribute -quiet $obj is_soft_fixed false
@@ -252,7 +252,7 @@ set_attribute -quiet $obj eco_status eco_reset
 
 set obj [get_cells {"u_iopad_plvdd"} -all]
 set_attribute -quiet $obj orientation FW
-set_attribute -quiet $obj origin {0.000 891.000}
+set_attribute -quiet $obj origin {150.000 891.000}
 set_attribute -quiet $obj is_placed true
 set_attribute -quiet $obj is_fixed true
 set_attribute -quiet $obj is_soft_fixed false
@@ -260,7 +260,7 @@ set_attribute -quiet $obj eco_status eco_reset
 
 set obj [get_cells {"u_iopad_plvddhi"} -all]
 set_attribute -quiet $obj orientation FW
-set_attribute -quiet $obj origin {0.000 791.000}
+set_attribute -quiet $obj origin {150.000 791.000}
 set_attribute -quiet $obj is_placed true
 set_attribute -quiet $obj is_fixed true
 set_attribute -quiet $obj is_soft_fixed false
@@ -268,7 +268,7 @@ set_attribute -quiet $obj eco_status eco_reset
 
 set obj [get_cells {"u_iopad_plvssh_0"} -all]
 set_attribute -quiet $obj orientation FW
-set_attribute -quiet $obj origin {0.000 691.000}
+set_attribute -quiet $obj origin {150.000 691.000}
 set_attribute -quiet $obj is_placed true
 set_attribute -quiet $obj is_fixed true
 set_attribute -quiet $obj is_soft_fixed false
@@ -284,7 +284,7 @@ set_attribute -quiet $obj eco_status eco_reset
 
 set obj [get_cells {"u_top_ana"} -all]
 set_attribute -quiet $obj orientation N
-set_attribute -quiet $obj origin {0.000 0.000}
+set_attribute -quiet $obj origin {150.000 0.000}
 set_attribute -quiet $obj is_placed false
 set_attribute -quiet $obj is_fixed false
 set_attribute -quiet $obj is_soft_fixed false
@@ -292,7 +292,7 @@ set_attribute -quiet $obj eco_status eco_reset
 
 set obj [get_cells {"u_top_dig/flash_ctrl_top_inst/u_FLASH32b_by_16k"} -all]
 set_attribute -quiet $obj orientation N
-set_attribute -quiet $obj origin {0.000 0.000}
+set_attribute -quiet $obj origin {150.000 0.000}
 set_attribute -quiet $obj is_placed false
 set_attribute -quiet $obj is_fixed false
 set_attribute -quiet $obj is_soft_fixed false
@@ -680,7 +680,7 @@ create_track \
 	-coord 0.575 \
 	-space 0.410 \
 	-count 5974 \
-	-bounding_box {{0.000 0.575} {2500.000 2449.505}}
+	-bounding_box {{0.000 0.575} {2650.000 2549.505}}
 
 create_track \
 	-layer M2 \
@@ -688,7 +688,7 @@ create_track \
 	-coord 0.575 \
 	-space 0.410 \
 	-count 5974 \
-	-bounding_box {{0.000 0.575} {2500.000 2449.505}}
+	-bounding_box {{0.000 0.575} {2650.000 2549.505}}
 
 create_track \
 	-layer M2 \
@@ -696,7 +696,7 @@ create_track \
 	-coord 0.395 \
 	-space 0.410 \
 	-count 6097 \
-	-bounding_box {{0.395 0.000} {2499.755 2450.000}}
+	-bounding_box {{0.395 0.000} {2649.755 2550.000}}
 
 create_track \
 	-layer M1 \
@@ -704,7 +704,7 @@ create_track \
 	-coord 0.395 \
 	-space 0.410 \
 	-count 6097 \
-	-bounding_box {{0.395 0.000} {2499.755 2450.000}}
+	-bounding_box {{0.395 0.000} {2649.755 2550.000}}
 
 create_track \
 	-layer M3 \
@@ -712,7 +712,7 @@ create_track \
 	-coord 0.395 \
 	-space 0.410 \
 	-count 6097 \
-	-bounding_box {{0.395 0.000} {2499.755 2450.000}}
+	-bounding_box {{0.395 0.000} {2649.755 2550.000}}
 
 create_track \
 	-layer M3 \
@@ -720,7 +720,7 @@ create_track \
 	-coord 0.575 \
 	-space 0.410 \
 	-count 5974 \
-	-bounding_box {{0.000 0.575} {2500.000 2449.505}}
+	-bounding_box {{0.000 0.575} {2650.000 2549.505}}
 
 create_track \
 	-layer M2 \
@@ -728,7 +728,7 @@ create_track \
 	-coord 0.575 \
 	-space 0.410 \
 	-count 5974 \
-	-bounding_box {{0.000 0.575} {2500.000 2449.505}}
+	-bounding_box {{0.000 0.575} {2650.000 2549.505}}
 
 create_track \
 	-layer M4 \
@@ -736,7 +736,7 @@ create_track \
 	-coord 0.575 \
 	-space 0.410 \
 	-count 5974 \
-	-bounding_box {{0.000 0.575} {2500.000 2449.505}}
+	-bounding_box {{0.000 0.575} {2650.000 2549.505}}
 
 create_track \
 	-layer M4 \
@@ -744,7 +744,7 @@ create_track \
 	-coord 0.395 \
 	-space 0.410 \
 	-count 6097 \
-	-bounding_box {{0.395 0.000} {2499.755 2450.000}}
+	-bounding_box {{0.395 0.000} {2649.755 2550.000}}
 
 create_track \
 	-layer M3 \
@@ -752,7 +752,7 @@ create_track \
 	-coord 0.395 \
 	-space 0.410 \
 	-count 6097 \
-	-bounding_box {{0.395 0.000} {2499.755 2450.000}}
+	-bounding_box {{0.395 0.000} {2649.755 2550.000}}
 
 create_track \
 	-layer M5 \
@@ -760,7 +760,7 @@ create_track \
 	-coord 0.395 \
 	-space 0.410 \
 	-count 6097 \
-	-bounding_box {{0.395 0.000} {2499.755 2450.000}}
+	-bounding_box {{0.395 0.000} {2649.755 2550.000}}
 
 create_track \
 	-layer M5 \
@@ -768,7 +768,7 @@ create_track \
 	-coord 1.190 \
 	-space 0.820 \
 	-count 2986 \
-	-bounding_box {{0.000 1.190} {2500.000 2448.890}}
+	-bounding_box {{0.000 1.190} {2650.000 2548.890}}
 
 create_track \
 	-layer M4 \
@@ -776,7 +776,7 @@ create_track \
 	-coord 1.190 \
 	-space 0.820 \
 	-count 2986 \
-	-bounding_box {{0.000 1.190} {2500.000 2448.890}}
+	-bounding_box {{0.000 1.190} {2650.000 2548.890}}
 
 #*********
 #  Row  
