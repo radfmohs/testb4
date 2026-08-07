@@ -131,19 +131,28 @@ move_objects -delta "20 0" -ignore_fixed [get_terminals -filter "bbox_llx<20"]
 #G set_attribute -quiet $obj is_fixed true
 
 ################################################################################
-## Create PD
-create_voltage_area -power_domain PD_SW -polygons {{222.000 842.610} {467.380 842.610} {467.380 854.365} {535.465 854.365} {535.465 842.610} {686.420 842.610} {686.420 857.235} {733.955 857.235} {733.955 842.610} {774.730 842.610} {774.730 877.800} {755.720 877.800} {755.720 943.690} {774.730 943.690} {774.730 1103.255} {748.335 1103.255} {748.335 1203.230} {774.730 1203.230} {774.730 1242.590} {884.550 1242.590} {884.550 1332.610} {867.950 1332.610} {867.950 1382.020} {884.550 1382.020} {884.550 1471.420} {925.035 1471.420} {925.035 1490.575} {980.645 1490.575} {980.645 1471.420} {1036.000 1471.420} {1036.000 1653.240} {1069.425 1653.240} {1069.425 1675.385} {1167.195 1675.385} {1167.195 1653.240} {1212.635 1653.240} {1212.635 2193.170} {1134.315 2193.170} {1134.315 2232.000} {222.000 2232.000} {222.000 1820.020} {361.715 1820.020} {361.715 1649.955} {222.000 1649.955} {222.000 1282.055} {238.880 1282.055} {238.880 1238.635} {222.000 1238.635} {222.000 842.610}} -cycle_color
+## Create PD (PD_SW area expanded +20%; ana dig-facing keepout pulled back 70um)
+create_voltage_area -power_domain PD_SW -polygons {{198.000 2285.000} {1241.140 2285.000} {1241.140 1653.240} {1212.635 1653.240} {1167.195 1653.240} {1106.000 1653.240} {1106.000 1471.420} {1036.000 1471.420} {980.645 1471.420} {954.550 1471.420} {954.550 1242.590} {884.550 1242.590} {844.730 1242.590} {844.730 842.610} {774.730 842.610} {733.955 842.610} {686.420 842.610} {535.465 842.610} {467.380 842.610} {278.000 842.610} {278.000 679.500} {198.000 679.500} {198.000 2285.000}} -cycle_color
 #remove_net POC
 #create_net -power POC
 
 ################################################################################
 ## Create route guide & macro KM
-create_route_guide -name ANA_PIN_1 -no_signal_layers {M2 M3} -coordinate {{780.625 868.040} {783.000 1207.010}} -no_snap
-create_route_guide -name ANA_PIN_2 -no_signal_layers {M2 M3} -coordinate {{1067.590 1644.985} {1167.720 1646.985}} -no_snap
-create_route_guide -name ANA_PIN_3 -no_signal_layers {M2 M3} -coordinate {{1217.655 1670.305} {1219.170 1718.130}} -no_snap
-create_route_guide -name ANA_PIN_4 -no_signal_layers {M2 M3 M4} -coordinate {{208.255 835.925} {755.405 839.405}} -no_snap
-create_route_guide -name ANA_PIN_5 -no_signal_layers {M2 M3} -coordinate {{922.355 1463.180} {986.145 1465.180}} -no_snap
-create_route_guide -name ANA_PIN_6 -no_signal_layers {M2 M3} -coordinate {{891.370 1328.325} {892.885 1386.475}} -no_snap
+create_route_guide -name ANA_PIN_1 -no_signal_layers {M2 M3} -coordinate {{472.470 834.415} {495.155 837.725}} -no_snap
+create_route_guide -name ANA_PIN_2 -no_signal_layers {M2 M3} -coordinate {{520.965 834.420} {533.965 837.725}} -no_snap
+create_route_guide -name ANA_PIN_3 -no_signal_layers {M2 M3} -coordinate {{541.970 834.425} {545.970 837.725}} -no_snap
+create_route_guide -name ANA_PIN_4 -no_signal_layers {M2 M3} -coordinate {{678.345 834.425} {717.810 837.725}} -no_snap
+create_route_guide -name ANA_PIN_5 -no_signal_layers {M2 M3} -coordinate {{724.165 834.425} {737.865 837.725}} -no_snap
+create_route_guide -name ANA_PIN_6 -no_signal_layers {M2 M3} -coordinate {{780.500 874.710} {783.700 915.710}} -no_snap
+create_route_guide -name ANA_PIN_7 -no_signal_layers {M2 M3} -coordinate {{780.500 923.810} {783.800 936.210}} -no_snap
+create_route_guide -name ANA_PIN_8 -no_signal_layers {M2 M3} -coordinate {{780.500 1100.985} {783.800 1136.785}} -no_snap
+create_route_guide -name ANA_PIN_9 -no_signal_layers {M2 M3} -coordinate {{780.500 1159.040} {783.800 1203.440}} -no_snap
+create_route_guide -name ANA_PIN_10 -no_signal_layers {M2 M3} -coordinate {{889.870 1331.890} {893.170 1381.885}} -no_snap
+create_route_guide -name ANA_PIN_11 -no_signal_layers {M2 M3} -coordinate {{927.235 1463.380} {963.035 1466.680}} -no_snap
+create_route_guide -name ANA_PIN_12 -no_signal_layers {M2 M3} -coordinate {{968.835 1463.380} {981.235 1466.680}} -no_snap
+create_route_guide -name ANA_PIN_13 -no_signal_layers {M2 M3} -coordinate {{1071.760 1645.200} {1164.055 1648.500}} -no_snap
+create_route_guide -name ANA_PIN_14 -no_signal_layers {M2 M3} -coordinate {{1216.340 1671.505} {1219.640 1695.280}} -no_snap
+create_route_guide -name ANA_PIN_15 -no_signal_layers {M2 M3} -coordinate {{1216.340 1701.280} {1219.640 1721.160}} -no_snap
 
 set_keepout_margin -all_macros -type hard -outer {10 10 10 10} 
 set_keepout_margin -all_macros -type soft -outer {30 30 30 30}
@@ -157,7 +166,7 @@ source -e -v ./connect_pg.tcl
 source -e -v ./hardblockages.tcl
 ################################################################################
 ##PG mesh:
-source -e -v ./script/MAPS/pg_0208.tcl
+source -e -v ./script/MAPS/pg_0208_fixed_sw20.tcl
 #check_route -drc
 verify_pg_nets 
 #return
