@@ -34,13 +34,14 @@ foreach i $io_ref {set_pad_physical_constraints  -pad_name  $i  -lib_cell  -lib_
 
 #g remove_pin_pad_physical_constraints *
 source -e -v ./io_fplan/io_placement_new.tdf
-set_die_area -coordinate {0 0 2500 2450}
+# Chip grown LEFT +150um TOP +100um to expand dig (die 2650x2550)
+set_die_area -coordinate {0 0 2650 2550}
 create_floorplan -control_type boundary -start_first_row -keep_macro_place -left_io2core 60 -bottom_io2core 837.18 -right_io2core 333.78 -top_io2core 56
 
 #g 
 #create_floorplan -control_type width_and_height -start_first_row -keep_macro_place \
-#                        -core_width     [expr 2500 - 162 - 333.78 - 60 ] \
-#                        -core_height    [expr 2300 - 162 - 837.18 - 56 ] \
+#                        -core_width     [expr 2650 - 162 - 333.78 - 60 ] \
+#                        -core_height    [expr 2550 - 162 - 837.18 - 56 ] \
 #                        -left_io2core   60 \
 #                        -bottom_io2core 837.18 \
 #                        -right_io2core  333.78 \
@@ -62,30 +63,31 @@ report_power_domain -hierarchy
 ## RCMCU_PLCORNER
 if {[get_cells -q -all cornerll] == ""} {create_cell {cornerul} RCMCU_PLCORNER}
 set obj [get_cells {"cornerul"} -all]
-set_attribute -quiet $obj origin {0.000 2450.000}
+set_attribute -quiet $obj origin {0.000 2550.000}
 set_attribute -quiet $obj orientation E
 set_attribute -quiet $obj is_fixed true
 
 set oldSnapState [set_object_snap_type -enabled false]
 remove_terminal {VSSIO* VDD_DIG_AO DVDD_1P5_ANA VSS_DIG_AO VDDIO VDD_DIG_SW* VDD_DIG_AFSW }
-create_terminal  -port  VSSIO         -layer  M5  -name  VSSIO         -bbox  {{30.500    695.500}   {130.500   761.500}}
-create_terminal  -port  DVDD_1P5_ANA  -layer  M5  -name  DVDD_1P5_ANA  -bbox  {{30.500    795.500}   {130.500   861.500}}
-create_terminal  -port  VDD_DIG_AO    -layer  M5  -name  VDD_DIG_AO    -bbox  {{30.500    895.500}   {130.500   961.500}}
-create_terminal  -port  VSS_DIG_AO    -layer  M5  -name  VSS_DIG_AO    -bbox  {{30.500    1095.500}  {130.500   1161.500}}
-create_terminal  -port  VSS_DIG_SW    -layer  M5  -name  VSS_DIG_SW    -bbox  {{30.500    1195.500}  {130.500   1261.500}}
-create_terminal  -port  VDD_DIG_AFSW  -layer  M5  -name  VDD_DIG_AFSW  -bbox  {{30.500    1295.500}  {130.500   1361.500}}
-create_terminal  -port  VDD_DIG_SW    -layer  M5  -name  VDD_DIG_SW    -bbox  {{30.500    1395.500}  {130.500   1461.500}}
-create_terminal  -port  VSS_DIG_SW    -layer  M5  -name  VSS_DIG_SW    -bbox  {{30.500    1495.500}  {130.500   1561.500}}
-create_terminal  -port  VDDIO         -layer  M5  -name  VDDIO         -bbox  {{288.500   2339.500}  {354.500   2439.500}}
-create_terminal  -port  VSSIO         -layer  M5  -name  VSSIO         -bbox  {{1888.500  2339.500}  {1954.500  2439.500}}
+# Left terminals X+150; top terminals X+150 Y+100 (chip growth)
+create_terminal  -port  VSSIO         -layer  M5  -name  VSSIO         -bbox  {{180.500   695.500}   {280.500   761.500}}
+create_terminal  -port  DVDD_1P5_ANA  -layer  M5  -name  DVDD_1P5_ANA  -bbox  {{180.500   795.500}   {280.500   861.500}}
+create_terminal  -port  VDD_DIG_AO    -layer  M5  -name  VDD_DIG_AO    -bbox  {{180.500   895.500}   {280.500   961.500}}
+create_terminal  -port  VSS_DIG_AO    -layer  M5  -name  VSS_DIG_AO    -bbox  {{180.500   1095.500}  {280.500   1161.500}}
+create_terminal  -port  VSS_DIG_SW    -layer  M5  -name  VSS_DIG_SW    -bbox  {{180.500   1195.500}  {280.500   1261.500}}
+create_terminal  -port  VDD_DIG_AFSW  -layer  M5  -name  VDD_DIG_AFSW  -bbox  {{180.500   1295.500}  {280.500   1361.500}}
+create_terminal  -port  VDD_DIG_SW    -layer  M5  -name  VDD_DIG_SW    -bbox  {{180.500   1395.500}  {280.500   1461.500}}
+create_terminal  -port  VSS_DIG_SW    -layer  M5  -name  VSS_DIG_SW    -bbox  {{180.500   1495.500}  {280.500   1561.500}}
+create_terminal  -port  VDDIO         -layer  M5  -name  VDDIO         -bbox  {{438.500   2439.500}  {504.500   2539.500}}
+create_terminal  -port  VSSIO         -layer  M5  -name  VSSIO         -bbox  {{2038.500  2439.500}  {2104.500  2539.500}}
 
 source -e -v ./io_fplan/io_placement_left_final.tcl
 
 ################################################################################
 ##Place hard macros
 source -e -v ./macros.tcl
-## Place FLASH                        
-set_attribute -quiet [get_cells {"u_top_ana"}] origin {0 0}
+## Place FLASH / ANA (ana origin shifted +150 X with left chip growth)
+set_attribute -quiet [get_cells {"u_top_ana"}] origin {150 0}
 set_attribute -quiet [get_cells {"u_top_ana"}] is_fixed true
 set obj [get_cells {"u_top_dig/flash_ctrl_top_inst/u_32k"} -all]
 set_attribute -quiet $obj orientation N
@@ -104,9 +106,10 @@ flip_objects -x 0 -anchor center -flip_transform $pad -ignore_fixed
 
 gui_set_pref_value -category {layout} -key {editingEnableSnapping} -value {false}
 
-change_selection [get_cells -all -filter "(mask_layout_type==pad_filler||mask_layout_type==io_pad)&&origin=~0*"]
+# Left pads sit at x=150 after chip growth; nudge +20 into die like original x=0 flow
+change_selection [get_cells -all -filter "(mask_layout_type==pad_filler||mask_layout_type==io_pad)&&origin=~150.000*"]
 move_objects -delta "20 0" -ignore_fixed [get_selection]
-change_selection [get_cells -all -filter "(mask_layout_type==pad_filler||mask_layout_type==io_pad)&&origin=~*2450.000"]
+change_selection [get_cells -all -filter "(mask_layout_type==pad_filler||mask_layout_type==io_pad)&&origin=~*2550.000"]
 move_objects -delta "0 [expr 0-20]" -ignore_fixed [get_selection]
 
 #because there is a small gap
@@ -118,8 +121,8 @@ cs
 remove_objects [get_cells -all -touching [get_att [get_cells -all cornerul] bbox] -filter ref_name=~RCMCU_PLFLR*]
 
 ####
-move_objects -delta "0 [expr 0 - 20]" -ignore_fixed [get_terminals -filter "bbox_ury>2438"]
-move_objects -delta "20 0" -ignore_fixed [get_terminals -filter "bbox_llx<20"]
+move_objects -delta "0 [expr 0 - 20]" -ignore_fixed [get_terminals -filter "bbox_ury>2538"]
+move_objects -delta "20 0" -ignore_fixed [get_terminals -filter "bbox_llx<170"]
 
 
 #save_mw_cel -as 01_init_ioplacement
@@ -131,19 +134,28 @@ move_objects -delta "20 0" -ignore_fixed [get_terminals -filter "bbox_llx<20"]
 #G set_attribute -quiet $obj is_fixed true
 
 ################################################################################
-## Create PD
-create_voltage_area -power_domain PD_SW -polygons {{222.000 842.610} {467.380 842.610} {467.380 854.365} {535.465 854.365} {535.465 842.610} {686.420 842.610} {686.420 857.235} {733.955 857.235} {733.955 842.610} {774.730 842.610} {774.730 877.800} {755.720 877.800} {755.720 943.690} {774.730 943.690} {774.730 1103.255} {748.335 1103.255} {748.335 1203.230} {774.730 1203.230} {774.730 1242.590} {884.550 1242.590} {884.550 1332.610} {867.950 1332.610} {867.950 1382.020} {884.550 1382.020} {884.550 1471.420} {925.035 1471.420} {925.035 1490.575} {980.645 1490.575} {980.645 1471.420} {1036.000 1471.420} {1036.000 1653.240} {1069.425 1653.240} {1069.425 1675.385} {1167.195 1675.385} {1167.195 1653.240} {1212.635 1653.240} {1212.635 2193.170} {1134.315 2193.170} {1134.315 2232.000} {222.000 2232.000} {222.000 1820.020} {361.715 1820.020} {361.715 1649.955} {222.000 1649.955} {222.000 1282.055} {238.880 1282.055} {238.880 1238.635} {222.000 1238.635} {222.000 842.610}} -cycle_color
+## Create PD (dig expanded via chip LEFT+150 / TOP+100; ana keepout restored+shifted)
+create_voltage_area -power_domain PD_SW -polygons {{198.000 842.610} {198.000 2474.000} {1362.635 2474.000} {1362.635 2232.000} {1284.315 2232.000} {1284.315 2193.170} {1362.635 2193.170} {1362.635 1653.240} {1317.195 1653.240} {1317.195 1675.385} {1219.425 1675.385} {1219.425 1653.240} {1186.000 1653.240} {1186.000 1471.420} {1130.645 1471.420} {1130.645 1490.575} {1075.035 1490.575} {1075.035 1471.420} {1034.550 1471.420} {1034.550 1382.020} {1017.950 1382.020} {1017.950 1332.610} {1034.550 1332.610} {1034.550 1242.590} {924.730 1242.590} {924.730 1203.230} {898.335 1203.230} {898.335 1103.255} {924.730 1103.255} {924.730 943.690} {905.720 943.690} {905.720 877.800} {924.730 877.800} {924.730 842.610} {883.955 842.610} {883.955 857.235} {836.420 857.235} {836.420 842.610} {685.465 842.610} {685.465 854.365} {617.380 854.365} {617.380 842.610} {198.000 842.610}} -cycle_color
 #remove_net POC
 #create_net -power POC
 
 ################################################################################
-## Create route guide & macro KM
-create_route_guide -name ANA_PIN_1 -no_signal_layers {M2 M3} -coordinate {{780.625 868.040} {783.000 1207.010}} -no_snap
-create_route_guide -name ANA_PIN_2 -no_signal_layers {M2 M3} -coordinate {{1067.590 1644.985} {1167.720 1646.985}} -no_snap
-create_route_guide -name ANA_PIN_3 -no_signal_layers {M2 M3} -coordinate {{1217.655 1670.305} {1219.170 1718.130}} -no_snap
-create_route_guide -name ANA_PIN_4 -no_signal_layers {M2 M3 M4} -coordinate {{208.255 835.925} {755.405 839.405}} -no_snap
-create_route_guide -name ANA_PIN_5 -no_signal_layers {M2 M3} -coordinate {{922.355 1463.180} {986.145 1465.180}} -no_snap
-create_route_guide -name ANA_PIN_6 -no_signal_layers {M2 M3} -coordinate {{891.370 1328.325} {892.885 1386.475}} -no_snap
+## Create route guide & macro KM (ANA pins shifted +150 X with ana origin)
+create_route_guide -name ANA_PIN_1 -no_signal_layers {M2 M3} -coordinate {{622.470 834.415} {645.155 837.725}} -no_snap
+create_route_guide -name ANA_PIN_2 -no_signal_layers {M2 M3} -coordinate {{670.965 834.420} {683.965 837.725}} -no_snap
+create_route_guide -name ANA_PIN_3 -no_signal_layers {M2 M3} -coordinate {{691.970 834.425} {695.970 837.725}} -no_snap
+create_route_guide -name ANA_PIN_4 -no_signal_layers {M2 M3} -coordinate {{828.345 834.425} {867.810 837.725}} -no_snap
+create_route_guide -name ANA_PIN_5 -no_signal_layers {M2 M3} -coordinate {{874.165 834.425} {887.865 837.725}} -no_snap
+create_route_guide -name ANA_PIN_6 -no_signal_layers {M2 M3} -coordinate {{930.500 874.710} {933.700 915.710}} -no_snap
+create_route_guide -name ANA_PIN_7 -no_signal_layers {M2 M3} -coordinate {{930.500 923.810} {933.800 936.210}} -no_snap
+create_route_guide -name ANA_PIN_8 -no_signal_layers {M2 M3} -coordinate {{930.500 1100.985} {933.800 1136.785}} -no_snap
+create_route_guide -name ANA_PIN_9 -no_signal_layers {M2 M3} -coordinate {{930.500 1159.040} {933.800 1203.440}} -no_snap
+create_route_guide -name ANA_PIN_10 -no_signal_layers {M2 M3} -coordinate {{1039.870 1331.890} {1043.170 1381.885}} -no_snap
+create_route_guide -name ANA_PIN_11 -no_signal_layers {M2 M3} -coordinate {{1077.235 1463.380} {1113.035 1466.680}} -no_snap
+create_route_guide -name ANA_PIN_12 -no_signal_layers {M2 M3} -coordinate {{1118.835 1463.380} {1131.235 1466.680}} -no_snap
+create_route_guide -name ANA_PIN_13 -no_signal_layers {M2 M3} -coordinate {{1221.760 1645.200} {1314.055 1648.500}} -no_snap
+create_route_guide -name ANA_PIN_14 -no_signal_layers {M2 M3} -coordinate {{1366.340 1671.505} {1369.640 1695.280}} -no_snap
+create_route_guide -name ANA_PIN_15 -no_signal_layers {M2 M3} -coordinate {{1366.340 1701.280} {1369.640 1721.160}} -no_snap
 
 set_keepout_margin -all_macros -type hard -outer {10 10 10 10} 
 set_keepout_margin -all_macros -type soft -outer {30 30 30 30}
@@ -157,7 +169,7 @@ source -e -v ./connect_pg.tcl
 source -e -v ./hardblockages.tcl
 ################################################################################
 ##PG mesh:
-source -e -v ./script/MAPS/pg_0208.tcl
+source -e -v ./script/MAPS/pg_0208_fixed_sw20.tcl
 #check_route -drc
 verify_pg_nets 
 #return
